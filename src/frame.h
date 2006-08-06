@@ -39,7 +39,7 @@ public:
 
 private:
     wxListCtrl* lc_packs;
-    wxListBox* lb_groups;
+    wxListCtrl* lc_groups;
     
     DECLARE_EVENT_TABLE()
 };

@@ -15,7 +15,7 @@ int main(void)
     PM_LIST *lp;
     
     if(alpm_initialize("/") == -1)
-	{
+    {
 		fprintf(stderr, "failed to initilize alpm library (%s)\n",
 			alpm_strerror(pm_errno));
 		return(1);

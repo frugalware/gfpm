@@ -47,7 +47,7 @@ Frame::Frame(wxWindow* parent)
 void Frame::DoGetControls(void)
 {
     lc_packs = XRCCTRL(*this,"lc_packs",wxListCtrl);
-    lb_groups = XRCCTRL(*this,"lb_groups",wxListBox);
+    lc_groups = XRCCTRL(*this,"lc_groups",wxListCtrl);
 }
 
 void Frame::DoSetProps(void)
@@ -58,6 +58,9 @@ void Frame::DoSetProps(void)
     lc_packs->InsertColumn(0,_("Name"));
     lc_packs->InsertColumn(1,_("Installed"));
     lc_packs->InsertColumn(2,_("Available"));
+    lc_packs->InsertColumn(3,_("Descripton"));
+    
+    CreateStatusBar();
 }
 
 void Frame::OnClose(wxCloseEvent& WXUNUSED(event))
@@ -76,14 +79,12 @@ void Frame::OnExit(wxCommandEvent& WXUNUSED(event))
 
 void Frame::DoReadGroups(void)
 {
-    wxArrayString array;
     wxString str;
+    long index = 0;
     
     PM_DB *db_local;
     PM_LIST *lp;
-    
-    
-    array.Add(_("All Packages"));
+    lc_groups->InsertColumn(0,_(""));
     
     if(alpm_initialize("/") == -1)
 	{
@@ -110,10 +111,12 @@ void Frame::DoReadGroups(void)
 	{
 	   PM_GRP *grp = (PM_GRP *)alpm_list_getdata(lp);
 	   str = (char *)alpm_grp_getinfo(grp,PM_GRP_NAME);
-	   array.Add(str);
+	   lc_groups->InsertItem(index,str);
+	   if ((index % 2) * 2)
+	       lc_groups->SetItemBackgroundColour(index,wxColour(0xe0,0xe0,0xe0));
+       index++;
 	}
-	
+	lc_groups->SetColumnWidth(0,wxLIST_AUTOSIZE);
 	alpm_release();
 	
-    lb_groups->InsertItems(array,0);
 }
