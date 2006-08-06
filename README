@@ -1,0 +1,11 @@
+wxFPM - wxGTK based Frugalware Package Manager
+
+
+If you want to test this program you have to install the following packages:
+
+    pacman -Sy wxgtk
+    
+Compiling
+=========
+
+Just type "make" then run "wxfpm"
