@@ -32,6 +32,8 @@ public:
 
     void OnExit(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
+    
+    void OnGroupSelected(wxCommandEvent& event);
 
     void DoSetProps(void);
     void DoGetControls(void);
@@ -39,7 +41,7 @@ public:
 
 private:
     wxListCtrl* lc_packs;
-    wxListCtrl* lc_groups;
+    wxListBox* lb_groups;
     
     DECLARE_EVENT_TABLE()
 };
