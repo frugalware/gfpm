@@ -3,7 +3,7 @@
  *
  *  Sat Aug 26 22:36:56 2006
  *  Copyright	2006  Frugalware Developer Team
- *  Authors	Christian Hamar (krix) & Miklos Nemeth (desco)
+ *  Authors		Christian Hamar (krix) & Miklos Nemeth (desco)
  ****************************************************************************/
  
 /*
@@ -22,8 +22,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <stdio.h>
+
 #include <gtk/gtk.h>
 #include <glade/glade.h>
+
+#include "gfpm.h"
+
+GtkWidget *group_treeview;
+
 
 int main(int argc, char *argv[])
 {
@@ -34,8 +41,33 @@ int main(int argc, char *argv[])
     xml = glade_xml_new("glade/gfpm.glade", NULL, NULL);
 
     glade_xml_signal_autoconnect(xml);
+    
+    group_treeview = glade_xml_get_widget(xml,"grouptreeview");
+    
+    gfpm_init_treeview();
 
     gtk_main();
 
     return 0;
+}
+
+void gfpm_init_treeview(void)
+{
+	GtkCellRenderer *renderer;
+	GtkTreeViewColumn *column;
+	GtkListStore *store;
+
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (group_treeview),
+                                               -1,      
+                                               "Groups",  
+                                               renderer,
+                                               "text", 0,
+                                               NULL);
+	store = gtk_list_store_new (1, G_TYPE_STRING);
+	gtk_tree_view_set_model(GTK_TREE_VIEW(group_treeview),GTK_TREE_MODEL(store));
+
+
+
+	return;
 }

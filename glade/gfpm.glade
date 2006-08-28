@@ -2,7 +2,7 @@
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
 <!-- Generated with glade3
 	Version: 3.0.1
-	Date: Sat Aug 26 03:30:09 2006
+	Date: Mon Aug 28 02:38:32 2006
 	User: desco
 	Host: blfw
 -->
@@ -50,7 +50,7 @@
             <property name="visible">True</property>
             <property name="position">170</property>
             <child>
-              <widget class="GtkTreeView" id="treeview1">
+              <widget class="GtkTreeView" id="grouptreeview">
                 <property name="visible">True</property>
               </widget>
               <packing>
@@ -62,7 +62,7 @@
                 <property name="visible">True</property>
                 <property name="position">300</property>
                 <child>
-                  <widget class="GtkTreeView" id="treeview2">
+                  <widget class="GtkTreeView" id="pkgstreeview">
                     <property name="visible">True</property>
                   </widget>
                   <packing>
