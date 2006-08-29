@@ -22,12 +22,12 @@
 # 
 
 CC = gcc
-CFLAGS = $(shell pkg-config libglade-2.0 --cflags) -s -O2
-LDFLAGS = $(shell pkg-config libglade-2.0 --libs)
+CFLAGS = $(shell pkg-config libglade-2.0 --cflags) -W -Wall -s -O2 -I./src
+LDFLAGS = $(shell pkg-config libglade-2.0 --libs) -lalpm -export-dynamic
 
 PROGRAM = gfpm
 
-SOURCES = src/gfpm.c
+SOURCES = src/gfpm.c src/widgets.c
 
 all:    $(PROGRAM)
 

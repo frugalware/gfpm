@@ -23,51 +23,45 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 
 #include "gfpm.h"
+#include "widgets.h"
 
-GtkWidget *group_treeview;
-
-
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     GladeXML *xml;
+    GtkWidget *mainwindow;
+
+    alpm_initialize("/");
+    local = alpm_db_register(REPO);
 
     gtk_init(&argc, &argv);
 
     xml = glade_xml_new("glade/gfpm.glade", NULL, NULL);
-
     glade_xml_signal_autoconnect(xml);
-    
+
+    mainwindow = glade_xml_get_widget(xml, "mainwindow");
     group_treeview = glade_xml_get_widget(xml,"grouptreeview");
-    
-    gfpm_init_treeview();
+    pkgs_treeview = glade_xml_get_widget(xml,"pkgstreeview");
+    statusbar = glade_xml_get_widget(xml, "statusbar");
+
+    gfpm_create_group_treeview();
+    gfpm_create_pkgs_treeview();
+
+    _load_groups_treeview(REPO);
 
     gtk_main();
 
-    return 0;
+    alpm_release();
+    return(0);
 }
 
-void gfpm_init_treeview(void)
-{
-	GtkCellRenderer *renderer;
-	GtkTreeViewColumn *column;
-	GtkListStore *store;
-
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (group_treeview),
-                                               -1,      
-                                               "Groups",  
-                                               renderer,
-                                               "text", 0,
-                                               NULL);
-	store = gtk_list_store_new (1, G_TYPE_STRING);
-	gtk_tree_view_set_model(GTK_TREE_VIEW(group_treeview),GTK_TREE_MODEL(store));
-
-
-
-	return;
+/* Do 'clean' exit when clicked on exit button */
+void exit_cleanup(GtkWidget *widget, gpointer user_data) {
+    alpm_release();
+    gtk_main_quit();
+    exit(0);
 }

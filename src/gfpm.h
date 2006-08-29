@@ -21,5 +21,11 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
+#include <alpm.h>
 
-void gfpm_init_treeview(void);
+PM_DB *local;
+
+#define REPO "frugalware-current"
+/* #define REPO "local" */
+
+void exit_cleanup(GtkWidget *widget, gpointer user_data);
