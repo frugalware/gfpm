@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
     group_treeview = glade_xml_get_widget(xml,"grouptreeview");
     pkgs_treeview = glade_xml_get_widget(xml,"pkgstreeview");
     statusbar = glade_xml_get_widget(xml, "statusbar");
+    infoview = glade_xml_get_widget(xml, "textview2");
+    filesview = glade_xml_get_widget(xml, "textview1");
 
     gfpm_create_group_treeview();
     gfpm_create_pkgs_treeview();
