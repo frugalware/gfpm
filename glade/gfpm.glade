@@ -2,9 +2,9 @@
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
 <!-- Generated with glade3
 	Version: 3.0.1
-	Date: Mon Aug 28 02:38:32 2006
-	User: desco
-	Host: blfw
+	Date: Tue Aug 29 15:04:57 2006
+	User: krics
+	Host: frugal64
 -->
 <glade-interface>
   <widget class="GtkWindow" id="mainwindow">
@@ -50,8 +50,16 @@
             <property name="visible">True</property>
             <property name="position">170</property>
             <child>
-              <widget class="GtkTreeView" id="grouptreeview">
+              <widget class="GtkScrolledWindow" id="group_scrolled">
                 <property name="visible">True</property>
+                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                <child>
+                  <widget class="GtkTreeView" id="grouptreeview">
+                    <property name="visible">True</property>
+                    <property name="rules_hint">True</property>
+                  </widget>
+                </child>
               </widget>
               <packing>
                 <property name="resize">False</property>
@@ -62,8 +70,16 @@
                 <property name="visible">True</property>
                 <property name="position">300</property>
                 <child>
-                  <widget class="GtkTreeView" id="pkgstreeview">
+                  <widget class="GtkScrolledWindow" id="scrolledwindow1">
                     <property name="visible">True</property>
+                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                    <child>
+                      <widget class="GtkTreeView" id="pkgstreeview">
+                        <property name="visible">True</property>
+                        <property name="rules_hint">True</property>
+                      </widget>
+                    </child>
                   </widget>
                   <packing>
                     <property name="resize">False</property>
