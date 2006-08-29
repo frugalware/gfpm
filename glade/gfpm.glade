@@ -2,7 +2,7 @@
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
 <!-- Generated with glade3
 	Version: 3.0.1
-	Date: Tue Aug 29 16:31:06 2006
+	Date: Tue Aug 29 18:01:05 2006
 	User: krics
 	Host: frugal64
 -->
@@ -96,8 +96,15 @@
                   <widget class="GtkNotebook" id="notebook1">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkTextView" id="textview2">
+                      <widget class="GtkScrolledWindow" id="scrolledwindow3">
                         <property name="visible">True</property>
+                        <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                        <child>
+                          <widget class="GtkTextView" id="textview2">
+                            <property name="visible">True</property>
+                          </widget>
+                        </child>
                       </widget>
                       <packing>
                         <property name="tab_expand">False</property>
@@ -115,8 +122,15 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkTextView" id="textview1">
+                      <widget class="GtkScrolledWindow" id="scrolledwindow2">
                         <property name="visible">True</property>
+                        <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                        <child>
+                          <widget class="GtkTextView" id="textview1">
+                            <property name="visible">True</property>
+                          </widget>
+                        </child>
                       </widget>
                       <packing>
                         <property name="position">1</property>
