@@ -32,7 +32,7 @@ SOURCES = src/gfpm.c
 all:    $(PROGRAM)
 
 $(PROGRAM):	$(SOURCES)
-	$(CXX) -o $(PROGRAM) $(SOURCES) $(CFLAGS) $(LDFLAGS)
+	$(CC) -o $(PROGRAM) $(SOURCES) $(CFLAGS) $(LDFLAGS)
 	rm -f src/*.*~ *~
 
 clean:
