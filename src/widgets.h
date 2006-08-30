@@ -23,20 +23,26 @@
  */
  
 #include <gtk/gtk.h>
+#include <stdio.h>
 
 GtkWidget *group_treeview;
 GtkWidget *pkgs_treeview;
+GtkWidget *info_treeview;
 GtkWidget *statusbar;
-GtkWidget *infoview;
 GtkWidget *filesview;
+GtkWidget *combobox_repos;
 
 /* Simple treeview layout creation */
 void gfpm_create_group_treeview(void);
 void gfpm_create_pkgs_treeview(void);
+void gfpm_create_info_treeview(void);
+void gfpm_create_combobox_repos(void);
 /* Callback for group_treeview selection */
 int _group_treeview_select();
 /* Callback for pkgs_treeview selection */
 int _pkgs_treeview_select();
+/* Callback for pkgs_treeview selection */
+int _combobox_repos_select();
 
 /* Update pkgs_treeview when clicked on a group in group_treeview */
 void _update_pkgs_treeview(char *gn);
@@ -44,5 +50,8 @@ void _update_pkgs_treeview(char *gn);
 void _load_groups_treeview(char *repo);
 /* Load file list into textview */
 void _load_files_textview(char *pkgname);
-/* Load infos into textview */
-void _load_info_textview(char *pkgname);
+/* Load infos into treeview */
+void _load_info_treeview(char *pkgname);
+
+/* Clear all treeviews and textviews, except groups_treeview */
+void _clear_treeviews();

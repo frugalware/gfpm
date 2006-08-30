@@ -22,10 +22,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #include <alpm.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 PM_DB *local;
+char *repository;
 
 #define REPO "frugalware-current"
-/* #define REPO "local" */
+//#define REPO "local"
 
-void exit_cleanup(GtkWidget *widget, gpointer user_data);
+void exit_cleanup();

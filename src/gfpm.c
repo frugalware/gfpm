@@ -22,9 +22,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#define _GNU_SOURCE
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 
@@ -46,13 +44,17 @@ int main(int argc, char *argv[]) {
     mainwindow = glade_xml_get_widget(xml, "mainwindow");
     group_treeview = glade_xml_get_widget(xml,"grouptreeview");
     pkgs_treeview = glade_xml_get_widget(xml,"pkgstreeview");
+    info_treeview = glade_xml_get_widget(xml,"infotreeview");
+    combobox_repos = glade_xml_get_widget(xml,"combobox_repos");
     statusbar = glade_xml_get_widget(xml, "statusbar");
-    infoview = glade_xml_get_widget(xml, "textview2");
     filesview = glade_xml_get_widget(xml, "textview1");
 
     gfpm_create_group_treeview();
     gfpm_create_pkgs_treeview();
+    gfpm_create_info_treeview();
+    gfpm_create_combobox_repos();
 
+    asprintf(&repository, "%s", REPO);
     _load_groups_treeview(REPO);
 
     gtk_main();
@@ -62,7 +64,7 @@ int main(int argc, char *argv[]) {
 }
 
 /* Do 'clean' exit when clicked on exit button */
-void exit_cleanup(GtkWidget *widget, gpointer user_data) {
+void exit_cleanup() {
     alpm_release();
     gtk_main_quit();
     exit(0);
