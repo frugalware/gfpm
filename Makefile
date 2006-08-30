@@ -22,7 +22,10 @@
 # 
 
 CC = gcc
-CFLAGS = $(shell pkg-config libglade-2.0 --cflags) -W -Wall -s -O2 -I./src
+# Debug binary
+CFLAGS = $(shell pkg-config libglade-2.0 --cflags) -W -Wall -ggdb -I./src
+# Optimized binary
+#CFLAGS = $(shell pkg-config libglade-2.0 --cflags) -s -O2 -I./src
 LDFLAGS = $(shell pkg-config libglade-2.0 --libs) -lalpm -export-dynamic
 
 PROGRAM = gfpm
