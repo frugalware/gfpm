@@ -2,7 +2,7 @@
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
 <!-- Generated with glade3
 	Version: 3.0.1
-	Date: Sat Sep  2 21:05:59 2006
+	Date: Sat Sep  2 21:21:39 2006
 	User: krics
 	Host: frugal64
 -->
@@ -129,15 +129,41 @@
                 <property name="visible">True</property>
                 <property name="position">300</property>
                 <child>
-                  <widget class="GtkScrolledWindow" id="scrolledwindow1">
+                  <widget class="GtkFrame" id="pkgsframe">
                     <property name="visible">True</property>
-                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="label_xalign">0,100000</property>
+                    <property name="shadow_type">GTK_SHADOW_IN</property>
                     <child>
-                      <widget class="GtkTreeView" id="pkgstreeview">
+                      <widget class="GtkAlignment" id="alignment2">
                         <property name="visible">True</property>
-                        <property name="rules_hint">True</property>
+                        <property name="top_padding">5</property>
+                        <property name="bottom_padding">5</property>
+                        <property name="left_padding">5</property>
+                        <property name="right_padding">5</property>
+                        <child>
+                          <widget class="GtkScrolledWindow" id="scrolledwindow1">
+                            <property name="visible">True</property>
+                            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <child>
+                              <widget class="GtkTreeView" id="pkgstreeview">
+                                <property name="visible">True</property>
+                                <property name="rules_hint">True</property>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
                       </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkLabel" id="label4">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Packages&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </widget>
+                      <packing>
+                        <property name="type">label_item</property>
+                      </packing>
                     </child>
                   </widget>
                   <packing>
@@ -145,63 +171,90 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkNotebook" id="notebook1">
+                  <widget class="GtkFrame" id="frame1">
                     <property name="visible">True</property>
+                    <property name="label_xalign">0,100000</property>
+                    <property name="shadow_type">GTK_SHADOW_IN</property>
                     <child>
-                      <widget class="GtkScrolledWindow" id="scrolledwindow3">
+                      <widget class="GtkAlignment" id="alignment3">
                         <property name="visible">True</property>
-                        <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                        <property name="top_padding">5</property>
+                        <property name="bottom_padding">5</property>
+                        <property name="left_padding">5</property>
+                        <property name="right_padding">5</property>
                         <child>
-                          <widget class="GtkTreeView" id="infotreeview">
+                          <widget class="GtkNotebook" id="notebook1">
                             <property name="visible">True</property>
-                            <property name="headers_visible">False</property>
-                            <property name="rules_hint">True</property>
+                            <child>
+                              <widget class="GtkScrolledWindow" id="scrolledwindow2">
+                                <property name="visible">True</property>
+                                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                                <child>
+                                  <widget class="GtkTreeView" id="infotreeview">
+                                    <property name="visible">True</property>
+                                    <property name="headers_visible">False</property>
+                                    <property name="rules_hint">True</property>
+                                  </widget>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="tab_expand">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="lblblll">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Detials</property>
+                              </widget>
+                              <packing>
+                                <property name="type">tab</property>
+                                <property name="tab_expand">False</property>
+                                <property name="tab_fill">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkScrolledWindow" id="scrolledwindow3">
+                                <property name="visible">True</property>
+                                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                                <child>
+                                  <widget class="GtkTextView" id="textview1">
+                                    <property name="visible">True</property>
+                                    <property name="editable">False</property>
+                                    <property name="cursor_visible">False</property>
+                                  </widget>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                                <property name="tab_expand">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label5">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Files</property>
+                              </widget>
+                              <packing>
+                                <property name="type">tab</property>
+                                <property name="position">1</property>
+                                <property name="tab_expand">False</property>
+                                <property name="tab_fill">False</property>
+                              </packing>
+                            </child>
                           </widget>
                         </child>
                       </widget>
-                      <packing>
-                        <property name="tab_expand">False</property>
-                      </packing>
                     </child>
                     <child>
                       <widget class="GtkLabel" id="label1">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Info</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Informations&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
                       </widget>
                       <packing>
-                        <property name="type">tab</property>
-                        <property name="tab_expand">False</property>
-                        <property name="tab_fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkScrolledWindow" id="scrolledwindow2">
-                        <property name="visible">True</property>
-                        <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                        <child>
-                          <widget class="GtkTextView" id="textview1">
-                            <property name="visible">True</property>
-                            <property name="editable">False</property>
-                          </widget>
-                        </child>
-                      </widget>
-                      <packing>
-                        <property name="position">1</property>
-                        <property name="tab_expand">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <widget class="GtkLabel" id="label2">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Files</property>
-                      </widget>
-                      <packing>
-                        <property name="type">tab</property>
-                        <property name="position">1</property>
-                        <property name="tab_expand">False</property>
-                        <property name="tab_fill">False</property>
+                        <property name="type">label_item</property>
                       </packing>
                     </child>
                   </widget>
