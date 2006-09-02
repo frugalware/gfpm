@@ -2,10 +2,10 @@
  *  gfpm.c
  *
  *  Sat Aug 26 22:36:56 2006
- *  Copyright	2006  Frugalware Developer Team
- *  Authors		Christian Hamar (krix) & Miklos Nemeth (desco)
+ *  Copyright 2006  Frugalware Developer Team
+ *  Authors  Christian Hamar (krix) & Miklos Nemeth (desco)
  ****************************************************************************/
- 
+
 /*
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,8 @@
 #include "gfpm.h"
 #include "widgets.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     GladeXML *xml;
     GtkWidget *mainwindow;
 
@@ -64,7 +65,8 @@ int main(int argc, char *argv[]) {
 }
 
 /* Do 'clean' exit when clicked on exit button */
-void exit_cleanup() {
+void exit_cleanup()
+{
     alpm_release();
     gtk_main_quit();
     exit(0);
