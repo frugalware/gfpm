@@ -2,14 +2,13 @@
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
 <!-- Generated with glade3
 	Version: 3.0.1
-	Date: Sat Sep  2 21:25:46 2006
-	User: krics
-	Host: frugal64
+	Date: Sun Sep  3 21:29:30 2006
+	User: desco
+	Host: blfw
 -->
 <glade-interface>
   <widget class="GtkWindow" id="mainwindow">
     <property name="visible">True</property>
-    <property name="border_width">5</property>
     <property name="title">gfpm - Frugalware Package Manager</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
     <property name="default_width">800</property>
@@ -56,6 +55,7 @@
         <child>
           <widget class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="border_width">3</property>
             <child>
               <widget class="GtkComboBox" id="combobox_repos">
                 <property name="visible">True</property>
@@ -85,6 +85,7 @@
             <child>
               <widget class="GtkFrame" id="groupframe">
                 <property name="visible">True</property>
+                <property name="border_width">4</property>
                 <property name="label_xalign">0,000000</property>
                 <property name="shadow_type">GTK_SHADOW_IN</property>
                 <child>
@@ -132,6 +133,7 @@
                 <child>
                   <widget class="GtkFrame" id="pkgsframe">
                     <property name="visible">True</property>
+                    <property name="border_width">5</property>
                     <property name="label_xalign">0,100000</property>
                     <property name="shadow_type">GTK_SHADOW_IN</property>
                     <child>
@@ -174,6 +176,7 @@
                 <child>
                   <widget class="GtkFrame" id="frame1">
                     <property name="visible">True</property>
+                    <property name="border_width">5</property>
                     <property name="label_xalign">0,100000</property>
                     <property name="shadow_type">GTK_SHADOW_IN</property>
                     <child>
@@ -270,7 +273,7 @@
         <child>
           <widget class="GtkStatusbar" id="statusbar">
             <property name="visible">True</property>
-            <property name="border_width">1</property>
+            <property name="border_width">5</property>
           </widget>
           <packing>
             <property name="expand">False</property>
