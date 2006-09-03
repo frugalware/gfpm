@@ -87,7 +87,7 @@ void gfpm_create_pkgs_treeview(void)
     GtkListStore *store;
     GtkTreeSelection *selection;
 
-    store = gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(pkgs_treeview),
@@ -98,13 +98,20 @@ void gfpm_create_pkgs_treeview(void)
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(pkgs_treeview),
             -1,
-            "Version", renderer, "text", 1,
+            "Available", renderer, "text", 1,
             NULL);
 
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(pkgs_treeview),
             -1,
-            "Description", renderer, "text", 2,
+            "Installed", renderer, "text", 2,
+            NULL);
+
+
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(pkgs_treeview),
+            -1,
+            "Description", renderer, "text", 3,
             NULL);
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(pkgs_treeview), GTK_TREE_MODEL(store));
@@ -232,7 +239,7 @@ void _update_pkgs_treeview(char *gn)
         gtk_list_store_set(GTK_LIST_STORE(model), &iter,
                            0, (char *)alpm_list_getdata(i),
                            1, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
-                           2, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
+                           3, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
                            -1);
     }
 }
