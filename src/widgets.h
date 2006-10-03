@@ -32,6 +32,13 @@ GtkWidget *statusbar;
 GtkWidget *filesview;
 GtkWidget *combobox_repos;
 
+#define PACKAGES_CURRENT 0
+#define PACKAGES_ALL 1
+#define PACKAGES_INSTALLED 2
+#define PACKAGES_NOTINSTALLED 3
+#define PACKAGES_REMOTE 4
+#define PACKAGES_LOCAL 5
+
 /* Simple treeview layout creation */
 void gfpm_create_group_treeview(void);
 void gfpm_create_pkgs_treeview(void);

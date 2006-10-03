@@ -34,21 +34,49 @@ void gfpm_create_combobox_repos(void)
     GtkListStore *store;
     GtkTreeIter iter;
 
-    store = gtk_list_store_new(1, G_TYPE_STRING);
+    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_INT);
 
     renderer = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_repos), renderer, TRUE);
     gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox_repos), renderer,
                                    "text", 0, NULL);
+    renderer = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_repos), renderer, TRUE);
+    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(combobox_repos), renderer,
+                                   "text", 1, NULL);
 
     gtk_combo_box_set_model(GTK_COMBO_BOX(combobox_repos), GTK_TREE_MODEL(store));
 
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter,
-                       0, "frugalware-current", -1);
+                       0, "frugalware-current", 
+				   1, PACKAGES_CURRENT,
+				   -1);
     gtk_list_store_append(store, &iter);
     gtk_list_store_set(store, &iter,
-                       0, "local", -1);
+                       0, "All packages",
+				   1, PACKAGES_ALL,
+				   -1);
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter,
+                       0, "Packages in local repo",
+				   1, PACKAGES_LOCAL,
+				   -1);
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter,
+                       0, "Packages in remote repo",
+				   1, PACKAGES_REMOTE,
+				   -1);
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter,
+                       0, "Installed packages",
+				   1, PACKAGES_INSTALLED,
+				   -1);
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter,
+                       0, "Not installed packages",
+				   1, PACKAGES_NOTINSTALLED,
+				   -1);
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_repos), 0);
 
@@ -179,17 +207,33 @@ int _group_treeview_select()
 /* Callback function for selection in combobox_repos and fresh the groups */
 int _combobox_repos_select()
 {
-    GtkTreeIter iter;
-    GtkTreeModel *model;
-    char *reponame;
+	GtkTreeIter iter;
+	GtkTreeModel *model;
+	char *reponame;
+	int tmp;
 
-    model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox_repos));
-    gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox_repos), &iter);
-    gtk_tree_model_get(model, &iter, 0, &reponame, -1);
+	model = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox_repos));
+	gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combobox_repos), &iter);
+	gtk_tree_model_get(model, &iter, 1, &tmp, -1);
 
-    _clear_treeviews(); /* Need this to clean the old pkgs_ infos_ files_ views */
-    _load_groups_treeview(reponame); /* Refresh the groups_treeview with new repo */
-    return(0);
+	switch (tmp) {
+		case PACKAGES_CURRENT:
+			asprintf(&reponame, "frugalware-current");
+		break;
+		case PACKAGES_LOCAL:
+			asprintf(&reponame, "local");
+		break;
+		case PACKAGES_ALL:
+			asprintf(&reponame, "all");
+		break;
+		default:
+			asprintf(&reponame, "valami");
+		break;
+	}
+
+	_clear_treeviews(); /* Need this to clean the old pkgs_ infos_ files_ views */
+	_load_groups_treeview(reponame); /* Refresh the groups_treeview with new repo */
+	return(0);
 }
 
 /* Callback function for pkgs_treeview (catch clicks in treeview) */
