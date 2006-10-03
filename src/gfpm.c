@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 	gfpm_create_combobox_repos();
 
 	asprintf(&repository, "%s", REPO);
-	load_groups_treeview(REPO);
+	_load_groups_treeview(REPO);
 
 	gtk_main();
 
