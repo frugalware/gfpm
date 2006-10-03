@@ -268,7 +268,7 @@ void _update_pkgs_treeview(char *gn)
 		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 				0, (char *)alpm_list_getdata(i),
 				1, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
-				3, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
+				2, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
 				-1);
 	}
 }
