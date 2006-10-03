@@ -53,7 +53,7 @@ void gfpm_create_combobox_repos(void)
 				-1);
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter,
-				0, "All packages", 1, PACKAGES_ALL,
+				0, _("All packages"), 1, PACKAGES_ALL,
 				-1);
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter,

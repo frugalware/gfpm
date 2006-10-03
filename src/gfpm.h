@@ -26,6 +26,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <locale.h>
+#include <libintl.h>
+
+#define _(str) dgettext("gfpm", str)
 
 PM_DB *local;
 char *repository;
