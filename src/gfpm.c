@@ -31,43 +31,43 @@
 
 int main(int argc, char *argv[])
 {
-    GladeXML *xml;
-    GtkWidget *mainwindow;
+	GladeXML *xml;
+	GtkWidget *mainwindow;
 
-    alpm_initialize("/");
-    local = alpm_db_register(REPO);
+	alpm_initialize("/");
+	local = alpm_db_register(REPO);
 
-    gtk_init(&argc, &argv);
+	gtk_init(&argc, &argv);
 
-    xml = glade_xml_new("glade/gfpm.glade", NULL, NULL);
-    glade_xml_signal_autoconnect(xml);
+	xml = glade_xml_new("glade/gfpm.glade", NULL, NULL);
+	glade_xml_signal_autoconnect(xml);
 
-    mainwindow = glade_xml_get_widget(xml, "mainwindow");
-    group_treeview = glade_xml_get_widget(xml,"grouptreeview");
-    pkgs_treeview = glade_xml_get_widget(xml,"pkgstreeview");
-    info_treeview = glade_xml_get_widget(xml,"infotreeview");
-    combobox_repos = glade_xml_get_widget(xml,"combobox_repos");
-    statusbar = glade_xml_get_widget(xml, "statusbar");
-    filesview = glade_xml_get_widget(xml, "textview1");
+	mainwindow = glade_xml_get_widget(xml, "mainwindow");
+	group_treeview = glade_xml_get_widget(xml,"grouptreeview");
+	pkgs_treeview = glade_xml_get_widget(xml,"pkgstreeview");
+	info_treeview = glade_xml_get_widget(xml,"infotreeview");
+	combobox_repos = glade_xml_get_widget(xml,"combobox_repos");
+	statusbar = glade_xml_get_widget(xml, "statusbar");
+	filesview = glade_xml_get_widget(xml, "textview1");
 
-    gfpm_create_group_treeview();
-    gfpm_create_pkgs_treeview();
-    gfpm_create_info_treeview();
-    gfpm_create_combobox_repos();
+	gfpm_create_group_treeview();
+	gfpm_create_pkgs_treeview();
+	gfpm_create_info_treeview();
+	gfpm_create_combobox_repos();
 
-    asprintf(&repository, "%s", REPO);
-    _load_groups_treeview(REPO);
+	asprintf(&repository, "%s", REPO);
+	load_groups_treeview(REPO);
 
-    gtk_main();
+	gtk_main();
 
-    alpm_release();
-    return(0);
+	alpm_release();
+	return(0);
 }
 
 /* Do 'clean' exit when clicked on exit button */
 void exit_cleanup()
 {
-    alpm_release();
-    gtk_main_quit();
-    exit(0);
+	alpm_release();
+	gtk_main_quit();
+	exit(0);
 }
