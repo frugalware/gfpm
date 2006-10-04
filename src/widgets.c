@@ -49,27 +49,15 @@ void gfpm_create_combobox_repos(void)
 
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter,
-				0, "frugalware-current", 1, PACKAGES_CURRENT, 
+				0, "All Packages", 1, PACKAGES_ALL,
 				-1);
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter,
-				0, _("All packages"), 1, PACKAGES_ALL,
+				0, _("Installed Packages"), 1, PACKAGES_INSTALLED,
 				-1);
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set(store, &iter,
-				0, "Packages in local repo", 1, PACKAGES_LOCAL,
-				-1);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter, 
-				0, "Packages in remote repo", 1, PACKAGES_REMOTE,
-				-1);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter,
-				0, "Installed packages", 1, PACKAGES_INSTALLED,
-				-1);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set(store, &iter,
-				0, "Not installed packages", 1, PACKAGES_NOTINSTALLED,
+				0, "Not Installed Packages", 1, PACKAGES_NOTINSTALLED,
 				-1);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_repos), 0);
@@ -217,11 +205,11 @@ int _combobox_repos_select()
 		case PACKAGES_CURRENT:
 			asprintf(&reponame, "frugalware-current");
 		break;
-		case PACKAGES_LOCAL:
+		case PACKAGES_INSTALLED:
 			asprintf(&reponame, "local");
 		break;
 		case PACKAGES_ALL:
-			asprintf(&reponame, "all");
+			asprintf(&reponame, "frugalware-current");
 		break;
 		default:
 			asprintf(&reponame, "valami");
