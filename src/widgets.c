@@ -108,11 +108,12 @@ void gfpm_create_pkgs_treeview(void)
 	GtkListStore *store;
 	GtkTreeSelection *selection;
 
-	store = gtk_list_store_new(6, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+	store = gtk_list_store_new(6, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
-	renderer = gtk_cell_renderer_text_new();
+	renderer = gtk_cell_renderer_toggle_new();
+	g_signal_connect(renderer, "toggled", G_CALLBACK(_toggled), store);
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(pkgs_treeview),
-				-1, "X", renderer, "text", 0,
+				-1, "X", renderer, "active", 0,
 				NULL);
 
 	renderer = gtk_cell_renderer_text_new();
@@ -276,6 +277,7 @@ void _update_pkgs_treeview(char *gn)
 
 		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+				0, FALSE,
 				2, (char *)alpm_list_getdata(i),
 				3, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
 				5, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
@@ -511,4 +513,21 @@ void _clear_treeviews()
 
 	buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(filesview));
 	gtk_text_buffer_set_text (buffer, "", 0);
+}
+
+void _toggled (GtkCellRendererToggle *cell, gchar *path_str, gpointer data)
+{
+	GtkTreeModel *model = (GtkTreeModel *)data;
+	GtkTreeIter iter;
+	GtkTreePath *path = gtk_tree_path_new_from_string(path_str);
+	gboolean fixed;
+
+	gtk_tree_model_get_iter (model, &iter, path);
+	gtk_tree_model_get(model, &iter, 0, &fixed, -1);
+
+	fixed ^= 1;
+
+	gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, fixed, -1);
+
+	gtk_tree_path_free(path);
 }

@@ -63,3 +63,6 @@ void _load_info_treeview(char *pkgname);
 
 /* Clear all treeviews and textviews, except groups_treeview */
 void _clear_treeviews();
+
+void _toggled(GtkCellRendererToggle *cell, gchar *path_str, gpointer data);
+
