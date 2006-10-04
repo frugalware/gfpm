@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.0.2 on Tue Oct  3 17:12:42 2006 by krics@frugal64
+<!--Generated with glade3 3.0.2 on Wed Oct  4 08:29:08 2006 by krics@frugal64
 	Version: 3.0.1
 	Date: Sun Sep  3 21:29:30 2006
 	User: desco
@@ -66,10 +66,51 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
+              <widget class="GtkToolbar" id="toolbar">
+                <property name="visible">True</property>
+                <child>
+                  <widget class="GtkToolButton" id="button_execute">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="label">Execute</property>
+                    <property name="stock_id">gtk-execute</property>
+                    <property name="tooltip" translatable="yes">Execute all modifications. Package remove, add, etc.</property>
+                  </widget>
+                </child>
+                <child>
+                  <widget class="GtkToolButton" id="button_refresh">
+                    <property name="visible">True</property>
+                    <property name="label">Refresh</property>
+                    <property name="stock_id">gtk-refresh</property>
+                    <property name="tooltip" translatable="yes">Refresh the package lists</property>
+                  </widget>
+                </child>
+                <child>
+                  <widget class="GtkToolButton" id="button_syncdb">
+                    <property name="visible">True</property>
+                    <property name="label">Syncronize DB</property>
+                    <property name="stock_id">gtk-go-down</property>
+                    <property name="tooltip" translatable="yes">Run pacman -Sy to fresh up remote db's</property>
+                  </widget>
+                </child>
+                <child>
+                  <widget class="GtkToolButton" id="button_sync">
+                    <property name="visible">True</property>
+                    <property name="label">Update packages</property>
+                    <property name="stock_id">gtk-goto-bottom</property>
+                  </widget>
+                </child>
+                <child>
+                  <widget class="GtkToolButton" id="button_help">
+                    <property name="visible">True</property>
+                    <property name="label">Help</property>
+                    <property name="stock_id">gtk-dialog-question</property>
+                  </widget>
+                </child>
+              </widget>
+              <packing>
+                <property name="position">1</property>
+              </packing>
             </child>
           </widget>
           <packing>

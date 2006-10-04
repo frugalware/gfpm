@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 	combobox_repos = glade_xml_get_widget(xml,"combobox_repos");
 	statusbar = glade_xml_get_widget(xml, "statusbar");
 	filesview = glade_xml_get_widget(xml, "textview1");
+	toolbar = glade_xml_get_widget(xml, "toolbar");
 
 	gfpm_create_group_treeview();
 	gfpm_create_pkgs_treeview();

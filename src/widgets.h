@@ -31,6 +31,7 @@ GtkWidget *info_treeview;
 GtkWidget *statusbar;
 GtkWidget *filesview;
 GtkWidget *combobox_repos;
+GtkWidget *toolbar;
 
 #define PACKAGES_CURRENT 0
 #define PACKAGES_ALL 1
