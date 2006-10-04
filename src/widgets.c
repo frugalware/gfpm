@@ -108,7 +108,7 @@ void gfpm_create_pkgs_treeview(void)
 	GtkListStore *store;
 	GtkTreeSelection *selection;
 
-	store = gtk_list_store_new(6, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+	store = gtk_list_store_new(6, G_TYPE_BOOLEAN, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 
 	renderer = gtk_cell_renderer_toggle_new();
 	g_signal_connect(renderer, "toggled", G_CALLBACK(_toggled), store);
@@ -116,9 +116,9 @@ void gfpm_create_pkgs_treeview(void)
 				-1, "X", renderer, "active", 0,
 				NULL);
 
-	renderer = gtk_cell_renderer_text_new();
+	renderer = gtk_cell_renderer_pixbuf_new();
 	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(pkgs_treeview),
-				-1, "Status", renderer, "text", 1,
+				-1, "Status", renderer, "pixbuf", 1,
 				NULL);
 
 	renderer = gtk_cell_renderer_text_new();
@@ -261,6 +261,7 @@ int _pkgs_treeview_select()
 void _update_pkgs_treeview(char *gn)
 {
 	GtkTreeIter iter;
+	GdkPixbuf *icon;
 	GtkTreeModel *model;
 	PM_LIST *pkgnames, *i;
 	PM_GRP *grp = alpm_db_readgrp(local, gn);
@@ -270,6 +271,7 @@ void _update_pkgs_treeview(char *gn)
 	gtk_list_store_clear(GTK_LIST_STORE(model));
 
 	pkgnames = alpm_grp_getinfo(grp, PM_GRP_PKGNAMES);
+	icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 
 	for (i = pkgnames; i; i = alpm_list_next(i))
 	{
@@ -278,6 +280,7 @@ void _update_pkgs_treeview(char *gn)
 		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 				0, FALSE,
+				1, icon,
 				2, (char *)alpm_list_getdata(i),
 				3, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
 				5, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
