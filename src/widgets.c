@@ -253,7 +253,18 @@ void _update_pkgs_treeview(char *gn)
 	GtkTreeModel *model;
 	PM_LIST *pkgnames, *i;
 	PM_GRP *grp = alpm_db_readgrp(local, gn);
-	PM_PKG *pkg;
+	PM_PKG *pkg, *check_pkg;
+	PM_DB *check_db;
+	int r;
+
+	if (!strcmp(repository, "local"))
+		r = 1; /* in 'local' repo */
+	else
+		r = 0; /* in 'remote' repo */
+
+	if (r == 0) {
+		check_db = alpm_db_register("local");
+	}
 
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(pkgs_treeview));
 	gtk_list_store_clear(GTK_LIST_STORE(model));
@@ -264,6 +275,16 @@ void _update_pkgs_treeview(char *gn)
 	for (i = pkgnames; i; i = alpm_list_next(i))
 	{
 		pkg = alpm_db_readpkg(local, alpm_list_getdata(i));
+		if (r == 0) {
+			check_pkg = alpm_db_readpkg(check_db, alpm_list_getdata(i));
+			if (alpm_pkg_getinfo(check_pkg, PM_PKG_VERSION) == NULL) {
+				icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+			} else {
+				icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+			}
+		} else {
+			icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+		}
 
 		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
@@ -273,6 +294,9 @@ void _update_pkgs_treeview(char *gn)
 				3, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
 				5, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
 				-1);
+	}
+	if (r == 0) {
+		alpm_db_unregister(check_db);
 	}
 }
 
