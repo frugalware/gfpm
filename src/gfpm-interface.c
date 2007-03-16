@@ -149,13 +149,13 @@ gfpm_load_pkgs_treeview (char *group_name)
 
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-							0, check,
-							1, icon,
-							2, (char *)alpm_list_getdata(i),
-							3, check ? (char*)alpm_pkg_getinfo (check_pkg, PM_PKG_VERSION) : NULL,
-							4, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
-							5, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
-							-1);
+				0, check,
+				1, icon,
+				2, (char *)alpm_list_getdata(i),
+				3, check ? (char*)alpm_pkg_getinfo (check_pkg, PM_PKG_VERSION) : NULL,
+				4, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
+				5, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
+				-1);
 	}
 	
 	if (r == 0)
@@ -167,17 +167,19 @@ gfpm_load_pkgs_treeview (char *group_name)
 }
 
 void
-gfpm_load_info_treeview (char *pkg_name)
+gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 {
 	GtkTreeModel 	*model;
 	GtkTreeIter 	iter;
+	PM_DB		*local_db;
 	PM_LIST 	*i, *y;
-	PM_PKG 		*pkg;
+	PM_PKG 		*pkg, *local_pkg;
 	GString 	*foo;
 	char 		*tmp;
 	int 		r;
 	float		size;
 
+	
 	if (!strcmp(repository, "local"))
 		r = 1; /* in 'local' repo */
 	else
@@ -188,6 +190,12 @@ gfpm_load_info_treeview (char *pkg_name)
 
 	if ((pkg = alpm_db_readpkg (gfpmdb, pkg_name))==NULL)
 		return;
+		
+	if (installed == TRUE)
+	{
+		local_db = alpm_db_register ("local");
+		local_pkg = alpm_db_readpkg (local_db, pkg_name);
+	}
 
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -201,18 +209,18 @@ gfpm_load_info_treeview (char *pkg_name)
 			1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_VERSION),
 			-1);
 
-	if (r != 0)
+	if (installed == TRUE)
 	{
-		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("Packager:"),
-				1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_PACKAGER),
+				1, (char *)alpm_pkg_getinfo (local_pkg, PM_PKG_PACKAGER),
 				-1);
 
-		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("URL:"),
-				1, (char *)alpm_pkg_getinfo(pkg, PM_PKG_URL),
+				1, (char *)alpm_pkg_getinfo(local_pkg, PM_PKG_URL),
 				-1);
 	}
 
@@ -302,6 +310,11 @@ gfpm_load_info_treeview (char *pkg_name)
 			0, _("Description:"),
 			1, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
 			-1);
+
+	if (installed == TRUE)
+		alpm_db_unregister (local_db);
+
+	return;
 }
 
 /* Lookup widgets and initialize signals */
@@ -330,11 +343,11 @@ gfpm_interface_init (void)
 	
 	/* Setup pkgs treeview */
 	store = gtk_list_store_new (6,
-								G_TYPE_BOOLEAN,
-								GDK_TYPE_PIXBUF,
-								G_TYPE_STRING,
-								G_TYPE_STRING, G_TYPE_STRING,
-								G_TYPE_STRING);
+				G_TYPE_BOOLEAN,
+				GDK_TYPE_PIXBUF,
+				G_TYPE_STRING,
+				G_TYPE_STRING, G_TYPE_STRING,
+				G_TYPE_STRING);
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
 	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_pkg_selection_toggled), store);
@@ -401,7 +414,7 @@ cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data)
 	gchar			*groupname;
 	GtkTreeModel 		*model;
 	GtkTreeIter		iter;
-	
+
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
 		gtk_tree_model_get (model, &iter, 0, &groupname, -1);
@@ -418,11 +431,12 @@ cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data)
 	gchar			*pkgname;
 	GtkTreeModel 		*model;
 	GtkTreeIter		iter;
-	
+	gboolean		installed;
+
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
-		gtk_tree_model_get (model, &iter, 2, &pkgname, -1);
-		gfpm_load_info_treeview (pkgname);
+		gtk_tree_model_get (model, &iter, 0, &installed, 2, &pkgname, -1);
+		gfpm_load_info_treeview (pkgname, installed);
 		g_free (pkgname);
 	}
 	
