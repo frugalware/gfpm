@@ -41,6 +41,7 @@ static void gfpm_clear_treeviews (void);
 
 /* Callbacks */
 static void cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data);
+static void cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 
 void
@@ -168,14 +169,146 @@ gfpm_load_pkgs_treeview (char *group_name)
 void
 gfpm_load_info_treeview (char *pkg_name)
 {
+	GtkTreeModel 	*model;
+	GtkTreeIter 	iter;
+	PM_LIST 	*i, *y;
+	PM_PKG 		*pkg;
+	GString 	*foo;
+	char 		*tmp;
+	int 		r;
+	float		size;
 
+	if (!strcmp(repository, "local"))
+		r = 1; /* in 'local' repo */
+	else
+		r = 0; /* in 'remote' repo */
+
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(info_treeview));
+	gtk_list_store_clear (GTK_LIST_STORE(model));
+
+	if ((pkg = alpm_db_readpkg (gfpmdb, pkg_name))==NULL)
+		return;
+
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+			0, _("Name:"),
+			1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_NAME),
+			-1);
+
+	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+			0, _("Version:"),
+			1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_VERSION),
+			-1);
+
+	if (r != 0)
+	{
+		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+				0, _("Packager:"),
+				1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_PACKAGER),
+				-1);
+
+		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+				0, _("URL:"),
+				1, (char *)alpm_pkg_getinfo(pkg, PM_PKG_URL),
+				-1);
+	}
+
+	if (r != 1)
+	{
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		size = (float)((long)alpm_pkg_getinfo(pkg, PM_PKG_SIZE)/1024)/1024;
+		asprintf (&tmp, "%0.2f MB", size);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+				0, _("Size (Compressed):"),
+				1, (char *)tmp,
+				-1);
+		g_free (tmp);
+
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		size = (float)((long)alpm_pkg_getinfo(pkg, PM_PKG_USIZE)/1024)/1024;
+		asprintf (&tmp, "%0.2f MB", size);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+				0, _("Size (Uncompressed):"),
+				1, (char *)tmp,
+				-1);
+		g_free (tmp);
+
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+				0, "SHA1SUM:",
+				1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_SHA1SUM),
+				-1);
+	}
+	/* Get depends */
+	y = alpm_pkg_getinfo (pkg, PM_PKG_DEPENDS);
+	foo = g_string_new ("");
+	for (i = y; i; i = alpm_list_next(i))
+	{
+		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
+		foo = g_string_append (foo, " ");
+	}
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+			0, _("Depends:"),
+			1, (char *)foo->str,
+			-1);
+	
+	/* Get provides */
+	y = alpm_pkg_getinfo (pkg, PM_PKG_PROVIDES);
+	foo = g_string_new("");
+	for (i = y; i; i = alpm_list_next(i))
+	{
+		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
+		foo = g_string_append (foo, " ");
+	}
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+			0, _("Provides:"),
+			1, (char *)foo->str,
+			-1);
+
+	y = alpm_pkg_getinfo (pkg, PM_PKG_CONFLICTS);
+	foo = g_string_new ("");
+	for (i = y; i; i = alpm_list_next(i))
+	{
+		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
+		foo = g_string_append (foo, " ");
+	}
+	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+			0, _("Conflicts:"), 1, (char *)foo->str,
+			-1);
+
+	if (r != 0)
+	{
+		y = alpm_pkg_getinfo (pkg, PM_PKG_REQUIREDBY);
+		foo = g_string_new ("");
+		for (i = y; i; i = alpm_list_next(i))
+		{
+			foo = g_string_append(foo, (char *)alpm_list_getdata(i));
+			foo = g_string_append(foo, " ");
+		}
+		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+				0, _("Required by:"), 1, (char *)foo->str,
+				-1);
+	}
+
+	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
+			0, _("Description:"),
+			1, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
+			-1);
 }
 
 /* Lookup widgets and initialize signals */
 void
 gfpm_interface_init (void)
 {
-	GtkWidget		*gfpm_splash;
+	GtkWidget	*gfpm_splash;
 	GtkListStore 	*store;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
@@ -224,14 +357,14 @@ gfpm_interface_init (void)
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW(pkgs_treeview), GTK_TREE_MODEL(store));
 
-	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(pkgs_treeview));
-	//g_signal_connect(selection, "changed", G_CALLBACK(_pkgs_treeview_select), NULL);
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(pkgs_treeview));
+	g_signal_connect(selection, "changed", G_CALLBACK(cb_pkgs_treeview_selected), NULL);
 	
 	/* Setup info treeview */
 	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
 
 	renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(info_treeview), -1, "Info", renderer, "text", 0, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(info_treeview), -1, "Info", renderer, "text", 0, NULL);
 
 	renderer = gtk_cell_renderer_text_new ();
 	g_object_set (renderer, "wrap-width", 300, NULL);
@@ -274,6 +407,23 @@ cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data)
 		gtk_tree_model_get (model, &iter, 0, &groupname, -1);
 		gfpm_load_pkgs_treeview (groupname);
 		g_free (groupname);
+	}
+	
+	return;
+}
+
+static void
+cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data)
+{
+	gchar			*pkgname;
+	GtkTreeModel 		*model;
+	GtkTreeIter		iter;
+	
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 2, &pkgname, -1);
+		gfpm_load_info_treeview (pkgname);
+		g_free (pkgname);
 	}
 	
 	return;

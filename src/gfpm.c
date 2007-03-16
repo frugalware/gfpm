@@ -47,11 +47,11 @@ main (int argc, char *argv[])
 	textdomain (GETTEXT_PACKAGE);
 	
 	gtk_init (&argc, &argv);
-	if ( geteuid() != 0 )
+	/*if ( geteuid() != 0 )
 	{
 		gfpm_error (_("Gfpm should be run as root."));
 		return 1;
-	}
+	}*/
 
 	if (alpm_initialize ("/") == -1)
 	{
