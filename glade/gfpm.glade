@@ -551,7 +551,7 @@
 			      <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 			      <child>
-				<widget class="GtkTextView" id="textview1">
+				<widget class="GtkTextView" id="filestextview">
 				  <property name="visible">True</property>
 				  <property name="editable">False</property>
 				  <property name="overwrite">False</property>

@@ -31,6 +31,7 @@ GtkWidget *gfpm_statusbar;
 GtkWidget *groups_treeview;
 GtkWidget *pkgs_treeview;
 GtkWidget *info_treeview;
+GtkWidget *files_textview;
 
 char *repository = NULL;
 
@@ -317,6 +318,44 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	return;
 }
 
+void
+gfpm_load_files_textview (char *pkg_name, gboolean installed)
+{
+	GtkTextBuffer 	*buffer;
+	GtkTextIter 	iter;
+	PM_DB		*local_db;
+	PM_LIST 	*i;
+	PM_PKG 		*pkg;
+	gint 		r;
+
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(files_textview));
+	gtk_text_buffer_set_text (buffer, "", 0);
+	gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
+	
+	if (installed == TRUE)
+	{
+		local_db = alpm_db_register ("local");
+		pkg = alpm_db_readpkg (local_db, pkg_name);
+		gtk_text_buffer_insert (buffer, &iter, "Files in package:\n", -1);		
+		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
+		{
+			gtk_text_buffer_insert(buffer, &iter, "   /", -1);
+			gtk_text_buffer_insert(buffer, &iter, (char *)alpm_list_getdata(i), -1);
+			gtk_text_buffer_insert(buffer, &iter, "\n", -1);
+		}
+		alpm_db_unregister (local_db);
+	}
+
+	if (r != 1)
+	{
+		gtk_text_buffer_insert (buffer, &iter, "Package is not installed.\n", -1);
+	}
+
+	gtk_text_view_set_buffer (GTK_TEXT_VIEW(files_textview), buffer);
+
+	return;
+}
+
 /* Lookup widgets and initialize signals */
 void
 gfpm_interface_init (void)
@@ -332,6 +371,7 @@ gfpm_interface_init (void)
 	groups_treeview = glade_xml_get_widget (xml, "grouptreeview");
 	pkgs_treeview = glade_xml_get_widget (xml, "pkgstreeview");
 	info_treeview = glade_xml_get_widget (xml, "infotreeview");
+	files_textview = glade_xml_get_widget (xml, "filestextview");
 	
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -437,6 +477,7 @@ cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data)
 	{
 		gtk_tree_model_get (model, &iter, 0, &installed, 2, &pkgname, -1);
 		gfpm_load_info_treeview (pkgname, installed);
+		gfpm_load_files_textview (pkgname, installed);
 		g_free (pkgname);
 	}
 	
