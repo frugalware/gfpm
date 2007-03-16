@@ -26,12 +26,17 @@
 #include "gfpm.h"
 #include "gfpm-interface.h"
 
+/* Main UI Widgets */
 GtkWidget *gfpm_window;
 GtkWidget *gfpm_statusbar;
 GtkWidget *groups_treeview;
 GtkWidget *pkgs_treeview;
 GtkWidget *info_treeview;
 GtkWidget *files_textview;
+
+/* Package lists */
+static GList *install_list = NULL;
+static GList *remove_list = NULL;
 
 char *repository = NULL;
 
@@ -105,9 +110,9 @@ gfpm_load_pkgs_treeview (char *group_name)
 	gint 			r;
 	gboolean		check;
 	gchar			*version;
-	
+
 	grp = alpm_db_readgrp (gfpmdb, group_name);
-	
+
 	if (!strcmp(repository, "local"))
 	{	
 		r = 1; /* in 'local' repo */
@@ -152,10 +157,10 @@ gfpm_load_pkgs_treeview (char *group_name)
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, check,
 				1, icon,
-				2, (char *)alpm_list_getdata(i),
+				2, (char *)alpm_list_getdata (i),
 				3, check ? (char*)alpm_pkg_getinfo (check_pkg, PM_PKG_VERSION) : NULL,
-				4, (char *)alpm_pkg_getinfo(pkg, PM_PKG_VERSION),
-				5, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
+				4, (char *)alpm_pkg_getinfo (pkg, PM_PKG_VERSION),
+				5, (char *)alpm_pkg_getinfo (pkg, PM_PKG_DESC),
 				-1);
 	}
 	
@@ -180,7 +185,6 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	int 		r;
 	float		size;
 
-	
 	if (!strcmp(repository, "local"))
 		r = 1; /* in 'local' repo */
 	else
@@ -191,7 +195,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 
 	if ((pkg = alpm_db_readpkg (gfpmdb, pkg_name))==NULL)
 		return;
-		
+
 	if (installed == TRUE)
 	{
 		local_db = alpm_db_register ("local");
@@ -264,10 +268,10 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 			0, _("Depends:"),
 			1, (char *)foo->str,
 			-1);
-	
+
 	/* Get provides */
 	y = alpm_pkg_getinfo (pkg, PM_PKG_PROVIDES);
-	foo = g_string_new("");
+	foo = g_string_new ("");
 	for (i = y; i; i = alpm_list_next(i))
 	{
 		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
@@ -286,9 +290,10 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
 		foo = g_string_append (foo, " ");
 	}
-	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-			0, _("Conflicts:"), 1, (char *)foo->str,
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+			0, _("Conflicts:"),
+			1, (char *)foo->str,
 			-1);
 
 	if (r != 0)
@@ -297,19 +302,20 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		foo = g_string_new ("");
 		for (i = y; i; i = alpm_list_next(i))
 		{
-			foo = g_string_append(foo, (char *)alpm_list_getdata(i));
-			foo = g_string_append(foo, " ");
+			foo = g_string_append (foo, (char *)alpm_list_getdata(i));
+			foo = g_string_append (foo, " ");
 		}
-		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-		gtk_list_store_set(GTK_LIST_STORE(model), &iter,
-				0, _("Required by:"), 1, (char *)foo->str,
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+				0, _("Required by:"),
+				1, (char *)foo->str,
 				-1);
 	}
 
 	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 			0, _("Description:"),
-			1, (char *)alpm_pkg_getinfo(pkg, PM_PKG_DESC),
+			1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_DESC),
 			-1);
 
 	if (installed == TRUE)
@@ -339,9 +345,9 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 		gtk_text_buffer_insert (buffer, &iter, "Files in package:\n", -1);		
 		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
 		{
-			gtk_text_buffer_insert(buffer, &iter, "   /", -1);
-			gtk_text_buffer_insert(buffer, &iter, (char *)alpm_list_getdata(i), -1);
-			gtk_text_buffer_insert(buffer, &iter, "\n", -1);
+			gtk_text_buffer_insert (buffer, &iter, "   /", -1);
+			gtk_text_buffer_insert (buffer, &iter, (char *)alpm_list_getdata(i), -1);
+			gtk_text_buffer_insert (buffer, &iter, "\n", -1);
 		}
 		alpm_db_unregister (local_db);
 	}
@@ -380,7 +386,7 @@ gfpm_interface_init (void)
 	gtk_tree_view_set_model (GTK_TREE_VIEW(groups_treeview), GTK_TREE_MODEL(store));
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(groups_treeview));
 	g_signal_connect (selection, "changed", G_CALLBACK(cb_groups_treeview_selected), NULL);
-	
+
 	/* Setup pkgs treeview */
 	store = gtk_list_store_new (6,
 				G_TYPE_BOOLEAN,
@@ -412,7 +418,7 @@ gfpm_interface_init (void)
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(pkgs_treeview));
 	g_signal_connect(selection, "changed", G_CALLBACK(cb_pkgs_treeview_selected), NULL);
-	
+
 	/* Setup info treeview */
 	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
 
@@ -425,7 +431,7 @@ gfpm_interface_init (void)
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(info_treeview), -1, "Value", renderer, "text", 1, NULL);
 	gtk_tree_view_set_model (GTK_TREE_VIEW(info_treeview), GTK_TREE_MODEL(store));
 	g_object_set (info_treeview, "hover-selection", TRUE, NULL);
-	
+
 	gtk_widget_show (gfpm_splash);
 	gfpm_load_groups_treeview ("frugalware-current");
 	asprintf (&repository, "frugalware-current");
