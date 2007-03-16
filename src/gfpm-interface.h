@@ -3,6 +3,7 @@
 
 #include <glade/glade.h>
 #include <gtk/gtk.h>
+#include "gfpm-packagelist.h"
 
 void gfpm_interface_init (void);
 

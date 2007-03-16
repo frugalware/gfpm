@@ -23,7 +23,9 @@
  */
 
 #define _GNU_SOURCE
+#include <gtk/gtk.h>
 #include "gfpm.h"
+#include "gfpm-packagelist.h"
 #include "gfpm-interface.h"
 
 /* Main UI Widgets */
@@ -496,16 +498,34 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 	GtkTreeModel 	*model;
 	GtkTreeIter 	iter;
 	GtkTreePath 	*path;
-	gboolean 		fixed;
+	gchar		*pkgname;
+	gboolean 	fixed;
 
 	model = (GtkTreeModel *)data;
 	path = gtk_tree_path_new_from_string (path_str);
 	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_model_get (model, &iter, 0, &fixed, -1);
+	gtk_tree_model_get (model, &iter, 0, &fixed, 2, &pkgname, -1);
 
 	fixed ^= 1;
-
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, fixed, -1);
+	
+	if (TRUE != gtk_cell_renderer_toggle_get_active(toggle))
+	{	
+		//g_print ("Adding to install list...\n");
+		if (gfpm_package_list_find (remove_list, pkgname))
+			gfpm_remove_package_list_remove (remove_list, pkgname);
+		gfpm_install_package_list_insert (install_list, pkgname);
+	}
+	else
+		gfpm_remove_package_list_insert (remove_list, pkgname);
+	
+	g_print ("Contents of INSTALL LIST\n");
+	while (install_list != NULL)
+	{
+		g_print ("name: %s\n",(gchar*)install_list->data);
+		g_print ("===\n");
+		install_list = g_list_next (install_list);
+	}
 
 	gtk_tree_path_free (path);
 	

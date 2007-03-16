@@ -13,5 +13,11 @@ GList * gfpm_install_package_list_insert (GList *, gchar *);
 
 /* Insert a new item into the 'remove' list */
 GList * gfpm_remove_package_list_insert (GList *, gchar *);
-	
+
+/* Searches for an item in the list */
+gboolean gfpm_package_list_find (GList *, gchar *);
+
+/* Insert a new item into the 'remove' list */
+GList * gfpm_remove_package_list_remove (GList *, gchar *);
+
 #endif

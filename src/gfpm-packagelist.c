@@ -26,11 +26,11 @@ GList *
 gfpm_install_package_list_insert (GList *list, gchar *item)
 {
 	GList *ret;
-	
-	/* Don't add the item if it already exists in the list */	
-	if (NULL != g_list_find (list, (gpointer)item))
+
+	/* Remove the item if it already exists in the list */	
+	if (list!=NULL && NULL != g_list_find (list, (gpointer)item))
 	{
-		ret = list;		
+		ret = g_list_remove (list, (gpointer)item);
 		return ret;
 	}
 
@@ -42,16 +42,49 @@ GList *
 gfpm_remove_package_list_insert (GList *list, gchar *item)
 {
 	GList *ret;
-	
-	/* Don't add the item if it already exists in the list */	
-	if (NULL != g_list_find (list, (gpointer)item))
+
+	/* Remove the item if it already exists in the list */	
+	if (list!=NULL && NULL != g_list_find (list, (gpointer)item))
 	{
-		ret = list;		
+		ret = g_list_remove (list, (gpointer)item);
 		return ret;
 	}
 
 	ret = g_list_append (list, (gpointer)item);
 	return ret;
 }
+
+gboolean
+gfpm_package_list_find (GList *list, gchar *item)
+{
+	GList *lst = NULL;
+	gboolean ret = TRUE;
+
+	if (list != NULL)
+		lst = g_list_find (list, (gpointer)item);
+	else
+		ret = FALSE;
+	
+	if (lst != NULL && ret != FALSE)
+		ret = TRUE;
+	else
+		ret = FALSE;
+
+	return ret;
+}
+
+GList *
+gfpm_remove_package_list_remove (GList *list, gchar *item)
+{
+	GList *ret = NULL;	
+	
+	if (list != NULL)
+		ret = g_list_remove (list, (gpointer)item);
+	else
+		ret = list;
+
+	return ret;
+}
+
 
 
