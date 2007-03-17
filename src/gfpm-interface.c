@@ -334,7 +334,6 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	PM_DB		*local_db;
 	PM_LIST 	*i;
 	PM_PKG 		*pkg;
-	gint 		r;
 
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(files_textview));
 	gtk_text_buffer_set_text (buffer, "", 0);
@@ -353,11 +352,8 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 		}
 		alpm_db_unregister (local_db);
 	}
-
-	if (r != 1)
-	{
+	else
 		gtk_text_buffer_insert (buffer, &iter, "Package is not installed.\n", -1);
-	}
 
 	gtk_text_view_set_buffer (GTK_TEXT_VIEW(files_textview), buffer);
 
