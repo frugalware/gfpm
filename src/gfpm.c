@@ -29,6 +29,7 @@
 
 #include "gfpm.h"
 #include "gfpm-interface.h"
+#include "gfpm-packagelist.h"
 #include "gfpm-messages.h"
 
 #define GETTEXT_PACKAGE 	"gfpm"

@@ -109,7 +109,33 @@ gfpm_package_list_del (GfpmListType type, const gchar *item)
 }
 
 void
-printlist (GfpmListType type)
+gfpm_package_list_free (GfpmListType type)
+{
+	GfpmList *list = NULL;
+	GfpmList *tmp;
+	
+	if (type == GFPM_INSTALL_LIST)
+		list = install_list;
+	else
+		list = remove_list;
+
+	while (list != NULL)
+	{
+		tmp = list->next;
+		g_free (list->data);
+		g_free (list);
+		list = tmp;
+	}
+	if (type == GFPM_INSTALL_LIST)
+		install_list = NULL;
+	else
+		remove_list = NULL;
+
+	return;
+}
+
+void
+gfpm_package_list_print (GfpmListType type)
 {
 	GfpmList *list;
 

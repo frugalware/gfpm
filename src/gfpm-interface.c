@@ -547,10 +547,10 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 
 	/*
 	g_print ("Contents of INSTALL LIST\n");
-	printlist (GFPM_INSTALL_LIST);
+	gfpm_package_list_print (GFPM_INSTALL_LIST);
 
 	g_print ("Contents of REMOVE LIST\n");
-	printlist (GFPM_REMOVE_LIST);
+	gfpm_package_list_print (GFPM_REMOVE_LIST);
 	*/
 
 	g_free (pk);

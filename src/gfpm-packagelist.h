@@ -21,12 +21,15 @@ typedef enum _gfpmlisttype
 } GfpmListType;
 
 /* Print contents of a GfpmList */
-void printlist (GfpmListType);
+void gfpm_package_list_print (GfpmListType);
 
 /* Inserts a new item into a GfpmList */
 void gfpm_package_list_add (GfpmListType, const gchar *);
 
 /* Remove an item from a GfpmList */
 void gfpm_package_list_del (GfpmListType, const gchar *);
+
+/* Free memory used by a GfpmList */
+void gfpm_package_list_free (GfpmListType);
 
 #endif
