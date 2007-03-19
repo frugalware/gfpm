@@ -575,15 +575,60 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 static void
 cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
-	PM_LIST 	*list;
+	GtkListStore	*store;
+	GdkPixbuf	*icon_yes, *icon_no;
+	GtkTreeIter	iter;
+	PM_LIST 	*list, *tmp;
+	PM_DB		*local_db;
+	PM_PKG		*sync_pkg, *local_pkg;
 	const gchar 	*search_string;
-	
+	gboolean	check;
+
 	if (event->keyval != GDK_Return)
 		return;
-	
+
 	search_string = gtk_entry_get_text (GTK_ENTRY(widget));
 	if (strlen(search_string) <= 0)
 		return;
+
+	store = GTK_LIST_STORE (gtk_tree_view_get_model(GTK_TREE_VIEW(pkgs_treeview)));
+	alpm_set_option (PM_OPT_NEEDLES, (long)search_string);
+	list = alpm_db_search (gfpmdb);
+	gtk_list_store_clear (store);
+	/* Package not found */
+	if (list == NULL)
+	{	g_print ("Empty\n");
+		return;
+	}
+
+	local_db = alpm_db_register ("local");
+	icon_yes = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+	icon_no = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+
+	for (tmp = list; tmp; tmp = alpm_list_next (tmp))
+	{
+		local_pkg = alpm_db_readpkg (local_db, alpm_list_getdata (tmp));
+		sync_pkg = alpm_db_readpkg (gfpmdb, alpm_list_getdata (tmp));
+		gtk_list_store_append (store, &iter);
+		if ( local_pkg == NULL )
+			gtk_list_store_set (store, &iter,
+					0, FALSE, 1, icon_no, -1);
+		else
+		{
+			gtk_list_store_set (store, &iter,
+					0, TRUE, 1, icon_yes, -1);
+			check = TRUE;
+		}
+		gtk_list_store_set (store, &iter,
+				2, (char*)alpm_pkg_getinfo (sync_pkg, PM_PKG_NAME),
+				3, check ? (char*)alpm_pkg_getinfo (local_pkg, PM_PKG_VERSION) : NULL,
+				4, (char*)alpm_pkg_getinfo (sync_pkg, PM_PKG_VERSION),
+				5, (char*)alpm_pkg_getinfo (sync_pkg,
+PM_PKG_DESC),
+				-1);
+	}
+
+	alpm_db_unregister (local_db);
 
 	return;
 }
