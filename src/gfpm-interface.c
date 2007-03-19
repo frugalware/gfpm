@@ -216,7 +216,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 			1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_VERSION),
 			-1);
 
-	if (installed == TRUE)
+	if (installed == TRUE && local_pkg != NULL)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
