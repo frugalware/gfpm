@@ -22,69 +22,110 @@
 
 #include "gfpm-packagelist.h"
 
-GList *
-gfpm_install_package_list_insert (GList *list, gchar *item)
-{
-	GList *ret;
+static GfpmList *install_list = NULL;
+static GfpmList *remove_list = NULL;
 
-	/* Remove the item if it already exists in the list */	
-	if (list!=NULL && NULL != g_list_find (list, (gpointer)item))
+void
+gfpm_package_list_add (GfpmListType type, const gchar *item)
+{
+	GfpmList *new = NULL;
+	GfpmList *temp = NULL;
+
+	new = (GfpmList *) malloc(sizeof(GfpmList));
+	new->next = NULL;
+	new->data = g_strdup_printf ("%s", item);
+
+	if (type == INSTALL_LIST)
 	{
-		ret = g_list_remove (list, (gpointer)item);
-		return ret;
+		if (install_list == NULL)
+		{
+			install_list = new;
+			return;
+		}
+		else
+		{
+			temp = install_list;
+		}
+	}
+	else if (type == REMOVE_LIST)
+	{
+		if (remove_list == NULL)
+		{
+			remove_list = new;
+			return;
+		}
+		else
+		{
+			temp = remove_list;
+		}
 	}
 
-	ret = g_list_append (list, (gpointer)item);
-	return ret;
+	while (temp->next != NULL)
+		temp = temp->next;
+
+	temp->next = new;
+
+	return;
 }
 
-GList *
-gfpm_remove_package_list_insert (GList *list, gchar *item)
+void
+gfpm_package_list_del (GfpmListType type, const gchar *item)
 {
-	GList *ret;
+	GfpmList *prev = NULL;
+	GfpmList *temp = NULL;
 
-	/* Remove the item if it already exists in the list */	
-	if (list!=NULL && NULL != g_list_find (list, (gpointer)item))
+	if ((type == INSTALL_LIST && install_list == NULL) || (type == REMOVE_LIST && remove_list == NULL))
+		return;
+
+	if (type == INSTALL_LIST)
+		temp = install_list;
+	else
+		temp = remove_list;
+
+	for (temp; temp!=NULL; temp=temp->next)
 	{
-		ret = g_list_remove (list, (gpointer)item);
-		return ret;
+		if (strcmp (item, temp->data) == 0)
+			break;
+		prev = temp;
 	}
 
-	ret = g_list_append (list, (gpointer)item);
-	return ret;
+	if (temp == NULL)
+		return;
+
+	if (prev != NULL)
+		prev->next = temp->next;
+	else
+	{
+		if (type == INSTALL_LIST)
+			install_list = temp->next;
+		else
+			remove_list = temp->next;
+	}
+
+	g_free (temp->data);
+	g_free (temp);
+
+	return;
 }
 
-gboolean
-gfpm_package_list_find (GList *list, gchar *item)
+void
+printlist (GfpmListType type)
 {
-	GList *lst = NULL;
-	gboolean ret = TRUE;
+	GfpmList *list;
 
-	if (list != NULL)
-		lst = g_list_find (list, (gpointer)item);
+	if (type == INSTALL_LIST)
+		list = install_list;
 	else
-		ret = FALSE;
-	
-	if (lst != NULL && ret != FALSE)
-		ret = TRUE;
-	else
-		ret = FALSE;
+		list = remove_list;
 
-	return ret;
+	g_print ("====================\n");
+	while (list != NULL)
+	{
+		g_print ("-> %s\n", list->data);
+		list = list->next;
+	}
+	g_print ("====================\n");
+
+	return;
 }
-
-GList *
-gfpm_remove_package_list_remove (GList *list, gchar *item)
-{
-	GList *ret = NULL;	
-	
-	if (list != NULL)
-		ret = g_list_remove (list, (gpointer)item);
-	else
-		ret = list;
-
-	return ret;
-}
-
-
 

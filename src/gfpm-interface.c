@@ -37,8 +37,8 @@ GtkWidget *info_treeview;
 GtkWidget *files_textview;
 
 /* Package lists */
-static GList *install_list = NULL;
-static GList *remove_list = NULL;
+GfpmList *install_list = NULL;
+GfpmList *remove_list = NULL;
 
 char *repository = NULL;
 
@@ -465,7 +465,7 @@ cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data)
 		gfpm_load_pkgs_treeview (groupname);
 		g_free (groupname);
 	}
-	
+
 	return;
 }
 
@@ -484,7 +484,7 @@ cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data)
 		gfpm_load_files_textview (pkgname, installed);
 		g_free (pkgname);
 	}
-	
+
 	return;
 }
 
@@ -496,35 +496,57 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 	GtkTreePath 	*path;
 	gchar		*pkgname;
 	gboolean 	fixed;
+	PM_DB		*local_db;
+	PM_PKG		*pkg;
+	gboolean	installed;
+	gchar		*pk = NULL;
 
 	model = (GtkTreeModel *)data;
 	path = gtk_tree_path_new_from_string (path_str);
 	gtk_tree_model_get_iter (model, &iter, path);
 	gtk_tree_model_get (model, &iter, 0, &fixed, 2, &pkgname, -1);
+	local_db = alpm_db_register ("local");
+	pkg = alpm_db_readpkg (local_db, pkgname);
 
+	pk = g_strdup_printf ("%s", pkgname);
+	installed = (pkg != NULL) ? TRUE : FALSE;
 	fixed ^= 1;
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, fixed, -1);
-	
-	if (TRUE != gtk_cell_renderer_toggle_get_active(toggle))
-	{	
-		//g_print ("Adding to install list...\n");
-		if (gfpm_package_list_find (remove_list, pkgname))
-			gfpm_remove_package_list_remove (remove_list, pkgname);
-		gfpm_install_package_list_insert (install_list, pkgname);
+
+	if ( fixed == TRUE )
+	{
+		/* Install */
+		if (installed == FALSE)
+			gfpm_package_list_add (INSTALL_LIST, pk);
+		else
+			gfpm_package_list_del (INSTALL_LIST, pk);
+
+		gfpm_package_list_del (REMOVE_LIST, pk);
 	}
 	else
-		gfpm_remove_package_list_insert (remove_list, pkgname);
-	
-	g_print ("Contents of INSTALL LIST\n");
-	while (install_list != NULL)
 	{
-		g_print ("name: %s\n",(gchar*)install_list->data);
-		g_print ("===\n");
-		install_list = g_list_next (install_list);
+		/* Remove */
+		if (installed == TRUE)
+			gfpm_package_list_add (REMOVE_LIST, pk);
+		else
+			gfpm_package_list_del (REMOVE_LIST, pk);
+
+		gfpm_package_list_del (INSTALL_LIST, pk);
 	}
 
+	/*
+	g_print ("Contents of INSTALL LIST\n");
+	printlist (INSTALL_LIST);
+
+	g_print ("Contents of REMOVE LIST\n");
+	printlist (REMOVE_LIST);
+	*/
+
+	g_free (pk);
 	gtk_tree_path_free (path);
-	
+	alpm_db_unregister (local_db);
+
 	return;
 }
+
 

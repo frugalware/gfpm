@@ -16,3 +16,4 @@ void gfpm_load_info_treeview (char *, gboolean);
 void gfpm_load_files_textview (char *, gboolean);
 
 #endif
+

@@ -8,16 +8,25 @@
 #include <locale.h>
 #include <gtk/gtk.h>
 
-/* Insert a new item into the 'install' list */
-GList * gfpm_install_package_list_insert (GList *, gchar *);
+typedef struct _gfpmlist
+{
+	gchar *data;
+	struct _gfpmlist *next;
+} GfpmList;
 
-/* Insert a new item into the 'remove' list */
-GList * gfpm_remove_package_list_insert (GList *, gchar *);
+typedef enum _gfpmlisttype
+{
+	INSTALL_LIST = 1,
+	REMOVE_LIST
+} GfpmListType;
 
-/* Searches for an item in the list */
-gboolean gfpm_package_list_find (GList *, gchar *);
+/* Print contents of a GfpmList */
+void printlist (GfpmListType);
 
-/* Insert a new item into the 'remove' list */
-GList * gfpm_remove_package_list_remove (GList *, gchar *);
+/* Inserts a new item into a GfpmList */
+void gfpm_package_list_add (GfpmListType, const gchar *);
+
+/* Remove an item from a GfpmList */
+void gfpm_package_list_del (GfpmListType, const gchar *);
 
 #endif
