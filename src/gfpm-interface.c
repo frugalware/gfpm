@@ -235,6 +235,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 			0, _("Depends:"),
 			1, (char *)foo->str,
 			-1);
+	g_string_free (foo, TRUE);
 
 	/* Get provides */
 	y = alpm_pkg_getinfo (pkg, PM_PKG_PROVIDES);
@@ -252,6 +253,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				1, (char *)foo->str,
 				-1);
 	}
+	g_string_free (foo, TRUE);
 
 	/* Get conflicts */
 	y = alpm_pkg_getinfo (pkg, PM_PKG_CONFLICTS);
@@ -269,6 +271,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				1, (char *)foo->str,
 				-1);
 	}
+	g_string_free (foo, TRUE);
 
 	if (installed == TRUE && local_pkg != NULL)
 	{
