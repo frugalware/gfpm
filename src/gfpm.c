@@ -54,6 +54,18 @@ main (int argc, char *argv[])
 		return 1;
 	}*/
 
+	path = g_strdup_printf ("%s", GLADE_FILE);
+	xml = glade_xml_new (path, NULL, NULL);
+	g_free (path);
+	
+	if (!xml)
+	{
+		gfpm_error (_("Failed to initialize interface."));
+		return 1;
+	}
+	
+	glade_xml_signal_autoconnect (xml);
+
 	if (alpm_initialize ("/") == -1)
 	{
 		gfpm_error (_("Failed to initialize libalpm"));
@@ -63,33 +75,13 @@ main (int argc, char *argv[])
 	if ( (gfpmdb = alpm_db_register ("frugalware-current")) == NULL )
 	{
 		gfpm_error (_("Failed to get repository. Probably invalid repository."));
-		exit_cleanup (1);
+		return 1;
 	}
-	
-	path = g_strdup_printf ("%s", GLADE_FILE);
-	xml = glade_xml_new (path, NULL, NULL);
-	g_free (path);
-	
-	if (!xml)
-	{
-		gfpm_error (_("Failed to initialize interface."));
-		exit_cleanup (1);
-	}
-	
-	glade_xml_signal_autoconnect (xml);
+
 	gfpm_interface_init ();
 	gtk_main ();
 	alpm_release ();
 	
 	return 0;
 }
-
-void
-exit_cleanup (int retval)
-{
-	alpm_release ();
-	gtk_main_quit ();
-	exit (retval);
-}
-
 

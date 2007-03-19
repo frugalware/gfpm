@@ -26,7 +26,7 @@
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">E_xit</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="exit_cleanup"/>
+                        <signal name="activate" handler="gtk_main_quit"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="image12">
                             <property name="visible">True</property>

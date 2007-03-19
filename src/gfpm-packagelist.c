@@ -113,7 +113,7 @@ gfpm_package_list_free (GfpmListType type)
 {
 	GfpmList *list = NULL;
 	GfpmList *tmp;
-	
+
 	if (type == GFPM_INSTALL_LIST)
 		list = install_list;
 	else

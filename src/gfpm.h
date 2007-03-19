@@ -13,6 +13,4 @@
 
 PM_DB *gfpmdb;
 
-void exit_cleanup (int);
-
 #endif
