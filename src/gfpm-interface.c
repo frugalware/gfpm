@@ -244,11 +244,14 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
 		foo = g_string_append (foo, " ");
 	}
-	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-			0, _("Provides:"),
-			1, (char *)foo->str,
-			-1);
+	if (foo->len != 0)
+	{
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+				0, _("Provides:"),
+				1, (char *)foo->str,
+				-1);
+	}
 
 	/* Get conflicts */
 	y = alpm_pkg_getinfo (pkg, PM_PKG_CONFLICTS);
@@ -258,11 +261,14 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
 		foo = g_string_append (foo, " ");
 	}
-	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-			0, _("Conflicts:"),
-			1, (char *)foo->str,
-			-1);
+	if (foo->len != 0)
+	{
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+				0, _("Conflicts:"),
+				1, (char *)foo->str,
+				-1);
+	}
 
 	if (installed == TRUE && local_pkg != NULL)
 	{
@@ -305,7 +311,6 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_SHA1SUM),
 				-1);
 	}
-	
 
 	if (r != 0)
 	{
