@@ -16,8 +16,8 @@ typedef struct _gfpmlist
 
 typedef enum _gfpmlisttype
 {
-	INSTALL_LIST = 1,
-	REMOVE_LIST
+	GFPM_INSTALL_LIST = 1,
+	GFPM_REMOVE_LIST
 } GfpmListType;
 
 /* Print contents of a GfpmList */

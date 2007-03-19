@@ -35,7 +35,7 @@ gfpm_package_list_add (GfpmListType type, const gchar *item)
 	new->next = NULL;
 	new->data = g_strdup_printf ("%s", item);
 
-	if (type == INSTALL_LIST)
+	if (type == GFPM_INSTALL_LIST)
 	{
 		if (install_list == NULL)
 		{
@@ -47,7 +47,7 @@ gfpm_package_list_add (GfpmListType type, const gchar *item)
 			temp = install_list;
 		}
 	}
-	else if (type == REMOVE_LIST)
+	else if (type == GFPM_REMOVE_LIST)
 	{
 		if (remove_list == NULL)
 		{
@@ -74,10 +74,10 @@ gfpm_package_list_del (GfpmListType type, const gchar *item)
 	GfpmList *prev = NULL;
 	GfpmList *temp = NULL;
 
-	if ((type == INSTALL_LIST && install_list == NULL) || (type == REMOVE_LIST && remove_list == NULL))
+	if ((type == GFPM_INSTALL_LIST && install_list == NULL) || (type == GFPM_REMOVE_LIST && remove_list == NULL))
 		return;
 
-	if (type == INSTALL_LIST)
+	if (type == GFPM_INSTALL_LIST)
 		temp = install_list;
 	else
 		temp = remove_list;
@@ -96,7 +96,7 @@ gfpm_package_list_del (GfpmListType type, const gchar *item)
 		prev->next = temp->next;
 	else
 	{
-		if (type == INSTALL_LIST)
+		if (type == GFPM_INSTALL_LIST)
 			install_list = temp->next;
 		else
 			remove_list = temp->next;
@@ -113,7 +113,7 @@ printlist (GfpmListType type)
 {
 	GfpmList *list;
 
-	if (type == INSTALL_LIST)
+	if (type == GFPM_INSTALL_LIST)
 		list = install_list;
 	else
 		list = remove_list;

@@ -528,29 +528,29 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 	{
 		/* Install */
 		if (installed == FALSE)
-			gfpm_package_list_add (INSTALL_LIST, pk);
+			gfpm_package_list_add (GFPM_INSTALL_LIST, pk);
 		else
-			gfpm_package_list_del (INSTALL_LIST, pk);
+			gfpm_package_list_del (GFPM_INSTALL_LIST, pk);
 
-		gfpm_package_list_del (REMOVE_LIST, pk);
+		gfpm_package_list_del (GFPM_REMOVE_LIST, pk);
 	}
 	else
 	{
 		/* Remove */
 		if (installed == TRUE)
-			gfpm_package_list_add (REMOVE_LIST, pk);
+			gfpm_package_list_add (GFPM_REMOVE_LIST, pk);
 		else
-			gfpm_package_list_del (REMOVE_LIST, pk);
+			gfpm_package_list_del (GFPM_REMOVE_LIST, pk);
 
-		gfpm_package_list_del (INSTALL_LIST, pk);
+		gfpm_package_list_del (GFPM_INSTALL_LIST, pk);
 	}
 
 	/*
 	g_print ("Contents of INSTALL LIST\n");
-	printlist (INSTALL_LIST);
+	printlist (GFPM_INSTALL_LIST);
 
 	g_print ("Contents of REMOVE LIST\n");
-	printlist (REMOVE_LIST);
+	printlist (GFPM_REMOVE_LIST);
 	*/
 
 	g_free (pk);
