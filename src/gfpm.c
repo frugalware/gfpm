@@ -42,11 +42,11 @@ int
 main (int argc, char *argv[])
 {
 	gchar *path;
-	
+
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
 	textdomain (GETTEXT_PACKAGE);
-	
+
 	gtk_init (&argc, &argv);
 	/*if ( geteuid() != 0 )
 	{
@@ -57,13 +57,13 @@ main (int argc, char *argv[])
 	path = g_strdup_printf ("%s", GLADE_FILE);
 	xml = glade_xml_new (path, NULL, NULL);
 	g_free (path);
-	
+
 	if (!xml)
 	{
 		gfpm_error (_("Failed to initialize interface."));
 		return 1;
 	}
-	
+
 	glade_xml_signal_autoconnect (xml);
 
 	if (alpm_initialize ("/") == -1)
@@ -81,7 +81,7 @@ main (int argc, char *argv[])
 	gfpm_interface_init ();
 	gtk_main ();
 	alpm_release ();
-	
+
 	return 0;
 }
 

@@ -24,6 +24,7 @@
 
 #define _GNU_SOURCE
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include "gfpm.h"
 #include "gfpm-packagelist.h"
 #include "gfpm-interface.h"
@@ -51,6 +52,7 @@ static void gfpm_clear_treeviews (void);
 static void cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
+static void cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
 
 void
 gfpm_load_groups_treeview (char *repo_name)
@@ -286,6 +288,11 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				0, _("URL:"),
 				1, (char *)alpm_pkg_getinfo(local_pkg, PM_PKG_URL),
 				-1);
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+				0, _("Install Date:"),
+				1, (char *)alpm_pkg_getinfo(local_pkg, PM_PKG_INSTALLDATE),
+				-1);
 	}
 
 	if (r != 1)
@@ -401,7 +408,8 @@ gfpm_interface_init (void)
 				G_TYPE_BOOLEAN,
 				GDK_TYPE_PIXBUF,
 				G_TYPE_STRING,
-				G_TYPE_STRING, G_TYPE_STRING,
+				G_TYPE_STRING,
+				G_TYPE_STRING,
 				G_TYPE_STRING);
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
@@ -440,6 +448,9 @@ gfpm_interface_init (void)
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(info_treeview), -1, "Value", renderer, "text", 1, NULL);
 	gtk_tree_view_set_model (GTK_TREE_VIEW(info_treeview), GTK_TREE_MODEL(store));
 	g_object_set (info_treeview, "hover-selection", TRUE, NULL);
+	
+	/* search */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_search_keypress), NULL);
 
 	gtk_widget_show (gfpm_splash);
 	gfpm_load_groups_treeview ("frugalware-current");
@@ -463,12 +474,13 @@ gfpm_clear_treeviews (void)
 
 }
 
+/* Callbacks */
 static void
 cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data)
 {
-	gchar			*groupname;
-	GtkTreeModel 		*model;
-	GtkTreeIter		iter;
+	gchar		*groupname;
+	GtkTreeModel 	*model;
+	GtkTreeIter	iter;
 
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
@@ -483,10 +495,10 @@ cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data)
 static void
 cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data)
 {
-	gchar			*pkgname;
-	GtkTreeModel 		*model;
-	GtkTreeIter		iter;
-	gboolean		installed;
+	gchar		*pkgname;
+	GtkTreeModel 	*model;
+	GtkTreeIter	iter;
+	gboolean	installed;
 
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
@@ -560,4 +572,19 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 	return;
 }
 
+static void
+cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+	PM_LIST 	*list;
+	const gchar 	*search_string;
+	
+	if (event->keyval != GDK_Return)
+		return;
+	
+	search_string = gtk_entry_get_text (GTK_ENTRY(widget));
+	if (strlen(search_string) <= 0)
+		return;
+
+	return;
+}
 
