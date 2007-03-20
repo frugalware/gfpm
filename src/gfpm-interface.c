@@ -140,6 +140,9 @@ gfpm_load_pkgs_treeview (char *group_name)
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(pkgs_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
+	gfpm_display_status (_("Loading package list ..."));
+	while (gtk_events_pending())
+		gtk_main_iteration();
 	pkgnames = alpm_grp_getinfo (grp, PM_GRP_PKGNAMES);
 
 	for (i = pkgnames; i; i = alpm_list_next(i))
@@ -177,12 +180,12 @@ gfpm_load_pkgs_treeview (char *group_name)
 				5, (char *)alpm_pkg_getinfo (pkg, PM_PKG_DESC),
 				-1);
 	}
-	
+	gfpm_display_status (_("Loading package list ... DONE"));
 	if (r == 0)
 	{
 		alpm_db_unregister (check_db);
 	}
-	
+
 	return;
 }
 
@@ -201,7 +204,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	float		size;
 
 	if ( strcmp(repository, "local") == 0 )
-	{	
+	{
 		r = 1; 	/* in 'local' repo */
 		installed = TRUE;
 	}
@@ -291,11 +294,11 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 
 	if (installed == TRUE)
 	{
-		PM_PKG *pk;		
+		PM_PKG *pk;
 		if (r == 1)
 			pk = pkg;
 		else
-			pk = local_pkg;	
+			pk = local_pkg;
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("Packager:"),
@@ -385,7 +388,15 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	
 	if (installed == TRUE)
 	{
-		local_db = alpm_db_register ("local");
+		if (strcmp(repository, "local")==0)		
+		{
+			local_db = gfpmdb;
+		}
+		else
+		{
+			local_db = alpm_db_register ("local");
+		}
+		
 		pkg = alpm_db_readpkg (local_db, pkg_name);
 		gtk_text_buffer_insert (buffer, &iter, "Files in package:\n", -1);		
 		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
