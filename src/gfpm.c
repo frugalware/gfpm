@@ -27,6 +27,10 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 
+#ifdef HAVE_CONFIG_H
+#	include "config.h"
+#endif
+
 #include "gfpm.h"
 #include "gfpm-interface.h"
 #include "gfpm-packagelist.h"

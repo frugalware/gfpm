@@ -1,0 +1,4 @@
+src/gfpm.c
+src/gfpm-packagelist.c
+src/gfpm-messages.c
+glade/gfpm.glade

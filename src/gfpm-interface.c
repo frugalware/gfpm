@@ -25,6 +25,11 @@
 #define _GNU_SOURCE
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+
+#ifdef HAVE_CONFIG_H
+#	include "config.h"
+#endif
+
 #include "gfpm.h"
 #include "gfpm-packagelist.h"
 #include "gfpm-interface.h"
