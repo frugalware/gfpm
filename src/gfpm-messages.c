@@ -25,12 +25,29 @@
 #include "gfpm-messages.h"
 
 void
-gfpm_error (const char *error_str)
+gfpm_error (const char *error_str, GfpmErrorType type)
 {
 	if (!strlen(error_str))
 		return;
-	fprintf (stderr, "\n\033[1;31m%s ==>\033[0;1m %s\n", _("ERROR"), _(error_str));
+	if (type == GFPM_ERROR_STDOUT)
+	{
+		fprintf (stderr, "\n\033[1;31m%s ==>\033[0;1m %s\n", _("ERROR"), error_str);
+	}
+	else if (type == GFPM_ERROR_GUI)
+	{
+		GtkWidget *error_dlg;
 
+		error_dlg = gtk_message_dialog_new (NULL, 							GTK_DIALOG_DESTROY_WITH_PARENT,
+						GTK_MESSAGE_ERROR,
+						GTK_BUTTONS_OK,
+						"%s: %s",
+						_("ERROR"),
+						error_str);
+		gtk_window_set_resizable (GTK_WINDOW(error_dlg), FALSE);
+		g_signal_connect (error_dlg,	"response", G_CALLBACK (gtk_widget_destroy), error_dlg);
+	
+		gtk_widget_show_all (error_dlg);
+	}
 	return;
 }
 

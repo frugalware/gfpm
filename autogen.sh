@@ -1,5 +1,6 @@
 #!/bin/sh -e
 
+cat /usr/share/aclocal/libtool.m4 >> aclocal.m4
 libtoolize -f -c
 aclocal --force
 autoheader -f

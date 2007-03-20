@@ -62,7 +62,7 @@ main (int argc, char *argv[])
 
 	if (!xml)
 	{
-		gfpm_error (_("Failed to initialize interface."));
+		gfpm_error (_("Failed to initialize interface."), GFPM_ERROR_STDOUT);
 		return 1;
 	}
 
@@ -70,13 +70,13 @@ main (int argc, char *argv[])
 
 	if (alpm_initialize ("/") == -1)
 	{
-		gfpm_error (_("Failed to initialize libalpm"));
+		gfpm_error (_("Failed to initialize libalpm"), GFPM_ERROR_STDOUT);
 		return 1;
 	}
 
 	if ( (gfpmdb = alpm_db_register ("frugalware-current")) == NULL )
 	{
-		gfpm_error (_("Failed to get repository. Probably invalid repository."));
+		gfpm_error (_("Failed to get repository. Probably invalid repository."), GFPM_ERROR_STDOUT);
 		return 1;
 	}
 

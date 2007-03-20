@@ -32,6 +32,7 @@
 
 #include "gfpm.h"
 #include "gfpm-packagelist.h"
+#include "gfpm-messages.h"
 #include "gfpm-interface.h"
 
 /* Main UI Widgets */
@@ -620,9 +621,12 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 	alpm_set_option (PM_OPT_NEEDLES, (long)search_string);
 	list = alpm_db_search (gfpmdb);
+
 	/* Package not found */
 	if (list == NULL)
-	{	g_print ("Empty\n");
+	{
+		gfpm_display_status (_("Search Complete"));
+		gfpm_error (_("No Package found"), GFPM_ERROR_GUI);
 		return;
 	}
 

@@ -7,7 +7,13 @@
 #include <unistd.h>
 #include <locale.h>
 
-void gfpm_error (const char *);
+typedef enum _gfpmerrortype
+{
+	GFPM_ERROR_STDOUT = 1, 	/* Display error on stdout */
+	GFPM_ERROR_GUI 		/* Display error on gui */
+} GfpmErrorType;
+
+void gfpm_error (const char *, GfpmErrorType);
 
 void gfpm_message (const char *);
 	
