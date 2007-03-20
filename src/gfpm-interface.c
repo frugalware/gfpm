@@ -37,10 +37,6 @@ GtkWidget *pkgs_treeview;
 GtkWidget *info_treeview;
 GtkWidget *files_textview;
 
-/* Package lists */
-GfpmList *install_list = NULL;
-GfpmList *remove_list = NULL;
-
 char *repository = NULL;
 
 extern GladeXML *xml;
@@ -109,10 +105,11 @@ gfpm_load_pkgs_treeview (char *group_name)
 	GtkTreeModel 		*model;
 	PM_LIST 		*pkgnames, *i;
 	PM_GRP 			*grp;
-	PM_PKG 			*pkg, *check_pkg;
-	PM_DB 			*check_db;
+	PM_PKG 			*pkg = NULL;
+	PM_PKG			*check_pkg = NULL;
+	PM_DB 			*check_db = NULL;
 	gint 			r;
-	gboolean		check;
+	gboolean		check = FALSE;
 	gchar			*version;
 
 	grp = alpm_db_readgrp (gfpmdb, group_name);
@@ -181,9 +178,10 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 {
 	GtkTreeModel 	*model;
 	GtkTreeIter 	iter;
-	PM_DB		*local_db;
+	PM_DB		*local_db = NULL;
 	PM_LIST 	*i, *y;
-	PM_PKG 		*pkg, *local_pkg;
+	PM_PKG 		*pkg = NULL;
+	PM_PKG		*local_pkg = NULL;
 	GString 	*foo;
 	char 		*tmp;
 	int 		r;
@@ -472,6 +470,7 @@ gfpm_clear_treeviews (void)
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(pkgs_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
+	return;
 }
 
 /* Callbacks */
@@ -578,11 +577,13 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	GtkListStore	*store;
 	GdkPixbuf	*icon_yes, *icon_no;
 	GtkTreeIter	iter;
+	GtkTreeModel	*model;
 	PM_LIST 	*list, *tmp;
 	PM_DB		*local_db;
 	PM_PKG		*sync_pkg, *local_pkg;
 	const gchar 	*search_string;
 	gboolean	check;
+	guint		ci;
 
 	if (event->keyval != GDK_Return)
 		return;
@@ -591,10 +592,12 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	if (strlen(search_string) <= 0)
 		return;
 
-	store = GTK_LIST_STORE (gtk_tree_view_get_model(GTK_TREE_VIEW(pkgs_treeview)));
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(pkgs_treeview));	
+	store = GTK_LIST_STORE (model);
+	gtk_list_store_clear (store);
+
 	alpm_set_option (PM_OPT_NEEDLES, (long)search_string);
 	list = alpm_db_search (gfpmdb);
-	gtk_list_store_clear (store);
 	/* Package not found */
 	if (list == NULL)
 	{	g_print ("Empty\n");
@@ -604,7 +607,11 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	local_db = alpm_db_register ("local");
 	icon_yes = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 	icon_no = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-
+	
+	ci = gtk_statusbar_get_context_id (GTK_STATUSBAR(gfpm_statusbar), "-");
+	gtk_statusbar_push (GTK_STATUSBAR(gfpm_statusbar), ci, _("Searching for packages ..."));
+	while (gtk_events_pending())
+		gtk_main_iteration();
 	for (tmp = list; tmp; tmp = alpm_list_next (tmp))
 	{
 		local_pkg = alpm_db_readpkg (local_db, alpm_list_getdata (tmp));
@@ -626,9 +633,16 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 				5, (char*)alpm_pkg_getinfo (sync_pkg,
 PM_PKG_DESC),
 				-1);
+		if (local_pkg)
+			alpm_pkg_free (local_pkg);
+		alpm_pkg_free (sync_pkg);
 	}
-
+	
+	gtk_statusbar_push (GTK_STATUSBAR(gfpm_statusbar), ci, _("Search Complete"));
+	gtk_tree_view_set_model (GTK_TREE_VIEW(pkgs_treeview), GTK_TREE_MODEL(store));
 	alpm_db_unregister (local_db);
+	g_object_unref (icon_no);
+	g_object_unref (icon_yes);
 
 	return;
 }
