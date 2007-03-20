@@ -198,6 +198,8 @@
                             <child>
                               <widget class="GtkComboBox" id="combobox_repos">
                                 <property name="visible">True</property>
+                                <property name="items">frugalware-current
+Installed packages</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>

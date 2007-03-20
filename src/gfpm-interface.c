@@ -35,6 +35,8 @@
 #include "gfpm-messages.h"
 #include "gfpm-interface.h"
 
+#define DEFAULT_REPO "frugalware-current"
+
 /* Main UI Widgets */
 GtkWidget *gfpm_window;
 GtkWidget *gfpm_statusbar;
@@ -57,6 +59,7 @@ static void gfpm_display_status (const gchar *message);
 static void cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
+static void cb_repo_combo_box_changed (GtkComboBox *widget, gpointer data);
 static void cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
 
 void
@@ -76,7 +79,9 @@ gfpm_load_groups_treeview (char *repo_name)
 	{
 		gfpmdb = alpm_db_register (repo_name);
 	}
+	asprintf (&repository, "%s", repo_name);
 
+	gfpm_clear_treeviews ();
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(groups_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
@@ -402,6 +407,7 @@ void
 gfpm_interface_init (void)
 {
 	GtkWidget	*gfpm_splash;
+	GtkWidget	*widget;
 	GtkListStore 	*store;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
@@ -413,6 +419,12 @@ gfpm_interface_init (void)
 	pkgs_treeview = glade_xml_get_widget (xml, "pkgstreeview");
 	info_treeview = glade_xml_get_widget (xml, "infotreeview");
 	files_textview = glade_xml_get_widget (xml, "filestextview");
+	
+	/* Setup repository combobox */
+	widget = glade_xml_get_widget (xml, "combobox_repos");
+	store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(widget)));
+	gtk_combo_box_set_active (GTK_COMBO_BOX(widget), 0);
+	g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_repo_combo_box_changed), NULL);
 	
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -472,8 +484,8 @@ gfpm_interface_init (void)
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_search_keypress), NULL);
 
 	gtk_widget_show (gfpm_splash);
-	gfpm_load_groups_treeview ("frugalware-current");
-	asprintf (&repository, "frugalware-current");
+	gfpm_load_groups_treeview (DEFAULT_REPO);
+	asprintf (&repository, DEFAULT_REPO);
 	gtk_widget_hide (gfpm_splash);
 	gtk_widget_show (gfpm_window);
 	
@@ -591,6 +603,23 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 	g_free (pk);
 	gtk_tree_path_free (path);
 	alpm_db_unregister (local_db);
+
+	return;
+}
+
+static void cb_repo_combo_box_changed (GtkComboBox *widget, gpointer data)
+{
+	gint index;
+
+	index = gtk_combo_box_get_active (widget);
+	switch (index)
+	{
+		case 0: gfpm_load_groups_treeview (DEFAULT_REPO);
+			break;
+		case 1: gfpm_load_groups_treeview ("local");
+			break;
+		default: return;
+	}
 
 	return;
 }
