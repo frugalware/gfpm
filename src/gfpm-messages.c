@@ -21,7 +21,6 @@
  */
 
 #define _GNU_SOURCE
-#include "gfpm.h"
 #include "gfpm-messages.h"
 
 void
@@ -37,15 +36,16 @@ gfpm_error (const char *error_str, GfpmErrorType type)
 	{
 		GtkWidget *error_dlg;
 
-		error_dlg = gtk_message_dialog_new (NULL, 							GTK_DIALOG_DESTROY_WITH_PARENT,
+		error_dlg = gtk_message_dialog_new (NULL,
+						GTK_DIALOG_DESTROY_WITH_PARENT,
 						GTK_MESSAGE_ERROR,
 						GTK_BUTTONS_OK,
 						"%s: %s",
 						_("ERROR"),
 						error_str);
 		gtk_window_set_resizable (GTK_WINDOW(error_dlg), FALSE);
-		g_signal_connect (error_dlg,	"response", G_CALLBACK (gtk_widget_destroy), error_dlg);
-	
+		g_signal_connect (error_dlg, "response", G_CALLBACK (gtk_widget_destroy), error_dlg);
+
 		gtk_widget_show_all (error_dlg);
 	}
 	return;
