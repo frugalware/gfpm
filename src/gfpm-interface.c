@@ -162,7 +162,6 @@ gfpm_load_pkgs_treeview (char *group_name)
 				icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 				version = (char *)alpm_pkg_getinfo (check_pkg, PM_PKG_VERSION);
 				check = TRUE;
-				
 			}
 		} 
 		else
@@ -388,7 +387,7 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	
 	if (installed == TRUE)
 	{
-		if (strcmp(repository, "local")==0)		
+		if (strcmp(repository, "local")==0)
 		{
 			local_db = gfpmdb;
 		}
@@ -396,7 +395,7 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 		{
 			local_db = alpm_db_register ("local");
 		}
-		
+
 		pkg = alpm_db_readpkg (local_db, pkg_name);
 		gtk_text_buffer_insert (buffer, &iter, "Files in package:\n", -1);		
 		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
@@ -438,7 +437,7 @@ gfpm_interface_init (void)
 	GtkListStore 	*store;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
-	
+
 	gfpm_window = glade_xml_get_widget (xml, "mainwindow");
 	gfpm_splash = glade_xml_get_widget (xml, "splash_window");
 	gfpm_statusbar = glade_xml_get_widget (xml, "statusbar");
@@ -446,13 +445,13 @@ gfpm_interface_init (void)
 	pkgs_treeview = glade_xml_get_widget (xml, "pkgstreeview");
 	info_treeview = glade_xml_get_widget (xml, "infotreeview");
 	files_textview = glade_xml_get_widget (xml, "filestextview");
-	
+
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
 	store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(widget)));
 	gtk_combo_box_set_active (GTK_COMBO_BOX(widget), 0);
 	g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_repo_combo_box_changed), NULL);
-	
+
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 	renderer = gtk_cell_renderer_text_new ();
@@ -506,7 +505,7 @@ gfpm_interface_init (void)
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(info_treeview), -1, "Value", renderer, "text", 1, NULL);
 	gtk_tree_view_set_model (GTK_TREE_VIEW(info_treeview), GTK_TREE_MODEL(store));
 	g_object_set (info_treeview, "hover-selection", TRUE, NULL);
-	
+
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_search_keypress), NULL);
 
@@ -515,7 +514,7 @@ gfpm_interface_init (void)
 	asprintf (&repository, DEFAULT_REPO);
 	gtk_widget_hide (gfpm_splash);
 	gtk_widget_show (gfpm_window);
-	
+
 	/* unref the glade xml object */
 	g_object_unref (xml);
 
@@ -689,7 +688,7 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	local_db = alpm_db_register ("local");
 	icon_yes = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 	icon_no = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-	
+
 	gfpm_display_status (_("Searching for packages ..."));
 	while (gtk_events_pending())
 		gtk_main_iteration();
