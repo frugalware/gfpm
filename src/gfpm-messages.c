@@ -30,7 +30,7 @@ gfpm_error (const char *error_str, GfpmErrorType type)
 		return;
 	if (type == GFPM_ERROR_STDOUT)
 	{
-		fprintf (stderr, "\n\033[1;31m%s ==>\033[0;1m %s\n", _("ERROR"), error_str);
+		fprintf (stderr, "\n\033[1;31m%s ==>\033[0;1m %s\033[1;0m\n", _("ERROR"), error_str);
 	}
 	else if (type == GFPM_ERROR_GUI)
 	{
