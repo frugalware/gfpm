@@ -36,9 +36,7 @@
 #include "gfpm-packagelist.h"
 #include "gfpm-messages.h"
 
-#define GETTEXT_PACKAGE 	"gfpm"
-#define GLADE_FILE 		"glade/gfpm.glade"
-#define LOCALE_DIR 		"/usr/share/locale"
+#define GLADE_FILE	"/share/gfpm/gfpm.glade"
 
 GladeXML *xml = NULL;
 
@@ -48,7 +46,7 @@ main (int argc, char *argv[])
 	gchar *path;
 
 	setlocale (LC_ALL, "");
-	bindtextdomain (GETTEXT_PACKAGE, LOCALE_DIR);
+	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	textdomain (GETTEXT_PACKAGE);
 
 	gtk_init (&argc, &argv);
@@ -58,7 +56,7 @@ main (int argc, char *argv[])
 		return 1;
 	}*/
 
-	path = g_strdup_printf ("%s", GLADE_FILE);
+	path = g_strdup_printf ("%s%s", PREFIX, GLADE_FILE);
 	xml = glade_xml_new (path, NULL, NULL);
 	g_free (path);
 
