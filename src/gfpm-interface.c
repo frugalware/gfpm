@@ -49,6 +49,9 @@ extern GladeXML *xml;
 /* Clear the package and info treeviews */
 static void gfpm_clear_treeviews (void);
 
+/* Display message on status bar */
+static void gfpm_display_status (const gchar *message);
+
 /* Callbacks */
 static void cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data);
@@ -62,7 +65,6 @@ gfpm_load_groups_treeview (char *repo_name)
 	GtkTreeIter 	iter;
 	PM_LIST 	*i;
 	char 		*tmp;
-	guint		ci;
 
 	if (gfpmdb != NULL)
 	{
@@ -77,8 +79,7 @@ gfpm_load_groups_treeview (char *repo_name)
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(groups_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
-	ci = gtk_statusbar_get_context_id (GTK_STATUSBAR(gfpm_statusbar), "-");
-	gtk_statusbar_push (GTK_STATUSBAR(gfpm_statusbar), ci, _("Loading groups ..."));
+	gfpm_display_status (_("Loading groups ..."));
 	gtk_widget_show (gfpm_statusbar);
 
 	/* Need this to fresh up the gui while loading pkgs */
@@ -88,7 +89,7 @@ gfpm_load_groups_treeview (char *repo_name)
 	for (i = alpm_db_getgrpcache(gfpmdb); i; i = alpm_list_next(i))
 	{	
 		asprintf (&tmp, _("Loading groups ... [%s]"), (char *)alpm_list_getdata(i));
-		gtk_statusbar_push (GTK_STATUSBAR(gfpm_statusbar), ci, tmp);
+		gfpm_display_status (tmp);
 		while (gtk_events_pending())
 			gtk_main_iteration();
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
@@ -98,7 +99,7 @@ gfpm_load_groups_treeview (char *repo_name)
 		g_free (tmp);
 	}
 
-	gtk_statusbar_push (GTK_STATUSBAR(gfpm_statusbar), ci, _("Loading groups ... DONE"));
+	gfpm_display_status (_("Loading groups ... DONE"));
 	return;
 }
 
@@ -381,6 +382,20 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	return;
 }
 
+static void
+gfpm_display_status (const gchar *message)
+{
+	guint ci;
+
+	if (!message)
+		return;
+
+	ci = gtk_statusbar_get_context_id (GTK_STATUSBAR(gfpm_statusbar), "-");
+	gtk_statusbar_push (GTK_STATUSBAR(gfpm_statusbar), ci, message);
+
+	return;
+}
+
 /* Lookup widgets and initialize signals */
 void
 gfpm_interface_init (void)
@@ -408,12 +423,12 @@ gfpm_interface_init (void)
 
 	/* Setup pkgs treeview */
 	store = gtk_list_store_new (6,
-				G_TYPE_BOOLEAN,
-				GDK_TYPE_PIXBUF,
-				G_TYPE_STRING,
-				G_TYPE_STRING,
-				G_TYPE_STRING,
-				G_TYPE_STRING);
+				G_TYPE_BOOLEAN,  /* Install status */
+				GDK_TYPE_PIXBUF, /* Status icon */
+				G_TYPE_STRING,   /* Package name */
+				G_TYPE_STRING,   /* Installed version */
+				G_TYPE_STRING,   /* Latest version */
+				G_TYPE_STRING);  /* Package Description */
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
 	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_pkg_selection_toggled), store);
@@ -461,6 +476,9 @@ gfpm_interface_init (void)
 	gtk_widget_hide (gfpm_splash);
 	gtk_widget_show (gfpm_window);
 	
+	/* unref the glade xml object */
+	g_object_unref (xml);
+
 	return;
 }
 
@@ -588,7 +606,6 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	PM_PKG		*sync_pkg, *local_pkg;
 	const gchar 	*search_string;
 	gboolean	check;
-	guint		ci;
 
 	if (event->keyval != GDK_Return)
 		return;
@@ -613,8 +630,7 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	icon_yes = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 	icon_no = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 	
-	ci = gtk_statusbar_get_context_id (GTK_STATUSBAR(gfpm_statusbar), "-");
-	gtk_statusbar_push (GTK_STATUSBAR(gfpm_statusbar), ci, _("Searching for packages ..."));
+	gfpm_display_status (_("Searching for packages ..."));
 	while (gtk_events_pending())
 		gtk_main_iteration();
 	for (tmp = list; tmp; tmp = alpm_list_next (tmp))
@@ -642,8 +658,8 @@ PM_PKG_DESC),
 			alpm_pkg_free (local_pkg);
 		alpm_pkg_free (sync_pkg);
 	}
-	
-	gtk_statusbar_push (GTK_STATUSBAR(gfpm_statusbar), ci, _("Search Complete"));
+
+	gfpm_display_status (_("Search Complete"));
 	gtk_tree_view_set_model (GTK_TREE_VIEW(pkgs_treeview), GTK_TREE_MODEL(store));
 	alpm_db_unregister (local_db);
 	g_object_unref (icon_no);
