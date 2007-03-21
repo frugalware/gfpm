@@ -12,6 +12,4 @@
 
 #define _(string) gettext (string)
 
-PM_DB *gfpmdb;
-
 #endif

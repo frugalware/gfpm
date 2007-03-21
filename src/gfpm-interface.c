@@ -49,6 +49,9 @@ char *repository = NULL;
 
 extern GladeXML *xml;
 
+PM_DB *gfpmdb = NULL;
+
+
 /* Clear the package and info treeviews */
 static void gfpm_clear_treeviews (void);
 
@@ -73,12 +76,10 @@ gfpm_load_groups_treeview (char *repo_name)
 	if (gfpmdb != NULL)
 	{
 		alpm_db_unregister (gfpmdb);
-		gfpmdb = alpm_db_register (repo_name);
+		gfpmdb = NULL;
 	}
-	else
-	{
-		gfpmdb = alpm_db_register (repo_name);
-	}
+	gfpmdb = alpm_db_register (repo_name);
+	g_free (repository);
 	asprintf (&repository, "%s", repo_name);
 
 	gfpm_clear_treeviews ();
@@ -115,43 +116,40 @@ gfpm_load_pkgs_treeview (char *group_name)
 	GtkTreeIter 		iter;
 	GdkPixbuf 		*icon;
 	GtkTreeModel 		*model;
+	PM_DB			*localdb;
 	PM_LIST 		*pkgnames, *i;
 	PM_GRP 			*grp;
 	PM_PKG 			*pkg = NULL;
-	PM_PKG			*check_pkg = NULL;
-	PM_DB 			*check_db = NULL;
-	gint 			r;
+	PM_PKG			*local_pkg = NULL;
 	gboolean		check = FALSE;
 	gchar			*version;
+	gint 			r;
 
 	grp = alpm_db_readgrp (gfpmdb, group_name);
-
-	if (!strcmp(repository, "local"))
+	if (strcmp (repository, "local") == 0)
 	{	
-		r = 1; /* in 'local' repo */
-		check = TRUE;
+		r = 0; /* Local repo */
 	}
 	else
 	{	
-		r = 0; /* in 'remote' repo */
-		check_db = alpm_db_register ("local");
+		r = 1; /* Remote repo */
+		localdb = alpm_db_register ("local");
 	}
 
+	pkgnames = alpm_grp_getinfo (grp, PM_GRP_PKGNAMES);
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(pkgs_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
 	gfpm_display_status (_("Loading package list ..."));
 	while (gtk_events_pending())
 		gtk_main_iteration();
-	pkgnames = alpm_grp_getinfo (grp, PM_GRP_PKGNAMES);
-
 	for (i = pkgnames; i; i = alpm_list_next(i))
 	{
 		pkg = alpm_db_readpkg (gfpmdb, alpm_list_getdata(i));
-		if (r == 0)
+		if (r == 1)
 		{
-			check_pkg = alpm_db_readpkg (check_db, alpm_list_getdata(i));
-			if (alpm_pkg_getinfo(check_pkg, PM_PKG_VERSION) == NULL)
+			local_pkg = alpm_db_readpkg (localdb, alpm_list_getdata(i));
+			if (alpm_pkg_getinfo(local_pkg, PM_PKG_VERSION) == NULL)
 			{	
 				icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 				version = NULL;
@@ -160,13 +158,14 @@ gfpm_load_pkgs_treeview (char *group_name)
 			else
 			{	
 				icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-				version = (char *)alpm_pkg_getinfo (check_pkg, PM_PKG_VERSION);
+				version = (char *)alpm_pkg_getinfo (local_pkg, PM_PKG_VERSION);
 				check = TRUE;
 			}
 		} 
 		else
 		{
 			icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
+			check = TRUE;
 		}
 
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
@@ -174,16 +173,18 @@ gfpm_load_pkgs_treeview (char *group_name)
 				0, check,
 				1, icon,
 				2, (char *)alpm_list_getdata (i),
-				3, check ? (char*)alpm_pkg_getinfo (check_pkg, PM_PKG_VERSION) : NULL,
+				3, check ? (char*)alpm_pkg_getinfo (local_pkg, PM_PKG_VERSION) : NULL,
 				4, (char *)alpm_pkg_getinfo (pkg, PM_PKG_VERSION),
 				5, (char *)alpm_pkg_getinfo (pkg, PM_PKG_DESC),
 				-1);
+		alpm_pkg_free (pkg);
+		if (r == 1)
+			alpm_pkg_free (local_pkg);
 	}
 	gfpm_display_status (_("Loading package list ... DONE"));
-	if (r == 0)
-	{
-		alpm_db_unregister (check_db);
-	}
+	
+	if (r == 1)
+		alpm_db_unregister (localdb);	
 
 	return;
 }
@@ -193,34 +194,38 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 {
 	GtkTreeModel 	*model;
 	GtkTreeIter 	iter;
-	PM_DB		*local_db = NULL;
 	PM_LIST 	*i, *y;
+	PM_DB		*localdb;
 	PM_PKG 		*pkg = NULL;
+	PM_DB 		*syncdb;
 	PM_PKG		*local_pkg = NULL;
 	GString 	*foo;
 	char 		*tmp;
-	int 		r;
+	gint		r;
 	float		size;
 
-	if ( strcmp(repository, "local") == 0 )
+	pkg = alpm_db_readpkg (gfpmdb, pkg_name);
+
+	if (strcmp (repository, "local") == 0)
 	{
-		r = 1; 	/* in 'local' repo */
-		installed = TRUE;
+		r = 0; /* Local repository */
 	}
 	else
-		r = 0; /* in 'remote' repo */
+	{
+		r = 1; /* Remote repository */
+	}
+	
+	if (installed == TRUE && r == 1)
+	{
+		localdb = alpm_db_register ("local");
+		local_pkg = alpm_db_readpkg (localdb, pkg_name);
+	}
+	else
+		local_pkg = pkg;
 
+	
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(info_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
-
-	if ((pkg = alpm_db_readpkg (gfpmdb, pkg_name))==NULL)
-		return;
-
-	if (installed == TRUE || r == 1)
-	{
-		local_db = alpm_db_register ("local");
-		local_pkg = alpm_db_readpkg (local_db, pkg_name);
-	}
 
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -291,32 +296,27 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	}
 	g_string_free (foo, TRUE);
 
-	if (installed == TRUE)
+	if (r == 0 || installed == TRUE)
 	{
-		PM_PKG *pk;
-		if (r == 1)
-			pk = pkg;
-		else
-			pk = local_pkg;
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("Packager:"),
-				1, (char *)alpm_pkg_getinfo (pk, PM_PKG_PACKAGER),
+				1, (char *)alpm_pkg_getinfo (local_pkg, PM_PKG_PACKAGER),
 				-1);
 
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("URL:"),
-				1, (char *)alpm_pkg_getinfo(pk, PM_PKG_URL),
+				1, (char *)alpm_pkg_getinfo(local_pkg, PM_PKG_URL),
 				-1);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("Install Date:"),
-				1, (char *)alpm_pkg_getinfo (pk, PM_PKG_INSTALLDATE),
+				1, (char *)alpm_pkg_getinfo (local_pkg, PM_PKG_INSTALLDATE),
 				-1);
 	}
 
-	if (r != 1)
+	if (r != 0)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		size = (float)((long)alpm_pkg_getinfo(pkg, PM_PKG_SIZE)/1024)/1024;
@@ -326,7 +326,6 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				1, (char *)tmp,
 				-1);
 		g_free (tmp);
-	}
 
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 	size = (float)((long)alpm_pkg_getinfo(pkg, PM_PKG_USIZE)/1024)/1024;
@@ -336,8 +335,21 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				1, (char *)tmp,
 				-1);
 	g_free (tmp);
+	}
 
-	if (r != 1)
+	if (r == 0 && installed == TRUE)
+	{
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		size = (float)((long)alpm_pkg_getinfo(local_pkg, PM_PKG_USIZE)/1024)/1024;
+		asprintf (&tmp, "%0.2f MB", size);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+					0, _("Size:"),
+					1, (char *)tmp,
+					-1);
+	g_free (tmp);
+	}
+
+	if (r == 1)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -346,7 +358,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				-1);
 	}
 
-	if (r != 0)
+	if (r == 0 || installed == TRUE)
 	{
 		y = alpm_pkg_getinfo (pkg, PM_PKG_REQUIREDBY);
 		foo = g_string_new ("");
@@ -366,8 +378,9 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		}
 	}
 
-	if (installed == TRUE)
-		alpm_db_unregister (local_db);
+	alpm_pkg_free (pkg);
+	if ( installed == TRUE && r == 1 )
+		alpm_db_unregister (localdb);
 
 	return;
 }
@@ -377,7 +390,7 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 {
 	GtkTextBuffer 	*buffer;
 	GtkTextIter 	iter;
-	PM_DB		*local_db;
+	PM_DB		*localdb;
 	PM_LIST 	*i;
 	PM_PKG 		*pkg;
 
@@ -387,16 +400,7 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	
 	if (installed == TRUE)
 	{
-		if (strcmp(repository, "local")==0)
-		{
-			local_db = gfpmdb;
-		}
-		else
-		{
-			local_db = alpm_db_register ("local");
-		}
-
-		pkg = alpm_db_readpkg (local_db, pkg_name);
+		pkg = alpm_db_readpkg (gfpmdb, pkg_name);
 		gtk_text_buffer_insert (buffer, &iter, "Files in package:\n", -1);		
 		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
 		{
@@ -404,7 +408,6 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 			gtk_text_buffer_insert (buffer, &iter, (char *)alpm_list_getdata(i), -1);
 			gtk_text_buffer_insert (buffer, &iter, "\n", -1);
 		}
-		alpm_db_unregister (local_db);
 	}
 	else
 		gtk_text_buffer_insert (buffer, &iter, "Package is not installed.\n", -1);
