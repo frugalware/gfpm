@@ -50,6 +50,8 @@ main (int argc, char *argv[])
 	textdomain (GETTEXT_PACKAGE);
 
 	gtk_init (&argc, &argv);
+
+	/* FIX ME */	
 	/*if ( geteuid() != 0 )
 	{
 		gfpm_error (_("Gfpm should be run as root."));

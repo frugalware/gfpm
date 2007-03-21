@@ -63,6 +63,7 @@ static void cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer d
 static void cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 static void cb_repo_combo_box_changed (GtkComboBox *widget, gpointer data);
+static void cb_refresh_button_clicked (GtkToolButton *widget, gpointer data);
 static void cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
 
 void
@@ -356,9 +357,9 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				-1);
 	}
 
-	if (r == 0 || installed == TRUE)
+	if (installed == TRUE)
 	{
-		y = alpm_pkg_getinfo (pkg, PM_PKG_REQUIREDBY);
+		y = alpm_pkg_getinfo (local_pkg, PM_PKG_REQUIREDBY);
 		foo = g_string_new ("");
 		for (i = y; i; i = alpm_list_next(i))
 		{
@@ -451,6 +452,9 @@ gfpm_interface_init (void)
 	store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(widget)));
 	gtk_combo_box_set_active (GTK_COMBO_BOX(widget), 0);
 	g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_repo_combo_box_changed), NULL);
+
+	/* Refresh db button */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_refresh_button_clicked), NULL);
 
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -648,6 +652,20 @@ static void cb_repo_combo_box_changed (GtkComboBox *widget, gpointer data)
 	}
 
 	return;
+
+}
+static void
+cb_refresh_button_clicked (GtkToolButton *widget, gpointer data)
+{
+	int ret;
+	g_print ("updating...\n");
+	ret = alpm_db_update (1, gfpmdb);
+	if (ret < 0)
+	g_print ("Database is up to date");
+	else if (ret > 0)
+	g_print ("Something went wrong");
+
+	return;
 }
 
 static void
@@ -671,8 +689,9 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		return;
 
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(pkgs_treeview));	
-	store = GTK_LIST_STORE (model);
-	gtk_list_store_clear (store);
+	gtk_list_store_clear (GTK_LIST_STORE(model));
+
+	store = (GtkListStore*) model;
 
 	alpm_set_option (PM_OPT_NEEDLES, (long)search_string);
 	list = alpm_db_search (gfpmdb);
@@ -710,8 +729,7 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 				2, (char*)alpm_pkg_getinfo (sync_pkg, PM_PKG_NAME),
 				3, check ? (char*)alpm_pkg_getinfo (local_pkg, PM_PKG_VERSION) : NULL,
 				4, (char*)alpm_pkg_getinfo (sync_pkg, PM_PKG_VERSION),
-				5, (char*)alpm_pkg_getinfo (sync_pkg,
-PM_PKG_DESC),
+				5, (char*)alpm_pkg_getinfo (sync_pkg, PM_PKG_DESC),
 				-1);
 		if (local_pkg)
 			alpm_pkg_free (local_pkg);
