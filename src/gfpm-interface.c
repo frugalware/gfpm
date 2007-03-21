@@ -197,7 +197,6 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	PM_LIST 	*i, *y;
 	PM_DB		*localdb;
 	PM_PKG 		*pkg = NULL;
-	PM_DB 		*syncdb;
 	PM_PKG		*local_pkg = NULL;
 	GString 	*foo;
 	char 		*tmp;
@@ -214,7 +213,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	{
 		r = 1; /* Remote repository */
 	}
-	
+
 	if (installed == TRUE && r == 1)
 	{
 		localdb = alpm_db_register ("local");
@@ -223,7 +222,6 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	else
 		local_pkg = pkg;
 
-	
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(info_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
@@ -390,7 +388,6 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 {
 	GtkTextBuffer 	*buffer;
 	GtkTextIter 	iter;
-	PM_DB		*localdb;
 	PM_LIST 	*i;
 	PM_PKG 		*pkg;
 

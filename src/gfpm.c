@@ -74,12 +74,6 @@ main (int argc, char *argv[])
 		return 1;
 	}
 
-//	if ( (gfpmdb = alpm_db_register ("frugalware-current")) == NULL )
-//	{
-//		gfpm_error (_("Failed to get repository. Probably invalid repository."), GFPM_ERROR_STDOUT);
-//		return 1;
-//	}
-
 	gfpm_interface_init ();
 	gtk_main ();
 	alpm_release ();
