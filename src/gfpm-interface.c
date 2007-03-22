@@ -116,7 +116,7 @@ gfpm_load_pkgs_treeview (char *group_name)
 	GtkTreeIter 	iter;
 	GdkPixbuf 		*icon;
 	GtkTreeModel 	*model;
-	PM_DB			*localdb;
+	PM_DB			*localdb = NULL;
 	PM_LIST 		*pkgnames, *i;
 	PM_GRP 			*grp;
 	PM_PKG 			*pkg = NULL;
@@ -195,7 +195,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	GtkTreeModel 	*model;
 	GtkTreeIter 	iter;
 	PM_LIST			*i, *y;
-	PM_DB			*localdb;
+	PM_DB			*localdb = NULL;
 	PM_PKG			*pkg = NULL;
 	PM_PKG			*local_pkg = NULL;
 	GString			*foo;
