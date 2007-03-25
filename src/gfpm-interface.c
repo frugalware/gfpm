@@ -162,6 +162,7 @@ gfpm_load_pkgs_treeview (char *group_name)
 		{
 			icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 			check = TRUE;
+			local_pkg = pkg;
 		}
 
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
@@ -279,7 +280,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	}
 	g_string_free (foo, TRUE);
 
-	if (r == 1 && installed == TRUE)
+	if (installed == TRUE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -320,7 +321,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		g_free (tmp);
 	}
 
-	if (r == 1 && installed == TRUE)
+	if (installed == TRUE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		size = (float)((long)alpm_pkg_getinfo(local_pkg, PM_PKG_USIZE)/1024)/1024;
@@ -361,7 +362,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		}
 	}
 
-	if (installed == TRUE && r == 1)
+	if (installed == TRUE)
 		alpm_pkg_free (local_pkg);
 	else
 		alpm_pkg_free (pkg);
@@ -383,10 +384,7 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	
 	if (installed == TRUE)
 	{
-		if (gfpm_db_is_local())
-			pkg = alpm_db_readpkg (localdb, pkg_name);
-		else
-			pkg = alpm_db_readpkg (gfpmdb, pkg_name);
+		pkg = alpm_db_readpkg (localdb, pkg_name);
 		gtk_text_buffer_insert (buffer, &iter, _("Files in package:\n"), -1);		
 		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
 		{
