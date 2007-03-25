@@ -2,7 +2,7 @@
  *  gfpm.c
  *  Author(s): 		Priyank Gosalia <priyankmg@gmail.com>
  *  Old Authors(s):	Christian Hamar <krics@linuxforum.hu>
- *			Miklos Nemeth <desco@frugalware.org>
+ *					Miklos Nemeth <desco@frugalware.org>
  *  Copyright 2006-2007 Frugalware Developer Team
  ****************************************************************************/
 

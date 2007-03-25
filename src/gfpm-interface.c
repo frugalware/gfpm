@@ -388,8 +388,9 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 {
 	GtkTextBuffer 	*buffer;
 	GtkTextIter 	iter;
-	PM_LIST			*i;
-	PM_PKG			*pkg;
+	PM_DB		*localdb = NULL;
+	PM_LIST		*i;
+	PM_PKG		*pkg;
 
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(files_textview));
 	gtk_text_buffer_set_text (buffer, "", 0);
@@ -397,7 +398,15 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	
 	if (installed == TRUE)
 	{
-		pkg = alpm_db_readpkg (gfpmdb, pkg_name);
+		if (strcmp (repository, "local") != 0)
+		{
+			localdb = alpm_db_register ("local");			
+			pkg = alpm_db_readpkg (localdb, pkg_name);
+		}
+		else
+		{
+			pkg = alpm_db_readpkg (gfpmdb, pkg_name);
+		}
 		gtk_text_buffer_insert (buffer, &iter, _("Files in package:\n"), -1);		
 		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
 		{
@@ -410,6 +419,9 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 		gtk_text_buffer_insert (buffer, &iter, _("Package is not installed.\n"), -1);
 
 	gtk_text_view_set_buffer (GTK_TEXT_VIEW(files_textview), buffer);
+	
+	if (localdb)
+		alpm_db_unregister (localdb);
 
 	return;
 }
