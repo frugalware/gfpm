@@ -7,6 +7,7 @@ bin_PROGRAMS=gfpm
 ## Gfpm
 gfpm_SOURCES=				\
 		gfpm-messages.c		\
+		gfpm-db.c			\
 		gfpm-packagelist.c 	\
 		gfpm-interface.c	\
 		gfpm.c

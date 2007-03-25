@@ -31,6 +31,7 @@
 #endif
 
 #include "gfpm.h"
+#include "gfpm-db.h"
 #include "gfpm-packagelist.h"
 #include "gfpm-messages.h"
 #include "gfpm-interface.h"
@@ -45,11 +46,12 @@ GtkWidget *pkgs_treeview;
 GtkWidget *info_treeview;
 GtkWidget *files_textview;
 
-char *repository = NULL;
+extern char *repository;
 
 extern GladeXML *xml;
 
-PM_DB *gfpmdb = NULL;
+extern PM_DB *gfpmdb;
+extern PM_DB *localdb;
 
 /* Clear the package and info treeviews */
 static void gfpm_clear_treeviews (void);
@@ -72,15 +74,15 @@ gfpm_load_groups_treeview (char *repo_name)
 	GtkTreeIter 	iter;
 	PM_LIST 	*i;
 	char 		*tmp;
+	gboolean	local = FALSE;
 
-	if (gfpmdb != NULL)
-	{
-		alpm_db_unregister (gfpmdb);
-		gfpmdb = NULL;
+	if (strcmp(repo_name, "local") == 0)
+	{	
+		local = TRUE;
+		asprintf (&repository, "%s", repo_name);
 	}
-	gfpmdb = alpm_db_register (repo_name);
-	g_free (repository);
-	asprintf (&repository, "%s", repo_name);
+	else
+		gfpm_db_load (repo_name);
 
 	gfpm_clear_treeviews ();
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(groups_treeview));
@@ -93,7 +95,7 @@ gfpm_load_groups_treeview (char *repo_name)
 	while (gtk_events_pending())
 		gtk_main_iteration();
 
-	for (i = alpm_db_getgrpcache(gfpmdb); i; i = alpm_list_next(i))
+	for (i = alpm_db_getgrpcache((local==TRUE)?localdb:gfpmdb); i; i = alpm_list_next(i))
 	{	
 		asprintf (&tmp, _("Loading groups ... [%s]"), (char *)alpm_list_getdata(i));
 		gfpm_display_status (tmp);
@@ -116,7 +118,6 @@ gfpm_load_pkgs_treeview (char *group_name)
 	GtkTreeIter 	iter;
 	GdkPixbuf 		*icon;
 	GtkTreeModel 	*model;
-	PM_DB			*localdb = NULL;
 	PM_LIST 		*pkgnames, *i;
 	PM_GRP 			*grp;
 	PM_PKG 			*pkg = NULL;
@@ -125,17 +126,12 @@ gfpm_load_pkgs_treeview (char *group_name)
 	gchar			*version;
 	gint 			r;
 
-	grp = alpm_db_readgrp (gfpmdb, group_name);
-	if (strcmp (repository, "local") == 0)
-	{
+	if (gfpm_db_is_local() == 0)
 		r = 0; /* Local repo */
-	}
 	else
-	{
 		r = 1; /* Remote repo */
-		localdb = alpm_db_register ("local");
-	}
 
+	grp = alpm_db_readgrp ((r == 1)?gfpmdb:localdb, group_name);
 	pkgnames = alpm_grp_getinfo (grp, PM_GRP_PKGNAMES);
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(pkgs_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
@@ -145,7 +141,7 @@ gfpm_load_pkgs_treeview (char *group_name)
 		gtk_main_iteration();
 	for (i = pkgnames; i; i = alpm_list_next(i))
 	{
-		pkg = alpm_db_readpkg (gfpmdb, alpm_list_getdata(i));
+		pkg = alpm_db_readpkg ((r == 1)?gfpmdb:localdb, alpm_list_getdata(i));
 		if (r == 1)
 		{
 			local_pkg = alpm_db_readpkg (localdb, alpm_list_getdata(i));
@@ -183,9 +179,6 @@ gfpm_load_pkgs_treeview (char *group_name)
 	}
 	gfpm_display_status (_("Loading package list ... DONE"));
 
-	if (r == 1)
-		alpm_db_unregister (localdb);	
-
 	return;
 }
 
@@ -195,7 +188,6 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	GtkTreeModel 	*model;
 	GtkTreeIter 	iter;
 	PM_LIST			*i, *y;
-	PM_DB			*localdb = NULL;
 	PM_PKG			*pkg = NULL;
 	PM_PKG			*local_pkg = NULL;
 	GString			*foo;
@@ -203,22 +195,15 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	gint			r;
 	float			size;
 
-	pkg = alpm_db_readpkg (gfpmdb, pkg_name);
-
-	if (strcmp (repository, "local") == 0)
-	{
+	if (gfpm_db_is_local() == 0)
 		r = 0; /* Local repository */
-	}
 	else
-	{
 		r = 1; /* Remote repository */
-	}
+
+	pkg = alpm_db_readpkg ((r == 1)?gfpmdb:localdb, pkg_name);
 
 	if (installed == TRUE && r == 1)
-	{
-		localdb = alpm_db_register ("local");
 		local_pkg = alpm_db_readpkg (localdb, pkg_name);
-	}
 	else
 		local_pkg = pkg;
 
@@ -294,7 +279,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	}
 	g_string_free (foo, TRUE);
 
-	if (r == 0 || installed == TRUE)
+	if (r == 1 && installed == TRUE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -314,7 +299,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 				-1);
 	}
 
-	if (r != 0)
+	if (installed == FALSE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		size = (float)((long)alpm_pkg_getinfo(pkg, PM_PKG_SIZE)/1024)/1024;
@@ -335,7 +320,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		g_free (tmp);
 	}
 
-	if (r == 0 && installed == TRUE)
+	if (r == 1 && installed == TRUE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		size = (float)((long)alpm_pkg_getinfo(local_pkg, PM_PKG_USIZE)/1024)/1024;
@@ -376,9 +361,10 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		}
 	}
 
-	alpm_pkg_free (pkg);
-	if ( installed == TRUE && r == 1 )
-		alpm_db_unregister (localdb);
+	if (installed == TRUE && r == 1)
+		alpm_pkg_free (local_pkg);
+	else
+		alpm_pkg_free (pkg);
 
 	return;
 }
@@ -388,7 +374,6 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 {
 	GtkTextBuffer 	*buffer;
 	GtkTextIter 	iter;
-	PM_DB		*localdb = NULL;
 	PM_LIST		*i;
 	PM_PKG		*pkg;
 
@@ -398,15 +383,10 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	
 	if (installed == TRUE)
 	{
-		if (strcmp (repository, "local") != 0)
-		{
-			localdb = alpm_db_register ("local");			
+		if (gfpm_db_is_local())
 			pkg = alpm_db_readpkg (localdb, pkg_name);
-		}
 		else
-		{
 			pkg = alpm_db_readpkg (gfpmdb, pkg_name);
-		}
 		gtk_text_buffer_insert (buffer, &iter, _("Files in package:\n"), -1);		
 		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
 		{
@@ -419,10 +399,9 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 		gtk_text_buffer_insert (buffer, &iter, _("Package is not installed.\n"), -1);
 
 	gtk_text_view_set_buffer (GTK_TEXT_VIEW(files_textview), buffer);
+	if (installed == TRUE)	
+	alpm_pkg_free (pkg);
 	
-	if (localdb)
-		alpm_db_unregister (localdb);
-
 	return;
 }
 
@@ -526,7 +505,7 @@ gfpm_interface_init (void)
 
 	gtk_widget_show (gfpm_splash);
 	gfpm_load_groups_treeview (DEFAULT_REPO);
-	asprintf (&repository, DEFAULT_REPO);
+	gfpm_db_init_localdb ();
 	gtk_widget_hide (gfpm_splash);
 	gtk_widget_show (gfpm_window);
 
@@ -571,10 +550,10 @@ cb_groups_treeview_selected (GtkTreeSelection *selection, gpointer data)
 static void
 cb_pkgs_treeview_selected (GtkTreeSelection *selection, gpointer data)
 {
-	gchar			*pkgname;
+	gchar		*pkgname;
 	GtkTreeModel 	*model;
-	GtkTreeIter		iter;
-	gboolean		installed;
+	GtkTreeIter	iter;
+	gboolean	installed;
 
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
@@ -593,11 +572,11 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 	GtkTreeModel 	*model;
 	GtkTreeIter 	iter;
 	GtkTreePath 	*path;
-	gchar			*pkgname;
-	gboolean		fixed;
-	PM_DB			*local_db;
-	PM_PKG			*pkg;
-	gboolean		installed;
+	gchar		*pkgname;
+	gboolean	fixed;
+	PM_DB		*local_db;
+	PM_PKG		*pkg;
+	gboolean	installed;
 	gchar			*pk = NULL;
 
 	model = (GtkTreeModel *)data;
