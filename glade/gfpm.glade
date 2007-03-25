@@ -198,7 +198,7 @@
                             <child>
                               <widget class="GtkComboBox" id="combobox_repos">
                                 <property name="visible">True</property>
-                                <property name="items">frugalware-current
+                                <property name="items">All packages
 Installed packages</property>
                               </widget>
                               <packing>
