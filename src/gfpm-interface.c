@@ -399,7 +399,7 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	gtk_text_view_set_buffer (GTK_TEXT_VIEW(files_textview), buffer);
 	if (installed == TRUE)	
 	alpm_pkg_free (pkg);
-	
+
 	return;
 }
 
@@ -693,7 +693,7 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		return;
 	}
 
-	local_db = alpm_db_register ("local");
+	//local_db = alpm_db_register ("local");
 	icon_yes = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 	icon_no = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 
@@ -702,7 +702,7 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		gtk_main_iteration();
 	for (tmp = list; tmp; tmp = alpm_list_next (tmp))
 	{
-		local_pkg = alpm_db_readpkg (local_db, alpm_list_getdata (tmp));
+		local_pkg = alpm_db_readpkg (localdb, alpm_list_getdata (tmp));
 		sync_pkg = alpm_db_readpkg (gfpmdb, alpm_list_getdata (tmp));
 		gtk_list_store_append (store, &iter);
 		if ( local_pkg == NULL )
@@ -727,7 +727,7 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 	gfpm_display_status (_("Search Complete"));
 	gtk_tree_view_set_model (GTK_TREE_VIEW(pkgs_treeview), GTK_TREE_MODEL(store));
-	alpm_db_unregister (local_db);
+	//alpm_db_unregister (local_db);
 	g_object_unref (icon_no);
 	g_object_unref (icon_yes);
 
