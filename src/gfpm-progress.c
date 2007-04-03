@@ -78,7 +78,10 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	sprintf (text, "%d %%", per);
 	gtk_progress_bar_set_text (progressbar, text);
 	gtk_progress_bar_set_fraction (progressbar, (float)per/100);
-
+	
+	while (gtk_events_pending ())
+		gtk_main_iteration ();
+	
 	return 1;
 }
 
