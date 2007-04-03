@@ -4,6 +4,7 @@
 #include <glade/glade.h>
 #include <gtk/gtk.h>
 #include "gfpm-packagelist.h"
+#include "gfpm-progress.h"
 
 void gfpm_interface_init (void);
 

@@ -421,19 +421,19 @@ gfpm_display_status (const gchar *message)
 void
 gfpm_interface_init (void)
 {
-	GtkWidget	*gfpm_splash;
-	GtkWidget	*widget;
-	GtkListStore 	*store;
-	GtkCellRenderer *renderer;
-	GtkTreeSelection *selection;
+	GtkWidget			*gfpm_splash;
+	GtkWidget			*widget;
+	GtkListStore		*store;
+	GtkCellRenderer		*renderer;
+	GtkTreeSelection	*selection;
 
-	gfpm_window = glade_xml_get_widget (xml, "mainwindow");
-	gfpm_splash = glade_xml_get_widget (xml, "splash_window");
-	gfpm_statusbar = glade_xml_get_widget (xml, "statusbar");
+	gfpm_window		= glade_xml_get_widget (xml, "mainwindow");
+	gfpm_splash		= glade_xml_get_widget (xml, "splash_window");
+	gfpm_statusbar	= glade_xml_get_widget (xml, "statusbar");
 	groups_treeview = glade_xml_get_widget (xml, "grouptreeview");
-	pkgs_treeview = glade_xml_get_widget (xml, "pkgstreeview");
-	info_treeview = glade_xml_get_widget (xml, "infotreeview");
-	files_textview = glade_xml_get_widget (xml, "filestextview");
+	pkgs_treeview	= glade_xml_get_widget (xml, "pkgstreeview");
+	info_treeview	= glade_xml_get_widget (xml, "infotreeview");
+	files_textview	= glade_xml_get_widget (xml, "filestextview");
 
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
@@ -460,6 +460,7 @@ gfpm_interface_init (void)
 				G_TYPE_STRING,   /* Installed version */
 				G_TYPE_STRING,   /* Latest version */
 				G_TYPE_STRING);  /* Package Description */
+
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
 	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_pkg_selection_toggled), store);
@@ -500,6 +501,12 @@ gfpm_interface_init (void)
 
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_search_keypress), NULL);
+
+	/* refresh db */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_refresh_button_clicked), NULL);
+
+	/* initialize progressbar */
+	gfpm_progress_init ();
 
 	/* Disable Apply, Refresh and File buttons if user is not root */
 	if ( geteuid() != 0 )
@@ -650,17 +657,19 @@ static void cb_repo_combo_box_changed (GtkComboBox *widget, gpointer data)
 	return;
 
 }
+
 static void
 cb_refresh_button_clicked (GtkToolButton *widget, gpointer data)
 {
-	gint ret;
+	gint err;
 
-	g_print ("updating...\n");
-	ret = alpm_db_update (1, gfpmdb);
-	if (ret < 0)
-	g_print ("Database is up to date");
-	else if (ret > 0)
-	g_print ("Something went wrong");
+	if (gfpmdb == NULL)
+		return;
+
+	gfpm_progress_show (TRUE);
+	gfpm_progress_set_main_text (_("Synchronizing package databases..."));
+	gfpm_progress_set_sub_text (_("please wait..."));
+	alpm_db_update (1, gfpmdb);
 
 	return;
 }
@@ -673,7 +682,6 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	GtkTreeIter		iter;
 	GtkTreeModel	*model;
 	PM_LIST			*list, *tmp;
-	PM_DB			*local_db;
 	PM_PKG			*sync_pkg, *local_pkg;
 	const gchar 	*search_string;
 	gboolean		check;
