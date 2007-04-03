@@ -428,15 +428,17 @@ Installed packages</property>
     <property name="height_request">125</property>
     <property name="title" translatable="yes">Gfpm</property>
     <property name="resizable">False</property>
+    <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <child>
       <widget class="GtkVBox" id="vbox6">
         <property name="visible">True</property>
+        <property name="border_width">8</property>
         <child>
           <widget class="GtkVBox" id="vbox7">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkLabel" id="label7">
+              <widget class="GtkLabel" id="main_pr_label">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="label" translatable="yes">Main Progress Info</property>
@@ -448,7 +450,7 @@ Installed packages</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="label6">
+              <widget class="GtkLabel" id="sub_pr_label">
                 <property name="visible">True</property>
                 <property name="xalign">0.10000000149011612</property>
                 <property name="label" translatable="yes">Sub Progress Info</property>
@@ -469,11 +471,12 @@ Installed packages</property>
           <widget class="GtkProgressBar" id="progressbar1">
             <property name="visible">True</property>
             <property name="pulse_step">0.10000000149</property>
+            <property name="text" translatable="yes"></property>
           </widget>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="padding">2</property>
+            <property name="padding">3</property>
             <property name="position">1</property>
           </packing>
         </child>
