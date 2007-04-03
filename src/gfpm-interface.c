@@ -501,6 +501,14 @@ gfpm_interface_init (void)
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_search_keypress), NULL);
 
+	/* Disable Apply, Refresh and File buttons if user is not root */
+	if ( geteuid() != 0 )
+	{
+		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_execute1")), FALSE);
+		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_refresh1")), FALSE);
+		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_file1")), FALSE);
+	}
+
 	gtk_widget_show (gfpm_splash);
 	gfpm_load_groups_treeview (DEFAULT_REPO);
 	gfpm_db_init_localdb ();
@@ -693,7 +701,6 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		return;
 	}
 
-	//local_db = alpm_db_register ("local");
 	icon_yes = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 	icon_no = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 
@@ -727,7 +734,6 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 	gfpm_display_status (_("Search Complete"));
 	gtk_tree_view_set_model (GTK_TREE_VIEW(pkgs_treeview), GTK_TREE_MODEL(store));
-	//alpm_db_unregister (local_db);
 	g_object_unref (icon_no);
 	g_object_unref (icon_yes);
 
