@@ -54,7 +54,19 @@ gfpm_error (const char *error_str, GfpmErrorType type)
 void
 gfpm_message (const char *message_str)
 {
+	GtkWidget *message_dlg;
 
+	message_dlg = gtk_message_dialog_new (NULL,
+					GTK_DIALOG_DESTROY_WITH_PARENT,
+					GTK_MESSAGE_INFO,
+					GTK_BUTTONS_OK,
+					"%s: %s",
+					_("Information: "),
+					message_str);
+	gtk_window_set_resizable (GTK_WINDOW(message_dlg), FALSE);
+	g_signal_connect (message_dlg, "response", G_CALLBACK (gtk_widget_destroy), message_dlg);
+	gtk_widget_show_all (message_dlg);
+
+	return;
 }
-
 

@@ -669,7 +669,16 @@ cb_refresh_button_clicked (GtkToolButton *widget, gpointer data)
 	gfpm_progress_show (TRUE);
 	gfpm_progress_set_main_text (_("Synchronizing package databases..."));
 	gfpm_progress_set_sub_text (_("please wait..."));
-	alpm_db_update (1, gfpmdb);
+	err = alpm_db_update (0, gfpmdb);
+
+	if (err < 0)
+	{
+		gfpm_progress_show (FALSE);
+		gfpm_message ("Already up to date");
+	}
+
+	if (err == 0)
+		gfpm_progress_show (FALSE);
 
 	return;
 }
