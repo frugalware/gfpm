@@ -37,6 +37,7 @@ GtkWidget		*sub_label = NULL;
 
 float rate;
 int offset;
+char reponame[PM_DLFNM_LEN+1];
 
 void
 gfpm_progress_init (void)
@@ -45,6 +46,7 @@ gfpm_progress_init (void)
 	alpm_set_option (PM_OPT_DLCB, (long)gfpm_progress_update);
 	alpm_set_option (PM_OPT_DLOFFSET, (long)&offset);
 	alpm_set_option (PM_OPT_DLRATE, (long)&rate);
+	alpm_set_option (PM_OPT_DLFNM, (long)reponame);
 
 	progressbar = GTK_PROGRESS_BAR(glade_xml_get_widget (xml, "progressbar1"));
 	progresswindow = glade_xml_get_widget (xml, "progresswindow");
@@ -78,10 +80,11 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	sprintf (text, "%d %%", per);
 	gtk_progress_bar_set_text (progressbar, text);
 	gtk_progress_bar_set_fraction (progressbar, (float)per/100);
-	
+	gfpm_progress_set_sub_text (reponame);
+
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
-	
+
 	return 1;
 }
 
@@ -89,7 +92,11 @@ void
 gfpm_progress_set_main_text (const char *msg)
 {
 	if (msg != NULL)
-		gtk_label_set_text (GTK_LABEL(main_label), msg);
+	{	
+		gchar *markup = g_markup_printf_escaped ("<span size=\"large\" weight=\"bold\">%s</span>", msg);
+		gtk_label_set_markup (GTK_LABEL(main_label), markup);
+		g_free (markup);
+	}
 
 	return;
 }
