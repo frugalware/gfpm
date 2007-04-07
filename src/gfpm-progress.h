@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <locale.h>
 #include <libintl.h>
-#include <alpm.h>
+#include <pacman.h>
 #include <gtk/gtk.h>
 
 typedef void* netbuf;

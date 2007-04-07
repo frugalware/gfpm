@@ -14,5 +14,5 @@ gfpm_SOURCES=				\
 		gfpm.c
 
 
-gfpm_LDADD= @GFPM_LIBS@ -lalpm
+gfpm_LDADD= @GFPM_LIBS@ -lpacman
 

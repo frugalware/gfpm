@@ -1,7 +1,7 @@
 #ifndef __GFPM_H__
 #define __GFPM_H__
 
-#include <alpm.h>
+#include <pacman.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
