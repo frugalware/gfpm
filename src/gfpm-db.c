@@ -38,10 +38,10 @@ gfpm_db_load (const char *repo)
 
 	if (gfpmdb != NULL)
 	{
-		alpm_db_unregister (gfpmdb);
+		pacman_db_unregister (gfpmdb);
 		gfpmdb = NULL;
 	}
-	if (NULL == (gfpmdb = alpm_db_register (repo)))
+	if (NULL == (gfpmdb = pacman_db_register (repo)))
 		ret = 1;
 	else
 	{
@@ -59,9 +59,9 @@ gfpm_db_init_localdb (void)
 	int ret = 0;
 	
 	if (localdb != NULL)
-		alpm_db_unregister (localdb);
+		pacman_db_unregister (localdb);
 
-	if (NULL == (localdb = alpm_db_register ("local")))
+	if (NULL == (localdb = pacman_db_register ("local")))
 		ret = 1;
 
 	return ret;

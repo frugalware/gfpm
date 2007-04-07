@@ -42,11 +42,11 @@ char reponame[PM_DLFNM_LEN+1];
 void
 gfpm_progress_init (void)
 {
-	alpm_parse_config ("/etc/pacman.conf", NULL, "");
-	alpm_set_option (PM_OPT_DLCB, (long)gfpm_progress_update);
-	alpm_set_option (PM_OPT_DLOFFSET, (long)&offset);
-	alpm_set_option (PM_OPT_DLRATE, (long)&rate);
-	alpm_set_option (PM_OPT_DLFNM, (long)reponame);
+	pacman_parse_config ("/etc/pacman.conf", NULL, "");
+	pacman_set_option (PM_OPT_DLCB, (long)gfpm_progress_update);
+	pacman_set_option (PM_OPT_DLOFFSET, (long)&offset);
+	pacman_set_option (PM_OPT_DLRATE, (long)&rate);
+	pacman_set_option (PM_OPT_DLFNM, (long)reponame);
 
 	progressbar = GTK_PROGRESS_BAR(glade_xml_get_widget (xml, "progressbar1"));
 	progresswindow = glade_xml_get_widget (xml, "progresswindow");
