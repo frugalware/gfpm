@@ -95,15 +95,15 @@ gfpm_load_groups_treeview (char *repo_name)
 	while (gtk_events_pending())
 		gtk_main_iteration();
 
-	for (i = alpm_db_getgrpcache((local==TRUE)?localdb:gfpmdb); i; i = alpm_list_next(i))
+	for (i = pacman_db_getgrpcache((local==TRUE)?localdb:gfpmdb); i; i = pacman_list_next(i))
 	{	
-		asprintf (&tmp, _("Loading groups ... [%s]"), (char *)alpm_list_getdata(i));
+		asprintf (&tmp, _("Loading groups ... [%s]"), (char *)pacman_list_getdata(i));
 		gfpm_display_status (tmp);
 		while (gtk_events_pending())
 			gtk_main_iteration();
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-				0, (char *)alpm_list_getdata(i),
+				0, (char *)pacman_list_getdata(i),
 				-1);
 		g_free (tmp);
 	}
@@ -131,21 +131,21 @@ gfpm_load_pkgs_treeview (char *group_name)
 	else
 		r = 1; /* Remote repo */
 
-	grp = alpm_db_readgrp ((r == 1)?gfpmdb:localdb, group_name);
-	pkgnames = alpm_grp_getinfo (grp, PM_GRP_PKGNAMES);
+	grp = pacman_db_readgrp ((r == 1)?gfpmdb:localdb, group_name);
+	pkgnames = pacman_grp_getinfo (grp, PM_GRP_PKGNAMES);
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(pkgs_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
 	gfpm_display_status (_("Loading package list ..."));
 	while (gtk_events_pending())
 		gtk_main_iteration();
-	for (i = pkgnames; i; i = alpm_list_next(i))
+	for (i = pkgnames; i; i = pacman_list_next(i))
 	{
-		pkg = alpm_db_readpkg ((r == 1)?gfpmdb:localdb, alpm_list_getdata(i));
+		pkg = pacman_db_readpkg ((r == 1)?gfpmdb:localdb, pacman_list_getdata(i));
 		if (r == 1)
 		{
-			local_pkg = alpm_db_readpkg (localdb, alpm_list_getdata(i));
-			if (alpm_pkg_getinfo(local_pkg, PM_PKG_VERSION) == NULL)
+			local_pkg = pacman_db_readpkg (localdb, pacman_list_getdata(i));
+			if (pacman_pkg_getinfo(local_pkg, PM_PKG_VERSION) == NULL)
 			{	
 				icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_NO, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
 				version = NULL;
@@ -154,7 +154,7 @@ gfpm_load_pkgs_treeview (char *group_name)
 			else
 			{	
 				icon = gtk_widget_render_icon (pkgs_treeview, GTK_STOCK_YES, GTK_ICON_SIZE_SMALL_TOOLBAR, NULL);
-				version = (char *)alpm_pkg_getinfo (local_pkg, PM_PKG_VERSION);
+				version = (char *)pacman_pkg_getinfo (local_pkg, PM_PKG_VERSION);
 				check = TRUE;
 			}
 		}
@@ -169,14 +169,14 @@ gfpm_load_pkgs_treeview (char *group_name)
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, check,
 				1, icon,
-				2, (char *)alpm_list_getdata (i),
-				3, check ? (char*)alpm_pkg_getinfo (local_pkg, PM_PKG_VERSION) : NULL,
-				4, (char *)alpm_pkg_getinfo (pkg, PM_PKG_VERSION),
-				5, (char *)alpm_pkg_getinfo (pkg, PM_PKG_DESC),
+				2, (char *)pacman_list_getdata (i),
+				3, check ? (char*)pacman_pkg_getinfo (local_pkg, PM_PKG_VERSION) : NULL,
+				4, (char *)pacman_pkg_getinfo (pkg, PM_PKG_VERSION),
+				5, (char *)pacman_pkg_getinfo (pkg, PM_PKG_DESC),
 				-1);
-		alpm_pkg_free (pkg);
+		pacman_pkg_free (pkg);
 		if (r == 1)
-			alpm_pkg_free (local_pkg);
+			pacman_pkg_free (local_pkg);
 	}
 	gfpm_display_status (_("Loading package list ... DONE"));
 
@@ -201,10 +201,10 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	else
 		r = 1; /* Remote repository */
 
-	pkg = alpm_db_readpkg ((r == 1)?gfpmdb:localdb, pkg_name);
+	pkg = pacman_db_readpkg ((r == 1)?gfpmdb:localdb, pkg_name);
 
 	if (installed == TRUE && r == 1)
-		local_pkg = alpm_db_readpkg (localdb, pkg_name);
+		local_pkg = pacman_db_readpkg (localdb, pkg_name);
 	else
 		local_pkg = pkg;
 
@@ -214,27 +214,27 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 			0, _("Name:"),
-			1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_NAME),
+			1, (char *)pacman_pkg_getinfo (pkg, PM_PKG_NAME),
 			-1);
 
 	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 			0, _("Version:"),
-			1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_VERSION),
+			1, (char *)pacman_pkg_getinfo (pkg, PM_PKG_VERSION),
 			-1);
 
 	gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 	gtk_list_store_set(GTK_LIST_STORE(model), &iter,
 			0, _("Description:"),
-			1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_DESC),
+			1, (char *)pacman_pkg_getinfo (pkg, PM_PKG_DESC),
 			-1);
 
 	/* Get depends */
-	y = alpm_pkg_getinfo (pkg, PM_PKG_DEPENDS);
+	y = pacman_pkg_getinfo (pkg, PM_PKG_DEPENDS);
 	foo = g_string_new ("");
-	for (i = y; i; i = alpm_list_next(i))
+	for (i = y; i; i = pacman_list_next(i))
 	{
-		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
+		foo = g_string_append (foo, (char *)pacman_list_getdata(i));
 		foo = g_string_append (foo, " ");
 	}
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
@@ -245,11 +245,11 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	g_string_free (foo, TRUE);
 
 	/* Get provides */
-	y = alpm_pkg_getinfo (pkg, PM_PKG_PROVIDES);
+	y = pacman_pkg_getinfo (pkg, PM_PKG_PROVIDES);
 	foo = g_string_new ("");
-	for (i = y; i; i = alpm_list_next(i))
+	for (i = y; i; i = pacman_list_next(i))
 	{
-		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
+		foo = g_string_append (foo, (char *)pacman_list_getdata(i));
 		foo = g_string_append (foo, " ");
 	}
 	if (foo->len != 0)
@@ -263,11 +263,11 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	g_string_free (foo, TRUE);
 
 	/* Get conflicts */
-	y = alpm_pkg_getinfo (pkg, PM_PKG_CONFLICTS);
+	y = pacman_pkg_getinfo (pkg, PM_PKG_CONFLICTS);
 	foo = g_string_new ("");
-	for (i = y; i; i = alpm_list_next(i))
+	for (i = y; i; i = pacman_list_next(i))
 	{
-		foo = g_string_append (foo, (char *)alpm_list_getdata(i));
+		foo = g_string_append (foo, (char *)pacman_list_getdata(i));
 		foo = g_string_append (foo, " ");
 	}
 	if (foo->len != 0)
@@ -285,25 +285,25 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("Packager:"),
-				1, (char *)alpm_pkg_getinfo (local_pkg, PM_PKG_PACKAGER),
+				1, (char *)pacman_pkg_getinfo (local_pkg, PM_PKG_PACKAGER),
 				-1);
 
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("URL:"),
-				1, (char *)alpm_pkg_getinfo(local_pkg, PM_PKG_URL),
+				1, (char *)pacman_pkg_getinfo(local_pkg, PM_PKG_URL),
 				-1);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("Install Date:"),
-				1, (char *)alpm_pkg_getinfo (local_pkg, PM_PKG_INSTALLDATE),
+				1, (char *)pacman_pkg_getinfo (local_pkg, PM_PKG_INSTALLDATE),
 				-1);
 	}
 
 	if (installed == FALSE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)alpm_pkg_getinfo(pkg, PM_PKG_SIZE)/1024)/1024;
+		size = (float)((long)pacman_pkg_getinfo(pkg, PM_PKG_SIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 				0, _("Size (Compressed):"),
@@ -312,7 +312,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		g_free (tmp);
 
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)alpm_pkg_getinfo(pkg, PM_PKG_USIZE)/1024)/1024;
+		size = (float)((long)pacman_pkg_getinfo(pkg, PM_PKG_USIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					0, _("Size (Uncompressed):"),
@@ -324,7 +324,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	if (installed == TRUE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)alpm_pkg_getinfo(local_pkg, PM_PKG_USIZE)/1024)/1024;
+		size = (float)((long)pacman_pkg_getinfo(local_pkg, PM_PKG_USIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					0, _("Size:"),
@@ -338,17 +338,17 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					0, "SHA1SUM:",
-					1, (char *)alpm_pkg_getinfo (pkg, PM_PKG_SHA1SUM),
+					1, (char *)pacman_pkg_getinfo (pkg, PM_PKG_SHA1SUM),
 					-1);
 	}
 
 	if (installed == TRUE)
 	{
-		y = alpm_pkg_getinfo (local_pkg, PM_PKG_REQUIREDBY);
+		y = pacman_pkg_getinfo (local_pkg, PM_PKG_REQUIREDBY);
 		foo = g_string_new ("");
-		for (i = y; i; i = alpm_list_next(i))
+		for (i = y; i; i = pacman_list_next(i))
 		{
-			foo = g_string_append (foo, (char *)alpm_list_getdata(i));
+			foo = g_string_append (foo, (char *)pacman_list_getdata(i));
 			foo = g_string_append (foo, " ");
 		}
 		if (foo->len != 0)
@@ -363,9 +363,9 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	}
 
 	if (installed == TRUE)
-		alpm_pkg_free (local_pkg);
+		pacman_pkg_free (local_pkg);
 	else
-		alpm_pkg_free (pkg);
+		pacman_pkg_free (pkg);
 
 	return;
 }
@@ -384,12 +384,12 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 	
 	if (installed == TRUE)
 	{
-		pkg = alpm_db_readpkg (localdb, pkg_name);
+		pkg = pacman_db_readpkg (localdb, pkg_name);
 		gtk_text_buffer_insert (buffer, &iter, _("Files in package:\n"), -1);		
-		for (i = alpm_pkg_getinfo(pkg, PM_PKG_FILES); i; i = alpm_list_next(i))
+		for (i = pacman_pkg_getinfo(pkg, PM_PKG_FILES); i; i = pacman_list_next(i))
 		{
 			gtk_text_buffer_insert (buffer, &iter, "   /", -1);
-			gtk_text_buffer_insert (buffer, &iter, (char *)alpm_list_getdata(i), -1);
+			gtk_text_buffer_insert (buffer, &iter, (char *)pacman_list_getdata(i), -1);
 			gtk_text_buffer_insert (buffer, &iter, "\n", -1);
 		}
 	}
@@ -398,7 +398,7 @@ gfpm_load_files_textview (char *pkg_name, gboolean installed)
 
 	gtk_text_view_set_buffer (GTK_TEXT_VIEW(files_textview), buffer);
 	if (installed == TRUE)	
-	alpm_pkg_free (pkg);
+	pacman_pkg_free (pkg);
 
 	return;
 }
@@ -596,8 +596,8 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 	path = gtk_tree_path_new_from_string (path_str);
 	gtk_tree_model_get_iter (model, &iter, path);
 	gtk_tree_model_get (model, &iter, 0, &fixed, 2, &pkgname, -1);
-	local_db = alpm_db_register ("local");
-	pkg = alpm_db_readpkg (local_db, pkgname);
+	local_db = pacman_db_register ("local");
+	pkg = pacman_db_readpkg (local_db, pkgname);
 
 	pk = g_strdup_printf ("%s", pkgname);
 	installed = (pkg != NULL) ? TRUE : FALSE;
@@ -635,7 +635,7 @@ cb_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpoint
 
 	g_free (pk);
 	gtk_tree_path_free (path);
-	alpm_db_unregister (local_db);
+	pacman_db_unregister (local_db);
 
 	return;
 }
@@ -669,7 +669,7 @@ cb_refresh_button_clicked (GtkToolButton *widget, gpointer data)
 	gfpm_progress_show (TRUE);
 	gfpm_progress_set_main_text (_("Synchronizing package databases..."));
 	gfpm_progress_set_sub_text (_("please wait..."));
-	err = alpm_db_update (0, gfpmdb);
+	err = pacman_db_update (0, gfpmdb);
 
 	if (err < 0)
 	{
@@ -707,8 +707,8 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 	store = (GtkListStore*) model;
 
-	alpm_set_option (PM_OPT_NEEDLES, (long)search_string);
-	list = alpm_db_search (gfpmdb);
+	pacman_set_option (PM_OPT_NEEDLES, (long)search_string);
+	list = pacman_db_search (gfpmdb);
 
 	/* Package not found */
 	if (list == NULL)
@@ -724,10 +724,10 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	gfpm_display_status (_("Searching for packages ..."));
 	while (gtk_events_pending())
 		gtk_main_iteration();
-	for (tmp = list; tmp; tmp = alpm_list_next (tmp))
+	for (tmp = list; tmp; tmp = pacman_list_next (tmp))
 	{
-		local_pkg = alpm_db_readpkg (localdb, alpm_list_getdata (tmp));
-		sync_pkg = alpm_db_readpkg (gfpmdb, alpm_list_getdata (tmp));
+		local_pkg = pacman_db_readpkg (localdb, pacman_list_getdata (tmp));
+		sync_pkg = pacman_db_readpkg (gfpmdb, pacman_list_getdata (tmp));
 		gtk_list_store_append (store, &iter);
 		if ( local_pkg == NULL )
 			gtk_list_store_set (store, &iter,
@@ -739,14 +739,14 @@ cb_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			check = TRUE;
 		}
 		gtk_list_store_set (store, &iter,
-				2, (char*)alpm_pkg_getinfo (sync_pkg, PM_PKG_NAME),
-				3, check ? (char*)alpm_pkg_getinfo (local_pkg, PM_PKG_VERSION) : NULL,
-				4, (char*)alpm_pkg_getinfo (sync_pkg, PM_PKG_VERSION),
-				5, (char*)alpm_pkg_getinfo (sync_pkg, PM_PKG_DESC),
+				2, (char*)pacman_pkg_getinfo (sync_pkg, PM_PKG_NAME),
+				3, check ? (char*)pacman_pkg_getinfo (local_pkg, PM_PKG_VERSION) : NULL,
+				4, (char*)pacman_pkg_getinfo (sync_pkg, PM_PKG_VERSION),
+				5, (char*)pacman_pkg_getinfo (sync_pkg, PM_PKG_DESC),
 				-1);
 		if (local_pkg)
-			alpm_pkg_free (local_pkg);
-		alpm_pkg_free (sync_pkg);
+			pacman_pkg_free (local_pkg);
+		pacman_pkg_free (sync_pkg);
 	}
 
 	gfpm_display_status (_("Search Complete"));

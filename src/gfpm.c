@@ -70,15 +70,15 @@ main (int argc, char *argv[])
 
 	glade_xml_signal_autoconnect (xml);
 
-	if (alpm_initialize ("/") == -1)
+	if (pacman_initialize ("/") == -1)
 	{
-		gfpm_error (_("Failed to initialize libalpm"), GFPM_ERROR_STDOUT);
+		gfpm_error (_("Failed to initialize libpacman"), GFPM_ERROR_STDOUT);
 		return 1;
 	}
 
 	gfpm_interface_init ();
 	gtk_main ();
-	alpm_release ();
+	pacman_release ();
 
 	return 0;
 }
