@@ -324,7 +324,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	if (installed == TRUE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)pacman_pkg_getinfo(local_pkg, PM_PKG_USIZE)/1024)/1024;
+		size = (float)((long)pacman_pkg_getinfo(pkg, PM_PKG_USIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					0, _("Size:"),
