@@ -201,12 +201,21 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	else
 		r = 1; /* Remote repository */
 
-	pkg = pacman_db_readpkg ((r == 1)?gfpmdb:localdb, pkg_name);
-
-	if (installed == TRUE && r == 1)
+	if (installed == TRUE && r == 0)
+	{	
+		local_pkg = pkg = pacman_db_readpkg (localdb, pkg_name);
+		//local_pkg = pkg;
+	}	
+	else if (installed == TRUE && r == 1)
+	{	
+		pkg = pacman_db_readpkg (gfpmdb, pkg_name);
 		local_pkg = pacman_db_readpkg (localdb, pkg_name);
-	else
+	}
+	else if (installed == FALSE && r == 1)
+	{	
+		pkg = pacman_db_readpkg (gfpmdb, pkg_name);
 		local_pkg = pkg;
+	}
 
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(info_treeview));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
@@ -312,7 +321,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 		g_free (tmp);
 
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)pacman_pkg_getinfo(pkg, PM_PKG_USIZE)/1024)/1024;
+		size = (float)((long)pacman_pkg_getinfo(local_pkg, PM_PKG_USIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					0, _("Size (Uncompressed):"),
@@ -324,7 +333,7 @@ gfpm_load_info_treeview (char *pkg_name, gboolean installed)
 	if (installed == TRUE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)pacman_pkg_getinfo(pkg, PM_PKG_USIZE)/1024)/1024;
+		size = (float)((long)pacman_pkg_getinfo((r==0)?local_pkg:pkg, PM_PKG_USIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					0, _("Size:"),
