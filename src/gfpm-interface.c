@@ -430,14 +430,14 @@ gfpm_display_status (const gchar *message)
 void
 gfpm_interface_init (void)
 {
-	GtkWidget			*gfpm_splash;
-	GtkWidget			*widget;
+	GtkWidget		*gfpm_splash;
+	GtkWidget		*widget;
 	GtkListStore		*store;
 	GtkCellRenderer		*renderer;
 	GtkTreeSelection	*selection;
 
-	gfpm_window		= glade_xml_get_widget (xml, "mainwindow");
-	gfpm_splash		= glade_xml_get_widget (xml, "splash_window");
+	gfpm_window	= glade_xml_get_widget (xml, "mainwindow");
+	gfpm_splash	= glade_xml_get_widget (xml, "splash_window");
 	gfpm_statusbar	= glade_xml_get_widget (xml, "statusbar");
 	groups_treeview = glade_xml_get_widget (xml, "grouptreeview");
 	pkgs_treeview	= glade_xml_get_widget (xml, "pkgstreeview");
