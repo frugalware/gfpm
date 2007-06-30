@@ -1,10 +1,8 @@
-/***************************************************************************
- *  gfpm-db.c
- *  Author: Priyank Gosalia <priyankmg@gmail.com>	
- *  Copyright 2006-2007 Frugalware Developer Team
- ****************************************************************************/
-
 /*
+ *  gfpm-db.c for gfpm
+ *
+ *  Copyright (C) 2006-2007 by Priyank Gosalia <priyankmg@gmail.com>
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -20,61 +18,28 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifdef HAVE_CONFIG_H
-#	include "config.h"
-#endif
+#define _GNU_SOURCE
+#define FW_CURRENT "frugalware-current"
+#define FW_LOCAL "local"
 
 #include "gfpm-db.h"
+#include "gfpm.h"
 
-PM_DB *gfpmdb = NULL;
-PM_DB *localdb = NULL;
+PM_DB *sync_db = NULL;
+PM_DB *local_db = NULL;
 
-char *repository = NULL;
-
-int
-gfpm_db_load (const char *repo)
-{
-	int ret = 0;	
-
-	if (gfpmdb != NULL)
-	{
-		pacman_db_unregister (gfpmdb);
-		gfpmdb = NULL;
-	}
-	if (NULL == (gfpmdb = pacman_db_register (repo)))
-		ret = 1;
-	else
-	{
-		if (repository != NULL)		
-			free (repository);
-		asprintf (&repository, "%s", repo);
-	}
-
-	return ret;
-}
-
-void
-gfpm_db_init_localdb (void)
-{
-	int ret = 0;
-	
-	if (localdb != NULL)
-		pacman_db_unregister (localdb);
-
-	if (NULL == (localdb = pacman_db_register ("local")))
-		ret = 1;
-
-	return ret;
-}
+char *repo = NULL;
 
 int
-gfpm_db_is_local (void)
+gfpm_db_init (void)
 {
-	if ((strcmp(repository, "local")==0) && (localdb != NULL))
-		return 0;
-	
-	return -1;
+	if (NULL == (sync_db=pacman_db_register(FW_CURRENT)))
+		return 1;
+	if (NULL == (local_db=pacman_db_register(FW_LOCAL)))
+		return 1;
+	asprintf (&repo, "%s", FW_CURRENT);
+
+	return 0;
 }
 
-
-
+	

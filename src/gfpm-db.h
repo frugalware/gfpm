@@ -9,11 +9,7 @@
 #include <libintl.h>
 #include <pacman.h>
 
-int gfpm_db_load (const char *repo);
-
-void gfpm_db_init_localdb (void);
-
-int gfpm_db_is_local (void);
+int gfpm_db_init (void);
 
 #endif
 

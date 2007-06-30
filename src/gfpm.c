@@ -1,12 +1,8 @@
-/***************************************************************************
- *  gfpm.c
- *  Author(s): 		Priyank Gosalia <priyankmg@gmail.com>
- *  Old Authors(s):	Christian Hamar <krics@linuxforum.hu>
- *					Miklos Nemeth <desco@frugalware.org>
- *  Copyright 2006-2007 Frugalware Developer Team
- ****************************************************************************/
-
 /*
+ *  gfpm.c for gfpm
+ *
+ *  Copyright (C) 2006-2007 by Priyank Gosalia <priyankmg@gmail.com>
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -33,7 +29,6 @@
 
 #include "gfpm.h"
 #include "gfpm-interface.h"
-#include "gfpm-packagelist.h"
 #include "gfpm-messages.h"
 
 #define GLADE_FILE	"/share/gfpm/gfpm.glade"
@@ -64,7 +59,7 @@ main (int argc, char *argv[])
 
 	if (!xml)
 	{
-		gfpm_error (_("Failed to initialize interface."), GFPM_ERROR_STDOUT);
+		gfpm_error (_("Failed to initialize interface."));
 		return 1;
 	}
 
@@ -72,7 +67,7 @@ main (int argc, char *argv[])
 
 	if (pacman_initialize ("/") == -1)
 	{
-		gfpm_error (_("Failed to initialize libpacman"), GFPM_ERROR_STDOUT);
+		gfpm_error (_("Failed to initialize libpacman"));
 		return 1;
 	}
 

@@ -8,17 +8,14 @@
 #include <locale.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
+#include "gfpm.h"
 
-#define _(string) gettext (string)
-
-typedef enum _gfpmerrortype
-{
-	GFPM_ERROR_STDOUT = 1, 	/* Display error on stdout */
-	GFPM_ERROR_GUI 		/* Display error on gui */
-} GfpmErrorType;
-
-void gfpm_error (const char *, GfpmErrorType);
+void gfpm_error (const char *);
 
 void gfpm_message (const char *);
-	
+
+gint gfpm_question (const char *);
+
+char * gfpm_input (const char *, const char *, int *);
+
 #endif
