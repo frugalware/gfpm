@@ -9,6 +9,7 @@ gfpm_SOURCES=				\
 			gfpm-db.c		\
 			gfpm-interface.c \
 			gfpm-messages.c \
+			gfpm-about.c \
 			gfpm.c
 
 

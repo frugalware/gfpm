@@ -32,6 +32,7 @@
 #include "gfpm.h"
 #include "gfpm-interface.h"
 #include "gfpm-messages.h"
+#include "gfpm-about.h"
 #include "gfpm-db.h"
 
 extern GladeXML *xml;
@@ -136,6 +137,9 @@ gfpm_interface_init (void)
 
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
+	
+	/* about */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
 
 	/* refresh db */
 	//g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_refresh_button_clicked), NULL);
