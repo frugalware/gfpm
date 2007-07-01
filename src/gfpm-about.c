@@ -45,7 +45,11 @@ static gchar	*license =
 
 extern GtkWidget *gfpm_mw;
 static GdkPixbuf *about_pixbuf = NULL;
-static gchar *authors[] = { "Priyank M. Gosalia <priyankmg@gmail.com>", NULL };
+static gchar *authors[] = {	"Priyank M. Gosalia <priyankmg@gmail.com>",
+				"Christian Hamar <krics@linuxforum.hu>" ,
+				"Miklos Nemeth <desco@frugalware.org>",
+				NULL
+			};
 static gchar *translators[] = { NULL };
 
 void
