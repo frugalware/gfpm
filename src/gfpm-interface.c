@@ -32,6 +32,7 @@
 #include "gfpm.h"
 #include "gfpm-interface.h"
 #include "gfpm-messages.h"
+#include "gfpm-packagelist.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
 
@@ -53,6 +54,7 @@ static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
+static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 
 void
 gfpm_interface_init (void)
@@ -99,7 +101,7 @@ gfpm_interface_init (void)
 
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
-	//g_signal_connect (renderer, "toggled", G_CALLBACK(cb_pkg_selection_toggled), store);
+	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_gfpm_pkg_selection_toggled), store);
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_pkgs_tvw), -1, _("S"), renderer, "active", 0, NULL);
 
 	renderer = gtk_cell_renderer_pixbuf_new ();
@@ -705,6 +707,70 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 	g_object_unref (icon_yes);
 	g_object_unref (icon_no);
+	return;
+}
+
+static void
+cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data)
+{
+	GtkTreeModel	*model;
+	GtkTreeIter		iter;
+	GtkTreePath		*path;
+	gchar			*pkgname = NULL;
+	gchar			*pkg = NULL;
+	gboolean		check;
+	gboolean		inst;
+	PM_PKG			*pm_pkg = NULL;
+
+	model = (GtkTreeModel *)data;
+	path = gtk_tree_path_new_from_string (path_str);
+	gtk_tree_model_get_iter (model, &iter, path);
+	gtk_tree_model_get (model, &iter, 0, &check, 2, &pkgname, -1);
+
+	/* check if the package is installed or not */
+	pm_pkg = pacman_db_readpkg (local_db, pkgname);
+	if (pm_pkg == NULL)
+		inst = FALSE;
+	else
+		inst = TRUE;
+
+	/* manually toggle the toggle button */
+	check ^= 1;
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, check, -1);
+
+	pkg = g_strdup (pkgname);
+	if (check == TRUE)
+	{
+		if (inst == FALSE)
+			gfpm_package_list_add (GFPM_INSTALL_LIST, pkg);
+		else
+			gfpm_package_list_del (GFPM_INSTALL_LIST, pkg);
+
+		gfpm_package_list_del (GFPM_REMOVE_LIST, pkg);
+	}
+	else
+	{
+		if (inst == TRUE)
+		{
+			gfpm_package_list_add (GFPM_REMOVE_LIST, pkg);
+			g_print ("adding to remove list\n");
+		}
+		else
+			gfpm_package_list_del (GFPM_REMOVE_LIST, pkg);
+
+		gfpm_package_list_del (GFPM_INSTALL_LIST, pkg);
+	}
+
+	/* remove the following snippet after testing */
+	g_print ("Contents of INSTALL LIST\n");
+	gfpm_package_list_print (GFPM_INSTALL_LIST);
+
+	g_print ("Contents of REMOVE LIST\n");
+	gfpm_package_list_print (GFPM_REMOVE_LIST);
+
+	g_free (pkg);
+	gtk_tree_path_free (path);
+
 	return;
 }
 
