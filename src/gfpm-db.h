@@ -10,6 +10,7 @@
 #include <pacman.h>
 
 int gfpm_db_init (void);
+void gfpm_db_cleanup (void);
 
 #endif
 

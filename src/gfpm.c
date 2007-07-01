@@ -73,6 +73,7 @@ main (int argc, char *argv[])
 
 	gfpm_interface_init ();
 	gtk_main ();
+	gfpm_db_cleanup ();
 	pacman_release ();
 
 	return 0;

@@ -22,6 +22,7 @@
 #define FW_CURRENT "frugalware-current"
 #define FW_LOCAL "local"
 
+#include <pacman.h>
 #include "gfpm-db.h"
 #include "gfpm.h"
 
@@ -42,4 +43,13 @@ gfpm_db_init (void)
 	return 0;
 }
 
+void
+gfpm_db_cleanup (void)
+{
+	pacman_db_unregister (sync_db);
+	pacman_db_unregister (local_db);
+	free (repo);
+
+	return;
+}
 	

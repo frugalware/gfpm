@@ -157,15 +157,15 @@ gfpm_interface_init (void)
 		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_file1")), FALSE);
 	}
 
-	//gtk_widget_show (gfpm_splash);
-	//gtk_widget_hide (gfpm_splash);
-	gtk_widget_show_all (gfpm_mw);
+	gtk_widget_show (gfpm_splash);
 
 	/* initialize dbs */
 	gfpm_db_init ();
 
 	/* load default repo  */
 	gfpm_load_groups_tvw ("frugalware-current");
+	gtk_widget_hide (gfpm_splash);
+	gtk_widget_show_all (gfpm_mw);
 
 	/* unref the glade xml object */
 	g_object_unref (xml);
