@@ -300,11 +300,17 @@ gfpm_load_pkgs_tvw (const char *group_name)
 		}
 		else if (r == 0)
 		{
+			gboolean up = FALSE;
 			pm_pkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
+			if (!strcmp((char*)pacman_pkg_getinfo(pm_pkg,PM_PKG_VERSION),
+				(char*)pacman_pkg_getinfo(pm_lpkg,PM_PKG_VERSION)))
+				up = FALSE;
+			else
+				up = TRUE;
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 						0, TRUE,
-						1, icon_yes,
+						1, (up==TRUE)?icon_up:icon_yes,
 						2, (char*)pacman_list_getdata (i),
 						3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION),
 						4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
