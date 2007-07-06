@@ -39,7 +39,7 @@
 extern GladeXML *xml;
 extern PM_DB	*sync_db;
 extern PM_DB	*local_db;
-extern char		*repo;
+extern char	*repo;
 
 /* The GFPM main window */
 GtkWidget *gfpm_mw;
@@ -176,7 +176,7 @@ gfpm_interface_init (void)
 void
 gfpm_update_status (const gchar *message)
 {
-	guint	ci;
+	guint ci;
 
 	if (!message)
 		return;
@@ -594,9 +594,9 @@ static void
 cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 {
 	GtkTreeModel	*model;
-	GtkTreeIter		iter;
-	gchar			*pkgname = NULL;
-	gboolean		inst;
+	GtkTreeIter	iter;
+	gchar		*pkgname = NULL;
+	gboolean	inst;
 
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
@@ -613,14 +613,14 @@ static void
 cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
 	GtkListStore	*store;
-	GdkPixbuf		*icon_yes;
-	GdkPixbuf		*icon_no;
+	GdkPixbuf	*icon_yes;
+	GdkPixbuf	*icon_no;
 	GtkTreeModel	*model;
-	GtkTreeIter		iter;
-	PM_PKG			*pm_pkg;
-	PM_LIST			*l, *i;
-	gchar			*search_str;
-	gint			r = 0;
+	GtkTreeIter	iter;
+	PM_PKG		*pm_pkg;
+	PM_LIST		*l, *i;
+	gchar		*search_str;
+	gint		r = 0;
 
 	if (event->keyval != GDK_Return)
 		return;
@@ -649,13 +649,13 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		return;
 	}
 	icon_yes = gtk_widget_render_icon (gfpm_pkgs_tvw,
-										GTK_STOCK_YES,
-										GTK_ICON_SIZE_SMALL_TOOLBAR,
-										NULL);
+					GTK_STOCK_YES,
+					GTK_ICON_SIZE_SMALL_TOOLBAR,
+					NULL);
 	icon_no = gtk_widget_render_icon (gfpm_pkgs_tvw,
-										GTK_STOCK_NO,
-										GTK_ICON_SIZE_SMALL_TOOLBAR,
-										NULL);
+					GTK_STOCK_NO,
+					GTK_ICON_SIZE_SMALL_TOOLBAR,
+					NULL);
 	gfpm_update_status (_("Searching for packages ..."));
 	if (r == 0)
 	{
@@ -666,13 +666,13 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			pm_spkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
 			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter,
-								0, TRUE,
-								1, icon_yes,
-								2, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
-								3, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
-								4, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION),
-								5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
-								-1);
+					0, TRUE,
+					1, icon_yes,
+					2, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
+					3, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
+					4, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION),
+					5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
+					-1);
 			pacman_pkg_free (pm_pkg);
 			pacman_pkg_free (pm_spkg);
 		}
@@ -698,12 +698,12 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 				gtk_list_store_set (store, &iter, 3, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION), -1); 
 
 			gtk_list_store_set (store, &iter,
-								0, inst,
-								1, (inst==TRUE)?icon_yes:icon_no,
-								2, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
-								4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
-								5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
-								-1);
+					0, inst,
+					1, (inst==TRUE)?icon_yes:icon_no,
+					2, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
+					4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
+					5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
+					-1);
 			pacman_pkg_free (pm_pkg);
 			pacman_pkg_free (pm_lpkg);
 		}
@@ -720,13 +720,13 @@ static void
 cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data)
 {
 	GtkTreeModel	*model;
-	GtkTreeIter		iter;
-	GtkTreePath		*path;
-	gchar			*pkgname = NULL;
-	gchar			*pkg = NULL;
-	gboolean		check;
-	gboolean		inst;
-	PM_PKG			*pm_pkg = NULL;
+	GtkTreeIter	iter;
+	GtkTreePath	*path;
+	gchar		*pkgname = NULL;
+	gchar		*pkg = NULL;
+	gboolean	check;
+	gboolean	inst;
+	PM_PKG		*pm_pkg = NULL;
 
 	model = (GtkTreeModel *)data;
 	path = gtk_tree_path_new_from_string (path_str);
@@ -779,4 +779,3 @@ cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, g
 
 	return;
 }
-
