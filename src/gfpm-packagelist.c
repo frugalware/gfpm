@@ -148,13 +148,13 @@ gfpm_package_list_print (GfpmListType type)
 	else
 		list = remove_list;
 
-	g_print ("====================\n");
+	g_print ("*****************************\n");
 	while (list != NULL)
 	{
 		g_print ("-> %s\n", list->data);
 		list = list->next;
 	}
-	g_print ("====================\n");
+	g_print ("*****************************\n");
 
 	return;
 }
