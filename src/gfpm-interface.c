@@ -577,8 +577,8 @@ static void
 cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data)
 {
 	GtkTreeModel	*model;
-	GtkTreeIter		iter;
-	gchar			*group;
+	GtkTreeIter	iter;
+	gchar		*group;
 
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
