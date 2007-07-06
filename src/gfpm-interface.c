@@ -190,10 +190,10 @@ void
 gfpm_load_groups_tvw (const char *repo_name)
 {
 	GtkTreeModel	*model;
-	GtkTreeIter		iter;
-	PM_LIST			*l;
-	PM_DB			*db;
-	char			*temp;
+	GtkTreeIter	iter;
+	PM_LIST		*l;
+	PM_DB		*db;
+	char		*temp;
 
 	if (!strcmp(repo_name,"frugalware-current"))
 		db = sync_db;
