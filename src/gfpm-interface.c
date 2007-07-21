@@ -62,6 +62,7 @@ static void cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpoi
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 static void cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
 
 void
 gfpm_interface_init (void)
@@ -156,7 +157,7 @@ gfpm_interface_init (void)
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
 
 	/* refresh db */
-	//g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_refresh_button_clicked), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_gfpm_refresh_button_clicked), NULL);
 
 	/* initialize progressbar */
 	//gfpm_progress_init ();
@@ -194,7 +195,6 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
 	GString *errorstr = g_string_new ("");
 
-	gfpm_progress_show (TRUE);
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
@@ -224,7 +224,8 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			gfpm_error (errorstr->str);
 			return;
 		}
-
+		
+		gfpm_progress_show (TRUE);
 		GList *i = NULL;
 		PM_LIST *data, *pkgs;
 		for (i = install_list; i; i = i->next)
@@ -621,6 +622,17 @@ gfpm_load_files_txtvw (const char *pkg_name, gboolean inst)
 
 
 /* CALLBACKS */
+
+static void
+cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
+{
+	gint ret;
+	gfpm_progress_set_main_text (_("Synchronizing package databases"));
+	gfpm_progress_show (TRUE);
+	ret = pacman_db_update (1, sync_db);
+
+	return;
+}
 
 static void
 cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data)

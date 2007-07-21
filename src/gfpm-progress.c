@@ -153,6 +153,14 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 											 break;
 		case PM_TRANS_EVT_INTERCONFLICTS_START: str = g_strdup (_("Looking for inter-conflicts"));
 												break;
+		case PM_TRANS_EVT_REMOVE_START: str = g_strdup (_("Removing package"));
+										break;
+		case PM_TRANS_EVT_INTEGRITY_START: str = g_strdup (_("Checking package integrity"));
+										   break;
+		case PM_TRANS_EVT_SCRIPTLET_START: str = g_strdup ((char*)data1);
+										   break;
+		case PM_TRANS_EVT_RETRIEVE_START: str = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
+										  break;
 	}
 	gfpm_progress_set_main_text (str);
 	gfpm_progress_set_sub_text (_("Please wait..."));
