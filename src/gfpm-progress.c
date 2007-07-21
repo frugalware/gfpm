@@ -140,7 +140,6 @@ gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howm
 void
 gfpm_progress_event (unsigned char event, void *data1, void *data2)
 {
-	char *str = NULL;
 	char *substr = NULL;
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
@@ -158,7 +157,9 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
 		case PM_TRANS_EVT_INTERCONFLICTS_DONE: substr = g_strdup (_("Done"));
 												break;
-		case PM_TRANS_EVT_ADD_DONE: substr = g_strdup (_("Done"));
+		case PM_TRANS_EVT_ADD_START: substr = g_strdup_printf (_("installing %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+									break;
+		case PM_TRANS_EVT_ADD_DONE: substr = g_strdup_printf (_("installed %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
 									break;
 		case PM_TRANS_EVT_REMOVE_START: substr = g_strdup (_("Removing package"));
 										break;
@@ -175,9 +176,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_RETRIEVE_START: substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
 										  break;
 	}
-	//gfpm_progress_set_main_text (str);
 	gfpm_progress_set_sub_text (substr);
-	//g_free (str);
 	g_free (substr);
 
 	return;
