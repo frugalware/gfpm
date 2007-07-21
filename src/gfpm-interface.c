@@ -195,6 +195,8 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
 	GString *errorstr = g_string_new ("");
 
+	gfpm_package_list_print (GFPM_INSTALL_LIST);
+	gfpm_package_list_print (GFPM_REMOVE_LIST);
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
@@ -642,9 +644,30 @@ static void
 cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 {
 	gint ret;
+	PM_PKG *pm_lpkg, *pm_spkg;
+	static gchar *updatestr = 
+		("Gfpm has detected a newer version of the pacman-g2 package. "
+		 "It is recommended that you allow gfpm to upgrade pacman-g2 first. "
+		 "Do you want to continue upgrading pacman-g2 ?");
+
 	gfpm_progress_set_main_text (_("Synchronizing package databases"));
 	gfpm_progress_show (TRUE);
 	ret = pacman_db_update (1, sync_db);
+	
+	/* check for a pacman-g2 update */
+	pm_lpkg = pacman_db_readpkg (local_db, "pacman-g2");
+	pm_spkg = pacman_db_readpkg (sync_db, "pacman-g2");
+	if (strcmp((char*)pacman_pkg_getinfo(pm_lpkg, PM_PKG_VERSION),
+				(char*)pacman_pkg_getinfo(pm_spkg, PM_PKG_VERSION)))
+	{
+		if (gfpm_question (updatestr) == GTK_RESPONSE_YES)
+		{	
+			gfpm_package_list_add (GFPM_INSTALL_LIST, "pacman-g2");
+			cb_gfpm_apply_btn_clicked (NULL, NULL);
+		}
+	}
+	pacman_pkg_free (pm_lpkg);
+	pacman_pkg_free (pm_spkg);
 
 	return;
 }

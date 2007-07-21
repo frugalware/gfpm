@@ -161,6 +161,13 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 									break;
 		case PM_TRANS_EVT_ADD_DONE: substr = g_strdup_printf (_("installed %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
 									break;
+		case PM_TRANS_EVT_UPGRADE_START: substr = g_strdup_printf (_("upgrading %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+									break;
+		case PM_TRANS_EVT_UPGRADE_DONE: substr = g_strdup_printf (_("upgraded %s from %s to %s"),
+																(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+																(char*)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
+																(char*)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+									break;
 		case PM_TRANS_EVT_REMOVE_START: substr = g_strdup (_("Removing package"));
 										break;
 		case PM_TRANS_EVT_REMOVE_DONE: substr = g_strdup (_("Done"));
