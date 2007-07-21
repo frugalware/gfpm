@@ -141,30 +141,44 @@ void
 gfpm_progress_event (unsigned char event, void *data1, void *data2)
 {
 	char *str = NULL;
+	char *substr = NULL;
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	switch (event)
 	{
-		case PM_TRANS_EVT_CHECKDEPS_START: str = g_strdup(_("Checking dependencies"));
+		case PM_TRANS_EVT_CHECKDEPS_START: substr = g_strdup(_("Checking dependencies"));
 										   break;
-		case PM_TRANS_EVT_FILECONFLICTS_START: str = g_strdup (_("Checking for file conflicts"));
+		case PM_TRANS_EVT_FILECONFLICTS_START: substr = g_strdup (_("Checking for file conflicts"));
 											   break;
-		case PM_TRANS_EVT_RESOLVEDEPS_START: str = g_strdup (_("Resolving dependencies"));
+		case PM_TRANS_EVT_RESOLVEDEPS_START: substr = g_strdup (_("Resolving dependencies"));
 											 break;
-		case PM_TRANS_EVT_INTERCONFLICTS_START: str = g_strdup (_("Looking for inter-conflicts"));
+		case PM_TRANS_EVT_INTERCONFLICTS_START: substr = g_strdup (_("Looking for inter-conflicts"));
 												break;
-		case PM_TRANS_EVT_REMOVE_START: str = g_strdup (_("Removing package"));
+		case PM_TRANS_EVT_CHECKDEPS_DONE:
+		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
+		case PM_TRANS_EVT_INTERCONFLICTS_DONE: substr = g_strdup (_("Done"));
+												break;
+		case PM_TRANS_EVT_ADD_DONE: substr = g_strdup (_("Done"));
+									break;
+		case PM_TRANS_EVT_REMOVE_START: substr = g_strdup (_("Removing package"));
 										break;
-		case PM_TRANS_EVT_INTEGRITY_START: str = g_strdup (_("Checking package integrity"));
+		case PM_TRANS_EVT_REMOVE_DONE: substr = g_strdup (_("Done"));
+										break;
+		case PM_TRANS_EVT_INTEGRITY_START: substr = g_strdup (_("Checking package integrity"));
 										   break;
-		case PM_TRANS_EVT_SCRIPTLET_START: str = g_strdup ((char*)data1);
+		case PM_TRANS_EVT_INTEGRITY_DONE: substr = g_strdup (_("Done"));
 										   break;
-		case PM_TRANS_EVT_RETRIEVE_START: str = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
+		case PM_TRANS_EVT_SCRIPTLET_START: substr = g_strdup ((char*)data1);
+										   break;
+		case PM_TRANS_EVT_SCRIPTLET_DONE: substr = g_strdup (_("Done"));
+										   break;
+		case PM_TRANS_EVT_RETRIEVE_START: substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
 										  break;
 	}
-	gfpm_progress_set_main_text (str);
-	gfpm_progress_set_sub_text (_("Please wait..."));
-	g_free (str);
+	//gfpm_progress_set_main_text (str);
+	gfpm_progress_set_sub_text (substr);
+	//g_free (str);
+	g_free (substr);
 
 	return;
 }

@@ -209,6 +209,23 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			gfpm_error (errorstr->str);
 			return;
 		}
+		
+		gfpm_progress_show (TRUE);
+		GList *i = NULL;
+		PM_LIST *data, *pkgs;
+		for (i = remove_list; i; i = i->next)
+		{
+			char *target = i->data;
+			pacman_trans_addtarget (target);
+		}
+		if (pacman_trans_prepare(&data) == -1)
+			g_print ("failed to prepare transaction (%s)\n", pacman_strerror(pm_errno));
+		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
+		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
+		
+		/* commit transaction */
+		if (pacman_trans_commit(&data) == -1)
+			g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
 	}
 	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
 	{
@@ -241,12 +258,10 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		/* commit transaction */
 		if (pacman_trans_commit(&data) == -1)
 			g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
-		else
-			gfpm_progress_set_sub_text (_("Done"));
-
 	}
 	pacman_trans_release ();
 
+	return;
 }
 
 
