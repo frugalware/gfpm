@@ -49,12 +49,16 @@ static GtkWidget *gfpm_groups_tvw;
 static GtkWidget *gfpm_pkgs_tvw;
 static GtkWidget *gfpm_info_tvw;
 static GtkWidget *gfpm_files_txtvw;
+static GtkWidget *gfpm_clrall_opt;
+static GtkWidget *gfpm_clrold_opt;
 
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
+static void cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 
 void
 gfpm_interface_init (void)
@@ -72,6 +76,8 @@ gfpm_interface_init (void)
 	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
 	gfpm_info_tvw	= glade_xml_get_widget (xml, "infotreeview");
 	gfpm_files_txtvw= glade_xml_get_widget (xml, "filestextview");
+	gfpm_clrold_opt = glade_xml_get_widget (xml, "rem_old_opt");
+	gfpm_clrall_opt = glade_xml_get_widget (xml, "rem_all_opt");
 
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
@@ -142,12 +148,18 @@ gfpm_interface_init (void)
 	
 	/* about */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
+	
+	/* aply */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
 
 	/* refresh db */
 	//g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_refresh_button_clicked), NULL);
 
 	/* initialize progressbar */
 	//gfpm_progress_init ();
+	
+	/* clear cache dialog */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
 
 	/* Disable Apply, Refresh and File buttons if user is not root */
 	if ( geteuid() != 0 )
@@ -779,3 +791,49 @@ cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, g
 
 	return;
 }
+
+static void
+cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
+{
+	int ret;
+	gchar *errstr = NULL;
+
+	if (gtk_toggle_button_get_active(gfpm_clrold_opt) == TRUE)
+	{
+		if (gfpm_question(_("Are you sure you want to remove old packages from cache ?")) == GTK_RESPONSE_YES)
+		{
+			while (gtk_events_pending())
+				gtk_main_iteration ();
+			ret = pacman_sync_cleancache (0);
+			if (!ret)
+				gfpm_message (_("Finished clearing the cache"));
+			else
+			{
+				errstr = g_strdup_printf (_("Failed to clean the cache (%s)"), pacman_strerror(pm_errno));
+				gfpm_message (errstr);
+				g_free (errstr);
+			}
+		}
+		return;
+	}
+	else if (gtk_toggle_button_get_active(gfpm_clrall_opt) == TRUE)
+	{
+		if (gfpm_question(_("Are you sure you want to remove all packages from cache ?")) == GTK_RESPONSE_YES)
+		{
+			while (gtk_events_pending())
+				gtk_main_iteration ();
+			ret = pacman_sync_cleancache (1);
+			if (!ret)
+				gfpm_message (_("Finished clearing the cache"));
+			else
+			{
+				errstr = g_strdup_printf (_("Failed to clean the cache (%s)"), pacman_strerror(pm_errno));
+				gfpm_message (errstr);
+				g_free (errstr);
+			}
+		}
+		return;
+	}
+	return;
+}
+
