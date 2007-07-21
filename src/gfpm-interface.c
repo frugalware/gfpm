@@ -33,12 +33,15 @@
 #include "gfpm-interface.h"
 #include "gfpm-messages.h"
 #include "gfpm-packagelist.h"
+#include "gfpm-progress.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
 
 extern GladeXML *xml;
 extern PM_DB	*sync_db;
 extern PM_DB	*local_db;
+extern GfpmList *install_list;
+extern GfpmList *remove_list;
 extern char	*repo;
 
 /* The GFPM main window */
@@ -173,6 +176,7 @@ gfpm_interface_init (void)
 
 	/* initialize dbs */
 	gfpm_db_init ();
+	gfpm_progress_init ();
 
 	/* load default repo  */
 	gfpm_load_groups_tvw ("frugalware-current");
@@ -184,6 +188,39 @@ gfpm_interface_init (void)
 
 	return;
 }
+
+static void
+cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
+{
+	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+		g_print ("failed to init transaction (%s) \n", pacman_strerror(pm_errno));
+	gfpm_progress_show (TRUE);
+	/* process remove list first */
+	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
+	{
+		g_print ("remove list is empty");
+	}
+	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
+	{
+		g_print ("performing install list");
+		GList *i = NULL;
+		PM_LIST *data, *pkgs;
+		for (i = install_list; i; i = i->next)
+		{
+			char *target = i->data;
+			pacman_trans_addtarget (target);
+		}
+			if (pacman_trans_prepare(&data) == -1)
+				g_print ("failed to prepare transaction (%s)\n", pacman_strerror(pm_errno));
+			pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
+			if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
+			if (pacman_trans_commit(&data) == -1)
+				g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
+			pacman_trans_release ();
+	}
+
+}
+
 
 void
 gfpm_update_status (const gchar *message)

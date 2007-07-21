@@ -22,6 +22,7 @@
 
 #define _GNU_SOURCE
 #include <glade/glade.h>
+#include "gfpm.h"
 #include "gfpm-progress.h"
 
 #ifdef HAVE_CONFIG_H
@@ -78,14 +79,74 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	size = *(int*)arg;
 	per = ((float)(xferred+offset) / size) * 100;
 	sprintf (text, "%d %%", per);
+	while (gtk_events_pending ())
+		gtk_main_iteration ();
 	gtk_progress_bar_set_text (progressbar, text);
 	gtk_progress_bar_set_fraction (progressbar, (float)per/100);
 	gfpm_progress_set_sub_text (reponame);
 
+	return 1;
+}
+
+void
+gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howmany, int remain)
+{
+	char *main_text = NULL;
+	char *sub_text = NULL;
+
+	if (!pkgname)
+		return;
+	if (percent > 100)
+		return;
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
+	switch (event)
+	{
+		case PM_TRANS_PROGRESS_ADD_START:
+			main_text = g_strdup (_("Installing package"));
+			break;
+		case PM_TRANS_PROGRESS_UPGRADE_START:
+			main_text = g_strdup (_("Upgrading package"));
+			break;
+		case PM_TRANS_PROGRESS_REMOVE_START:
+			main_text = g_strdup (_("Removing package"));
+			break;
+		case PM_TRANS_PROGRESS_CONFLICTS_START:
+			main_text = g_strdup (_("Checking package for file conflicts"));
+			break;
+	}
+	gfpm_progress_set_main_text (main_text);
+	sub_text = g_strdup_printf ("(%d/%d) %s", remain, howmany, pkgname);
+	gfpm_progress_set_sub_text (sub_text);
+	gtk_progress_bar_set_fraction (progressbar, (float)percent/100);
+	g_free (main_text);
+	g_free (sub_text);
 
-	return 1;
+	return;
+}
+
+void
+gfpm_progress_event (unsigned char event, void *data1, void *data2)
+{
+	char *str = NULL;
+	while (gtk_events_pending ())
+		gtk_main_iteration ();
+	switch (event)
+	{
+		case PM_TRANS_EVT_CHECKDEPS_START: str = g_strdup(_("Checking dependencies"));
+										   break;
+		case PM_TRANS_EVT_FILECONFLICTS_START: str = g_strdup (_("Checking for file conflicts"));
+											   break;
+		case PM_TRANS_EVT_RESOLVEDEPS_START: str = g_strdup (_("Resolving dependencies"));
+											 break;
+		case PM_TRANS_EVT_INTERCONFLICTS_START: str = g_strdup (_("Looking for inter-conflicts"));
+												break;
+	}
+	gfpm_progress_set_main_text (str);
+	gfpm_progress_set_sub_text (_("Please wait..."));
+	g_free (str);
+
+	return;
 }
 
 void

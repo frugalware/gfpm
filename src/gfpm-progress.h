@@ -14,7 +14,11 @@ typedef void* netbuf;
 
 void gfpm_progress_init (void);
 
+void gfpm_progress_event (unsigned char, void *, void *);
+
 int gfpm_progress_update (netbuf *, int, void *);
+
+void gfpm_progress_install (unsigned char, char *, int, int, int);
 
 void gfpm_progress_show (gboolean);
 

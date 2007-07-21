@@ -26,8 +26,8 @@
 
 #include "gfpm-packagelist.h"
 
-static GfpmList *install_list = NULL;
-static GfpmList *remove_list = NULL;
+GfpmList *install_list = NULL;
+GfpmList *remove_list = NULL;
 
 void
 gfpm_package_list_add (GfpmListType type, const gchar *item)
