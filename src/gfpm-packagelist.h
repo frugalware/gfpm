@@ -20,9 +20,6 @@ typedef enum _gfpmlisttype
 	GFPM_REMOVE_LIST
 } GfpmListType;
 
-/* Print contents of a GfpmList */
-void gfpm_package_list_print (GfpmListType);
-
 /* Inserts a new item into a GfpmList */
 void gfpm_package_list_add (GfpmListType, const gchar *);
 
@@ -31,5 +28,12 @@ void gfpm_package_list_del (GfpmListType, const gchar *);
 
 /* Free memory used by a GfpmList */
 void gfpm_package_list_free (GfpmListType);
+
+/* Print contents of a GfpmList */
+/* temporary function, to be removed after testing */
+void gfpm_package_list_print (GfpmListType);
+
+/* Check whether a list is empty */
+int gfpm_package_list_is_empty (GfpmListType);
 
 #endif

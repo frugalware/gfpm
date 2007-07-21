@@ -138,6 +138,42 @@ gfpm_package_list_free (GfpmListType type)
 	return;
 }
 
+/* checks whether a list is empty
+ * returns 0 if empty
+ * returns 1 if not empty
+ * returns -1 on error
+ */
+int
+gfpm_package_list_is_empty (GfpmListType type)
+{
+	if ((type != GFPM_INSTALL_LIST) && (type != GFPM_REMOVE_LIST))
+		return -1;
+	switch (type)
+	{
+		case GFPM_INSTALL_LIST:
+			{
+				if (install_list == NULL)
+					return 0;
+				else if (g_list_length(install_list)==0)
+					return 0;
+				else
+					return 1;
+				break;
+			}
+		case GFPM_REMOVE_LIST:
+			{
+				if (remove_list == NULL)
+					return 0;
+				else if (g_list_length(remove_list)==0)
+					return 0;
+				else
+					return 1;
+				break;
+			}
+		default: return -1;
+	}
+}
+
 void
 gfpm_package_list_print (GfpmListType type)
 {
