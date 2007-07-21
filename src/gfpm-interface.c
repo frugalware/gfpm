@@ -192,17 +192,39 @@ gfpm_interface_init (void)
 static void
 cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
-	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
-		g_print ("failed to init transaction (%s) \n", pacman_strerror(pm_errno));
+	GString *errorstr = g_string_new ("");
+
 	gfpm_progress_show (TRUE);
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
-		g_print ("remove list is empty");
+		if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+		{
+			gchar *str;
+			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
+			errorstr = g_string_append (errorstr, str);
+			if (pm_errno == PM_ERR_HANDLE_LOCK)
+				errorstr = g_string_append (errorstr,
+											_("If you're sure a package manager is not already running,	you can delete /tmp/pacman-g2.lck"));
+			gfpm_error (errorstr->str);
+			return;
+		}
 	}
 	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
 	{
-		g_print ("performing install list");
+		/* create transaction */
+		if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+		{
+			gchar *str;
+			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
+			errorstr = g_string_append (errorstr, str);
+			if (pm_errno == PM_ERR_HANDLE_LOCK)
+				errorstr = g_string_append (errorstr,
+											_("If you're sure a package manager is not already running,	you can delete /tmp/pacman-g2.lck"));
+			gfpm_error (errorstr->str);
+			return;
+		}
+
 		GList *i = NULL;
 		PM_LIST *data, *pkgs;
 		for (i = install_list; i; i = i->next)
@@ -210,14 +232,19 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			char *target = i->data;
 			pacman_trans_addtarget (target);
 		}
-			if (pacman_trans_prepare(&data) == -1)
-				g_print ("failed to prepare transaction (%s)\n", pacman_strerror(pm_errno));
-			pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
-			if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
-			if (pacman_trans_commit(&data) == -1)
-				g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
-			pacman_trans_release ();
+		if (pacman_trans_prepare(&data) == -1)
+			g_print ("failed to prepare transaction (%s)\n", pacman_strerror(pm_errno));
+		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
+		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
+		
+		/* commit transaction */
+		if (pacman_trans_commit(&data) == -1)
+			g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
+		else
+			gfpm_progress_set_sub_text (_("Done"));
+
 	}
+	pacman_trans_release ();
 
 }
 

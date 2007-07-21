@@ -103,16 +103,28 @@ gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howm
 	switch (event)
 	{
 		case PM_TRANS_PROGRESS_ADD_START:
-			main_text = g_strdup (_("Installing package"));
+			if (howmany > 1)
+				main_text = g_strdup (_("Installing packages"));
+			else
+				main_text = g_strdup (_("Installing package"));
 			break;
 		case PM_TRANS_PROGRESS_UPGRADE_START:
-			main_text = g_strdup (_("Upgrading package"));
+			if (howmany > 1)
+				main_text = g_strdup (_("Upgrading packages"));
+			else
+				main_text = g_strdup (_("Upgrading package"));
 			break;
 		case PM_TRANS_PROGRESS_REMOVE_START:
-			main_text = g_strdup (_("Removing package"));
+			if (howmany > 1)
+				main_text = g_strdup (_("Removing packages"));
+			else
+				main_text = g_strdup (_("Removing package"));
 			break;
 		case PM_TRANS_PROGRESS_CONFLICTS_START:
-			main_text = g_strdup (_("Checking package for file conflicts"));
+			if (howmany > 1)
+				main_text = g_strdup (_("Checking packages for file conflicts"));
+			else
+				main_text = g_strdup (_("Checking package for file conflicts"));
 			break;
 	}
 	gfpm_progress_set_main_text (main_text);
