@@ -141,6 +141,7 @@ void
 gfpm_progress_event (unsigned char event, void *data1, void *data2)
 {
 	char *substr = NULL;
+	int main = 0;
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	switch (event)
@@ -181,9 +182,16 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_SCRIPTLET_DONE: substr = g_strdup (_("Done"));
 										   break;
 		case PM_TRANS_EVT_RETRIEVE_START: substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
+										  main = 1;
 										  break;
 	}
-	gfpm_progress_set_sub_text (substr);
+	if (main == 1)
+	{	
+		gfpm_progress_set_main_text (substr);
+		main = 0;
+	}
+	else
+		gfpm_progress_set_sub_text (substr);
 	g_free (substr);
 
 	return;
