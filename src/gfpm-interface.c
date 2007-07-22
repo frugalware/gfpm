@@ -370,6 +370,8 @@ gfpm_load_pkgs_tvw (const char *group_name)
 	}
 
 	gfpm_update_status (_("Loading package list ..."));
+	while (gtk_events_pending())
+		gtk_main_iteration ();
 	pm_group = pacman_db_readgrp (pm_db, (char*)group_name);
 	l = pacman_grp_getinfo (pm_group, PM_GRP_PKGNAMES);
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
