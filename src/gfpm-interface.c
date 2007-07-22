@@ -415,10 +415,10 @@ gfpm_load_pkgs_tvw (const char *group_name)
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 						0, check,
 						1, (up==TRUE)?icon_up:(check==TRUE)?icon_yes:icon_no,
-						2, (char*)pacman_list_getdata (i),
+						2, g_strstrip((char*)pacman_list_getdata (i)),
 						3, (check==TRUE)?(char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION) : NULL,
 						4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
-						5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
+						5, g_strstrip((char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC)),
 						-1);
 		}
 		else if (r == 0)
@@ -426,18 +426,20 @@ gfpm_load_pkgs_tvw (const char *group_name)
 			gboolean up = FALSE;
 			pm_pkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
-			if (!strcmp((char*)pacman_pkg_getinfo(pm_pkg,PM_PKG_VERSION),
-				(char*)pacman_pkg_getinfo(pm_lpkg,PM_PKG_VERSION)))
-				up = FALSE;
+			char *v1 = (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION);
+			char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
+			if (v1!=NULL && v2!=NULL)
+				if (!strcmp(v1,v2))
+					up = FALSE;
 			else
 				up = TRUE;
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 						0, TRUE,
 						1, (up==TRUE)?icon_up:icon_yes,
-						2, (char*)pacman_list_getdata (i),
+						2, g_strstrip((char*)pacman_list_getdata (i)),
 						3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION),
 						4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
-						5, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC),
+						5, g_strstrip((char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC)),
 						-1);
 		}
 		pacman_pkg_free (pm_pkg);
