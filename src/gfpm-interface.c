@@ -109,25 +109,57 @@ gfpm_interface_init (void)
 				G_TYPE_STRING,   /* Latest version */
 				G_TYPE_STRING);  /* Package Description */
 
+	GtkTreeViewColumn *column;
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
 	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_gfpm_pkg_selection_toggled), store);
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_pkgs_tvw), -1, _("S"), renderer, "active", 0, NULL);
+	column = gtk_tree_view_column_new_with_attributes (_("S"),
+							renderer,
+							"active", 0,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
 	renderer = gtk_cell_renderer_pixbuf_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_pkgs_tvw), -1, _("Status"), renderer, "pixbuf", 1, NULL);
+	column = gtk_tree_view_column_new_with_attributes (_("Status"),
+							renderer,
+							"pixbuf", 1,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_pkgs_tvw), -1, _("Package Name"), renderer, "text", 2, NULL);
+	column = gtk_tree_view_column_new_with_attributes (_("Package Name"),
+							renderer,
+							"text", 2,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_column_set_min_width (column, 140);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_pkgs_tvw), -1, _("Installed Version"), renderer, "text", 3, NULL);
+	column = gtk_tree_view_column_new_with_attributes (_("Installed Version"),
+							renderer,
+							"text", 3,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW(gfpm_pkgs_tvw), -1, _("Latest Version"), renderer, "text", 4, NULL);
+	column = gtk_tree_view_column_new_with_attributes (_("Latest Version"),
+							renderer,
+							"text", 4,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
 	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_pkgs_tvw), -1, _("Description"), renderer, "text", 5, NULL);
+	column = gtk_tree_view_column_new_with_attributes (_("Description"),
+							renderer,
+							"text", 5,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_pkgs_tvw), GTK_TREE_MODEL(store));
 
@@ -159,9 +191,6 @@ gfpm_interface_init (void)
 	/* refresh db */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_gfpm_refresh_button_clicked), NULL);
 
-	/* initialize progressbar */
-	//gfpm_progress_init ();
-	
 	/* clear cache dialog */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
 
