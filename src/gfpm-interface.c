@@ -676,6 +676,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 {
 	gint ret;
 	PM_PKG *pm_lpkg, *pm_spkg;
+	PM_LIST *packages;
 	static gchar *updatestr = 
 		("Gfpm has detected a newer version of the pacman-g2 package. "
 		 "It is recommended that you allow gfpm to upgrade pacman-g2 first. "
@@ -694,6 +695,30 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		if (gfpm_question (updatestr) == GTK_RESPONSE_YES)
 		{	
 			gfpm_package_list_add (GFPM_INSTALL_LIST, "pacman-g2");
+			cb_gfpm_apply_btn_clicked (NULL, NULL);
+		}
+	}
+	else
+	{
+		if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+		{
+			gchar *str;
+			GString *errorstr = g_string_new ("");
+			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
+			errorstr = g_string_append (errorstr, str);
+			if (pm_errno == PM_ERR_HANDLE_LOCK)
+				errorstr = g_string_append (errorstr,
+											_("If you're sure a package manager is not already running,	you can delete /tmp/pacman-g2.lck"));
+			gfpm_error (errorstr->str);
+			return;
+		}
+		if (pacman_trans_sysupgrade()==-1)
+		{	
+			g_print ("error %s", pacman_strerror(pm_errno));
+		}
+		packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);
+		if (gfpm_plist_question("Following packages will be upgraded. Do you want to continue ?", packages) == GTK_RESPONSE_YES)
+		{
 			cb_gfpm_apply_btn_clicked (NULL, NULL);
 		}
 	}
