@@ -918,6 +918,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 	g_object_unref (icon_yes);
 	g_object_unref (icon_no);
+	g_object_unref (icon_up);
 	return;
 }
 
