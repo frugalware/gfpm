@@ -797,6 +797,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	GtkListStore	*store;
 	GdkPixbuf	*icon_yes;
 	GdkPixbuf	*icon_no;
+	GdkPixbuf	*icon_up;
 	GtkTreeModel	*model;
 	GtkTreeIter	iter;
 	PM_PKG		*pm_pkg;
@@ -838,24 +839,38 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					GTK_STOCK_NO,
 					GTK_ICON_SIZE_SMALL_TOOLBAR,
 					NULL);
+	icon_up = gtk_widget_render_icon (gfpm_pkgs_tvw,
+					GTK_STOCK_GO_UP,
+					GTK_ICON_SIZE_SMALL_TOOLBAR,
+					NULL);
 	gfpm_update_status (_("Searching for packages ..."));
 	if (r == 0)
 	{
 		PM_PKG	*pm_spkg;
+		PM_PKG	*pm_lpkg;
+		gboolean up = FALSE;
+			
 		for (i=l;i;i=pacman_list_next(i))
 		{
-			pm_pkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
+			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
 			pm_spkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
+			char *v1 = (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION);
+			char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
+			if (v1!=NULL && v2!=NULL)
+				if (!strcmp(v1,v2))
+					up = FALSE;
+			else
+				up = TRUE;
 			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter,
 					0, TRUE,
-					1, icon_yes,
-					2, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
-					3, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
+					1, (up==FALSE)?icon_yes:icon_up,
+					2, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_NAME),
+					3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION),
 					4, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION),
-					5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
+					5, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC),
 					-1);
-			pacman_pkg_free (pm_pkg);
+			pacman_pkg_free (pm_lpkg);
 			pacman_pkg_free (pm_spkg);
 		}
 	}
