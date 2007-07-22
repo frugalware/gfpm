@@ -224,8 +224,6 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
 	GString *errorstr = g_string_new ("");
 
-	gfpm_package_list_print (GFPM_INSTALL_LIST);
-	gfpm_package_list_print (GFPM_REMOVE_LIST);
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
