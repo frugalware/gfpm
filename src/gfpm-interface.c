@@ -684,7 +684,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	gfpm_progress_set_main_text (_("Synchronizing package databases"));
 	gfpm_progress_show (TRUE);
 	ret = pacman_db_update (1, sync_db);
-	
+	gfpm_progress_show (FALSE);
 	/* check for a pacman-g2 update */
 	pm_lpkg = pacman_db_readpkg (local_db, "pacman-g2");
 	pm_spkg = pacman_db_readpkg (sync_db, "pacman-g2");
