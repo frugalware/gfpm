@@ -6,6 +6,7 @@ bin_PROGRAMS=gfpm
 
 ## Gfpm
 gfpm_SOURCES=				\
+			gfpm-util.c		\
 			gfpm-db.c		\
 			gfpm-packagelist.c		\
 			gfpm-progress.c		\

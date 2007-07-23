@@ -170,7 +170,7 @@ gfpm_interface_init (void)
 	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
 
 	renderer = gtk_cell_renderer_text_new();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_info_tvw), -1, "Info", renderer, "text", 0, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_info_tvw), -1, "Info", renderer, "markup", 0, NULL);
 
 	renderer = gtk_cell_renderer_text_new ();
 	g_object_set (renderer, "wrap-width", 300, NULL);
@@ -466,7 +466,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 	gboolean	inst = FALSE;
 	GString		*str;
 	float		size;
-	char		*st = NULL;
+	char		*st, *tmp = NULL;
 
 	if (!pkg_name)
 		return;
@@ -494,21 +494,27 @@ gfpm_load_info_tvw (const char *pkg_name)
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_info_tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
-	gtk_list_store_append (GTK_LIST_STORE(model), &iter); 
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	st = gfpm_bold (_("Name:"));
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						0, _("Name:"),
+						0, st,
 						1, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
 						-1);
+	g_free (st);
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter); 
+	st = gfpm_bold (_("Version:"));
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						0, _("Version:"),
+						0, st,
 						1, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
 						-1);
+	g_free (st);
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter); 
+	st = gfpm_bold (_("Description:"));
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						0, _("Description:"),
+						0, st,
 						1, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
 						-1);
+	g_free (st);
 
 	/* populate depends */
 	temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_DEPENDS);
@@ -519,10 +525,12 @@ gfpm_load_info_tvw (const char *pkg_name)
 		str = g_string_append (str, " ");
 	}
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	st = gfpm_bold (_("Depends:"));
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						0, _("Depends:"),
+						0, st,
 						1, (char*)str->str,
 						-1);
+	g_free (st);
 	g_string_free (str, TRUE);
 
 	/* populate provides */
@@ -536,10 +544,12 @@ gfpm_load_info_tvw (const char *pkg_name)
 	if (str->len)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = gfpm_bold (_("Provides:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("Provides:"),
+					0, st,
 					1, (char*)str->str,
 					-1);
+		g_free (st);
 	}
 	g_string_free (str, TRUE);
 	
@@ -554,65 +564,81 @@ gfpm_load_info_tvw (const char *pkg_name)
 	if (str->len)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = gfpm_bold (_("Conflicts:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("Conflicts:"),
+					0, st,
 					1, (char*)str->str,
 					-1);
+		g_free (st);
 	}
 	g_string_free (str, TRUE);
 
 	if (inst == TRUE)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = gfpm_bold (_("URL:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("URL:"),
+					0, st,
 					1, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_URL),
 					-1);
+		g_free (st);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = gfpm_bold (_("Packager:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("Packager:"),
+					0, st,
 					1, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_PACKAGER),
 					-1);
+		g_free (st);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = gfpm_bold (_("Install Date:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("Install Date:"),
+					0, st,
 					1, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_INSTALLDATE),
 					-1);
+		g_free (st);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_USIZE)/1024)/1024,
-		asprintf (&st, "%0.2f MB", size);
+		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_USIZE)/1024)/1024;
+		asprintf (&tmp, "%0.2f MB", size);
+		st = gfpm_bold (_("Size:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("Size:"),
-					1, (char*)st,
+					0, st,
+					1, (char*)tmp,
 					-1);
 		g_free (st);
+		g_free (tmp);
 	}
 	if (inst == FALSE)
 	{
-		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_SIZE)/1024)/1024,
-		asprintf (&st, "%0.2f MB", size);
+		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_SIZE)/1024)/1024;
+		asprintf (&tmp, "%0.2f MB", size);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = gfpm_bold (_("Size (Compressed):"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("Size (compressed):"),
-					1, (char*)st,
+					0, st,
+					1, (char*)tmp,
 					-1);
 		g_free (st);
+		g_free (tmp);
 		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_USIZE)/1024)/1024,
-		asprintf (&st, "%0.2f MB", size);
+		asprintf (&tmp, "%0.2f MB", size);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = gfpm_bold (_("Size (Uncompressed):"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("Size (Uncompressed):"),
-					1, (char*)st,
+					0, st,
+					1, (char*)tmp,
 					-1);
 		g_free (st);
+		g_free (tmp);
 	}
 	if (r == 1)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = gfpm_bold (_("SHA1SUM:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, _("SHA1SUM:"),
+					0, st,
 					1, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_SHA1SUM),
 					-1);
+		g_free (st);
 	}
 	if (inst == TRUE)
 	{
@@ -626,10 +652,12 @@ gfpm_load_info_tvw (const char *pkg_name)
 		if (str->len)
 		{
 			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+			st = gfpm_bold (_("Required By:"));
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						0, _("Required By:"),
+						0, st,
 						1, (char*)str->str,
 						-1);
+			g_free (st);
 		}
 		g_string_free (str, TRUE);
 	}
@@ -834,7 +862,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	}
 	icon_yes = gtk_widget_render_icon (gfpm_pkgs_tvw,
 					GTK_STOCK_YES,
-					GTK_ICON_SIZE_SMALL_TOOLBAR,
+					GTK_ICON_SIZE_MENU,
 					NULL);
 	icon_no = gtk_widget_render_icon (gfpm_pkgs_tvw,
 					GTK_STOCK_NO,
