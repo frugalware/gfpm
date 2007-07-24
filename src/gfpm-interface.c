@@ -879,6 +879,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		PM_PKG	*pm_lpkg;
 		gboolean up = FALSE;
 			
+		while (gtk_events_pending())
+			gtk_main_iteration ();
 		for (i=l;i;i=pacman_list_next(i))
 		{
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
