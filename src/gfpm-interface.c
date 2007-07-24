@@ -326,11 +326,11 @@ gfpm_load_groups_tvw (const char *repo_name)
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_groups_tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
-	while (gtk_events_pending())
-		gtk_main_iteration ();
 
 	for (l=pacman_db_getgrpcache(db); l; l=pacman_list_next(l))
 	{
+		while (gtk_events_pending())
+			gtk_main_iteration ();
 		asprintf (&temp, _("Loading groups ... [%s]"), (char*)pacman_list_getdata(l));
 		gfpm_update_status (temp);
 		while (gtk_events_pending())
