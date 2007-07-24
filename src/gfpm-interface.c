@@ -379,15 +379,15 @@ gfpm_load_pkgs_tvw (const char *group_name)
 
 	icon_yes = gtk_widget_render_icon	(gfpm_pkgs_tvw,
 						GTK_STOCK_YES,
-						GTK_ICON_SIZE_SMALL_TOOLBAR,
+						GTK_ICON_SIZE_MENU,
 						NULL);
 	icon_no = gtk_widget_render_icon	(gfpm_pkgs_tvw,
 						GTK_STOCK_NO,
-						GTK_ICON_SIZE_SMALL_TOOLBAR,
+						GTK_ICON_SIZE_MENU,
 						NULL);
 	icon_up = gtk_widget_render_icon	(gfpm_pkgs_tvw,
 						GTK_STOCK_GO_UP,
-						GTK_ICON_SIZE_SMALL_TOOLBAR,
+						GTK_ICON_SIZE_MENU,
 						NULL);
 
 	// display status
@@ -866,11 +866,11 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					NULL);
 	icon_no = gtk_widget_render_icon (gfpm_pkgs_tvw,
 					GTK_STOCK_NO,
-					GTK_ICON_SIZE_SMALL_TOOLBAR,
+					GTK_ICON_SIZE_MENU,
 					NULL);
 	icon_up = gtk_widget_render_icon (gfpm_pkgs_tvw,
 					GTK_STOCK_GO_UP,
-					GTK_ICON_SIZE_SMALL_TOOLBAR,
+					GTK_ICON_SIZE_MENU,
 					NULL);
 	gfpm_update_status (_("Searching for packages ..."));
 	if (r == 0)
