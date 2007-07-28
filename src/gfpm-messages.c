@@ -90,7 +90,6 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 	GtkCellRenderer		*r;
 	GtkTreeIter		iter;
 	GtkWidget		*tvw;
-	GtkWidget		*lbl;
 	gint			ret;
 	GList			*l;
 
@@ -100,7 +99,7 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 					GTK_BUTTONS_YES_NO,
 					"%s",
 					main_msg);
-	swindow = gtk_scrolled_window_new (NULL, NULL);
+	swindow = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new (NULL, NULL));
 	gtk_scrolled_window_set_policy (swindow, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	tvw = gtk_tree_view_new ();
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(tvw), FALSE);
@@ -125,7 +124,7 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 	gtk_tree_view_set_model (GTK_TREE_VIEW(tvw), GTK_TREE_MODEL(store));
 	gtk_widget_set_size_request (tvw, 230, 120);
 	gtk_widget_show (tvw);
-	gtk_box_pack_start (GTK_DIALOG(dialog)->vbox, swindow, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX(GTK_DIALOG(dialog)->vbox), GTK_WIDGET(swindow), FALSE, FALSE, 0);
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
 	ret = gtk_dialog_run (GTK_DIALOG(dialog));
@@ -143,7 +142,6 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 	GtkCellRenderer		*r;
 	GtkTreeIter		iter;
 	GtkWidget		*tvw;
-	GtkWidget		*lbl;
 	GList			*l;
 	
 	if (packages == NULL)
@@ -154,7 +152,7 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 					GTK_BUTTONS_CLOSE,
 					"%s",
 					main_msg);
-	swindow = gtk_scrolled_window_new (NULL, NULL);
+	swindow = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new (NULL, NULL));
 	gtk_scrolled_window_set_policy (swindow, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	tvw = gtk_tree_view_new ();
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(tvw), FALSE);
@@ -172,7 +170,7 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 	gtk_tree_view_set_model (GTK_TREE_VIEW(tvw), GTK_TREE_MODEL(store));
 	gtk_widget_set_size_request (tvw, 230, 80);
 	gtk_widget_show (tvw);
-	gtk_box_pack_start (GTK_DIALOG(dialog)->vbox, swindow, FALSE, FALSE, 0);
+	gtk_box_pack_start (GTK_BOX(GTK_DIALOG(dialog)->vbox), GTK_WIDGET(swindow), FALSE, FALSE, 0);
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
 	gtk_dialog_run (GTK_DIALOG(dialog));
