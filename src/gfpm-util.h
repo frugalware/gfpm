@@ -8,8 +8,11 @@
 #include <locale.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
+#include <pacman.h>
 #include "gfpm.h"
 
 char * gfpm_bold (const char *);
+
+GList *gfpm_pmlist_to_glist (PM_LIST *);
 
 #endif
