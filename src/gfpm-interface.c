@@ -1102,9 +1102,45 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	pacman_trans_addtarget (fpm);
 	if (pacman_trans_prepare(&data) == -1)
 	{	
+		PM_LIST *i;
+		GList	*pkgs = NULL;
+
 		str = g_strdup_printf (_("Failed to prepare transaction (%s)\n"), pacman_strerror (pm_errno));
 		gfpm_error (str);
 		g_free (str);
+		switch ((long)pm_errno)
+		{
+			case PM_ERR_UNSATISFIED_DEPS:
+				for (i=pacman_list_first(data);i;i=pacman_list_next(i))
+				{
+					GString	*depstring = g_string_new ("");	
+					PM_DEPMISS *m = pacman_list_getdata (i);
+					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_NAME));
+					switch ((long)pacman_dep_getinfo(m, PM_DEP_MOD))
+					{
+						gchar *val = NULL;
+						case PM_DEP_MOD_EQ:
+							val = g_strdup_printf ("=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+							depstring = g_string_append (depstring, val);
+							break;
+						case PM_DEP_MOD_GE:
+							val = g_strdup_printf (">=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+							depstring = g_string_append (depstring, val);
+							break;
+						case PM_DEP_MOD_LE:
+							val = g_strdup_printf ("<=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+							depstring = g_string_append (depstring, val);
+							break;
+						default: break;
+					}
+					pkgs = g_list_append (pkgs, (char*)g_strdup(depstring->str));
+					g_string_free (depstring, FALSE);
+				}
+				pacman_list_free (data);
+				gfpm_plist_message (_("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
+				break;
+		}
+
 		goto cleanup;
 	}
 	if (pacman_trans_commit(&data) == -1)
