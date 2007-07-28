@@ -54,6 +54,8 @@ static GtkWidget *gfpm_info_tvw;
 static GtkWidget *gfpm_files_txtvw;
 static GtkWidget *gfpm_clrall_opt;
 static GtkWidget *gfpm_clrold_opt;
+static GtkWidget *gfpm_inst_from_file_dlg;
+static GtkWidget *gfpm_inst_filechooser;
 
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
@@ -61,6 +63,7 @@ static void cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer dat
 static void cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 static void cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
 
@@ -82,6 +85,8 @@ gfpm_interface_init (void)
 	gfpm_files_txtvw= glade_xml_get_widget (xml, "filestextview");
 	gfpm_clrold_opt = glade_xml_get_widget (xml, "rem_old_opt");
 	gfpm_clrall_opt = glade_xml_get_widget (xml, "rem_all_opt");
+	gfpm_inst_from_file_dlg = glade_xml_get_widget (xml, "inst_from_file_dlg");
+	gfpm_inst_filechooser = glade_xml_get_widget (xml, "gfpm_inst_filechooser");
 
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
@@ -193,6 +198,10 @@ gfpm_interface_init (void)
 
 	/* clear cache dialog */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
+	
+	/* install from file */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), (gpointer)gfpm_inst_filechooser);
+
 
 	/* Disable Apply, Refresh and File buttons if user is not root */
 	if ( geteuid() != 0 )
@@ -234,7 +243,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			errorstr = g_string_append (errorstr, str);
 			if (pm_errno == PM_ERR_HANDLE_LOCK)
 				errorstr = g_string_append (errorstr,
-											_("If you're sure a package manager is not already running,	you can delete /tmp/pacman-g2.lck"));
+							_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
 			gfpm_error (errorstr->str);
 			return;
 		}
@@ -266,7 +275,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			errorstr = g_string_append (errorstr, str);
 			if (pm_errno == PM_ERR_HANDLE_LOCK)
 				errorstr = g_string_append (errorstr,
-											_("If you're sure a package manager is not already running,	you can delete /tmp/pacman-g2.lck"));
+							_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
 			gfpm_error (errorstr->str);
 			return;
 		}
@@ -736,7 +745,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		errorstr = g_string_append (errorstr, str);
 		if (pm_errno == PM_ERR_HANDLE_LOCK)
 			errorstr = g_string_append (errorstr,
-										_("If you're sure a package manager is not already running,	you can delete /tmp/pacman-g2.lck"));
+						_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
 		gfpm_error (errorstr->str);
 		return;
 	}
@@ -1059,6 +1068,62 @@ cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
 		}
 		return;
 	}
+	return;
+}
+
+static void
+cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
+{
+	const gchar	*fpm = NULL;
+	gchar		*str = NULL;
+	GString		*errorstr = g_string_new ("");
+
+	fpm = gtk_file_chooser_get_filename (gfpm_inst_filechooser);
+	if (fpm == NULL)
+	{	
+		gfpm_error (_("No package selected for install. Please select a package to install."));
+		return;
+	}
+	if (gfpm_question(_("Are you sure you want to install this package ?")) != GTK_RESPONSE_YES)
+		return;
+	if (pacman_trans_init(PM_TRANS_TYPE_ADD, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+	{
+			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
+			errorstr = g_string_append (errorstr, str);
+			if (pm_errno == PM_ERR_HANDLE_LOCK)
+			{	errorstr = g_string_append (errorstr,
+							_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
+				gfpm_error (errorstr->str);
+			}
+			return;
+	}
+	gfpm_progress_show (TRUE);
+	/* add the target */
+	pacman_trans_addtarget (fpm);
+	if (pacman_trans_prepare(&data) == -1)
+	{	
+		str = g_strdup_printf (_("Failed to prepare transaction (%s)\n"), pacman_strerror (pm_errno));
+		gfpm_error (str);
+		g_free (str);
+		goto cleanup;
+	}
+	if (pacman_trans_commit(&data) == -1)
+	{	
+		str = g_strdup_printf (_("Failed to commit transaction (%s)\n"), pacman_strerror (pm_errno));
+		gfpm_error (str);
+		g_free (str);
+		goto cleanup;
+	}
+	else
+	{
+		gfpm_message (_("Package successfully installed"));
+	}
+
+	cleanup:
+	g_string_free (errorstr, FALSE);
+	pacman_trans_release ();
+	gtk_widget_hide (gfpm_inst_from_file_dlg);
+	gfpm_progress_show (FALSE);
 	return;
 }
 
