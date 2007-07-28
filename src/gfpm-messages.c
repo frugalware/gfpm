@@ -84,15 +84,15 @@ gfpm_question (const char *message_str)
 gint
 gfpm_plist_question (const char *main_msg, PM_LIST *packages)
 {
-	GtkWidget 	*dialog;
-	GtkListStore *store;
-	GtkScrolledWindow *swindow;
-	GtkCellRenderer *r;
-	GtkTreeIter	iter;
-	GtkWidget	*tvw;
-	GtkWidget	*lbl;
-	gint 		ret;
-	PM_LIST		*l;
+	GtkWidget		*dialog;
+	GtkListStore		*store;
+	GtkScrolledWindow	*swindow;
+	GtkCellRenderer		*r;
+	GtkTreeIter		iter;
+	GtkWidget		*tvw;
+	GtkWidget		*lbl;
+	gint			ret;
+	PM_LIST			*l;
 
 	dialog = gtk_message_dialog_new (GTK_WINDOW(gfpm_mw),
 					GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -111,13 +111,69 @@ gfpm_plist_question (const char *main_msg, PM_LIST *packages)
 	for (l=pacman_list_first(packages);l;l=pacman_list_next(l))
 	{
 		char *pkgname, *pkgver;
+		char *pkgstring;
 		PM_SYNCPKG *sync = pacman_list_getdata (l);
 		PM_PKG *pkg = pacman_sync_getinfo (sync, PM_SYNC_PKG);
 
 		pkgname = pacman_pkg_getinfo (pkg, PM_PKG_NAME);
 		pkgver = pacman_pkg_getinfo (pkg, PM_PKG_VERSION);
 		gtk_list_store_append (store, &iter);
-		gtk_list_store_set (store, &iter, 0, g_strdup_printf("%s%s", pkgname, pkgver));
+		pkgstring = g_strdup_printf("%s%s", pkgname, pkgver);
+		gtk_list_store_set (store, &iter, 0, pkgstring, -1);
+		g_free (pkgstring);
+	}
+	gtk_tree_view_set_model (GTK_TREE_VIEW(tvw), GTK_TREE_MODEL(store));
+	gtk_widget_set_size_request (tvw, 230, 120);
+	gtk_widget_show (tvw);
+	gtk_box_pack_start (GTK_DIALOG(dialog)->vbox, swindow, FALSE, FALSE, 0);
+	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
+	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
+	ret = gtk_dialog_run (GTK_DIALOG(dialog));
+	gtk_widget_destroy (dialog);
+
+	return ret;
+}
+
+gint
+gfpm_plist_message (const char *main_msg, PM_LIST *packages)
+{
+	GtkWidget		*dialog;
+	GtkListStore		*store;
+	GtkScrolledWindow	*swindow;
+	GtkCellRenderer		*r;
+	GtkTreeIter		iter;
+	GtkWidget		*tvw;
+	GtkWidget		*lbl;
+	gint			ret;
+	PM_LIST			*l;
+
+	dialog = gtk_message_dialog_new (GTK_WINDOW(gfpm_mw),
+					GTK_DIALOG_DESTROY_WITH_PARENT,
+					GTK_MESSAGE_QUESTION,
+					GTK_BUTTONS_YES_NO,
+					"%s",
+					main_msg);
+	swindow = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (swindow, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	tvw = gtk_tree_view_new ();
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(tvw), FALSE);
+	gtk_container_add (GTK_CONTAINER(swindow), tvw);
+	store = gtk_list_store_new (1, G_TYPE_STRING);
+	r = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(tvw), -1, _("Package"), r, "text", 0, NULL);
+	for (l=pacman_list_first(packages);l;l=pacman_list_next(l))
+	{
+		char *pkgname, *pkgver;
+		char *pkgstring;
+		PM_SYNCPKG *sync = pacman_list_getdata (l);
+		PM_PKG *pkg = pacman_sync_getinfo (sync, PM_SYNC_PKG);
+
+		pkgname = pacman_pkg_getinfo (pkg, PM_PKG_NAME);
+		pkgver = pacman_pkg_getinfo (pkg, PM_PKG_VERSION);
+		gtk_list_store_append (store, &iter);
+		pkgstring = g_strdup_printf("%s%s", pkgname, pkgver);
+		gtk_list_store_set (store, &iter, 0, pkgstring, -1);
+		g_free (pkgstring);
 	}
 	gtk_tree_view_set_model (GTK_TREE_VIEW(tvw), GTK_TREE_MODEL(store));
 	gtk_widget_set_size_request (tvw, 230, 120);
