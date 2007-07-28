@@ -8,7 +8,6 @@
 #include <locale.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
-#include <pacman.h>
 #include "gfpm.h"
 
 void gfpm_error (const char *);
@@ -17,7 +16,7 @@ void gfpm_message (const char *);
 
 gint gfpm_question (const char *);
 
-gint gfpm_plist_question (const char *, PM_LIST *);
+gint gfpm_plist_question (const char *, GList *);
 
 char * gfpm_input (const char *, const char *, int *);
 

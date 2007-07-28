@@ -82,7 +82,7 @@ gfpm_question (const char *message_str)
 }
 
 gint
-gfpm_plist_question (const char *main_msg, PM_LIST *packages)
+gfpm_plist_question (const char *main_msg, GList *packages)
 {
 	GtkWidget		*dialog;
 	GtkListStore		*store;
@@ -92,7 +92,7 @@ gfpm_plist_question (const char *main_msg, PM_LIST *packages)
 	GtkWidget		*tvw;
 	GtkWidget		*lbl;
 	gint			ret;
-	PM_LIST			*l;
+	GList			*l;
 
 	dialog = gtk_message_dialog_new (GTK_WINDOW(gfpm_mw),
 					GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -108,11 +108,11 @@ gfpm_plist_question (const char *main_msg, PM_LIST *packages)
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 	r = gtk_cell_renderer_text_new ();
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(tvw), -1, _("Package"), r, "text", 0, NULL);
-	for (l=pacman_list_first(packages);l;l=pacman_list_next(l))
+	for (l=g_list_first(packages);l;l=g_list_next(l))
 	{
 		char *pkgname, *pkgver;
 		char *pkgstring;
-		PM_SYNCPKG *sync = pacman_list_getdata (l);
+		PM_SYNCPKG *sync = l->data;
 		PM_PKG *pkg = pacman_sync_getinfo (sync, PM_SYNC_PKG);
 
 		pkgname = pacman_pkg_getinfo (pkg, PM_PKG_NAME);
