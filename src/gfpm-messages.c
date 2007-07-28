@@ -135,7 +135,7 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 }
 
 gint
-gfpm_plist_message (const char *main_msg, PM_LIST *packages)
+gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 {
 	GtkWidget		*dialog;
 	GtkListStore		*store;
@@ -144,13 +144,12 @@ gfpm_plist_message (const char *main_msg, PM_LIST *packages)
 	GtkTreeIter		iter;
 	GtkWidget		*tvw;
 	GtkWidget		*lbl;
-	gint			ret;
 	PM_LIST			*l;
 
 	dialog = gtk_message_dialog_new (GTK_WINDOW(gfpm_mw),
 					GTK_DIALOG_DESTROY_WITH_PARENT,
-					GTK_MESSAGE_QUESTION,
-					GTK_BUTTONS_YES_NO,
+					type,
+					GTK_BUTTONS_CLOSE,
 					"%s",
 					main_msg);
 	swindow = gtk_scrolled_window_new (NULL, NULL);
@@ -161,11 +160,11 @@ gfpm_plist_message (const char *main_msg, PM_LIST *packages)
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 	r = gtk_cell_renderer_text_new ();
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(tvw), -1, _("Package"), r, "text", 0, NULL);
-	for (l=pacman_list_first(packages);l;l=pacman_list_next(l))
+	for (l=g_list_first(packages);l;l=g_list_next(l))
 	{
 		char *pkgname, *pkgver;
 		char *pkgstring;
-		PM_SYNCPKG *sync = pacman_list_getdata (l);
+		PM_SYNCPKG *sync = g_list_getdata (l);
 		PM_PKG *pkg = pacman_sync_getinfo (sync, PM_SYNC_PKG);
 
 		pkgname = pacman_pkg_getinfo (pkg, PM_PKG_NAME);
@@ -181,10 +180,10 @@ gfpm_plist_message (const char *main_msg, PM_LIST *packages)
 	gtk_box_pack_start (GTK_DIALOG(dialog)->vbox, swindow, FALSE, FALSE, 0);
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
-	ret = gtk_dialog_run (GTK_DIALOG(dialog));
+	gtk_dialog_run (GTK_DIALOG(dialog));
 	gtk_widget_destroy (dialog);
 
-	return ret;
+	return;
 }
 
 char *

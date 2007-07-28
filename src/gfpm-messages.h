@@ -18,6 +18,8 @@ gint gfpm_question (const char *);
 
 gint gfpm_plist_question (const char *, GList *);
 
+void gfpm_plist_message (const char *, GtkMessageType, GList *);
+
 char * gfpm_input (const char *, const char *, int *);
 
 #endif
