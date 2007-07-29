@@ -108,6 +108,7 @@
               <widget class="GtkToolButton" id="button_apply">
                 <property name="visible">True</property>
                 <property name="tooltip" translatable="yes">Apply Changes</property>
+                <property name="label" translatable="yes">Apply</property>
                 <property name="stock_id">gtk-apply</property>
               </widget>
               <packing>
@@ -118,7 +119,7 @@
               <widget class="GtkToolButton" id="button_refresh1">
                 <property name="visible">True</property>
                 <property name="tooltip" translatable="yes">Refresh the package lists</property>
-                <property name="label">Refresh</property>
+                <property name="label">Synchronize</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-refresh</property>
               </widget>
@@ -130,7 +131,7 @@
               <widget class="GtkToolButton" id="button_file1">
                 <property name="visible">True</property>
                 <property name="tooltip" translatable="yes">Refresh the package lists</property>
-                <property name="label">Install from File</property>
+                <property name="label">Install from file</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-go-down</property>
                 <signal name="clicked" handler="gtk_widget_show" object="inst_from_file_dlg"/>
@@ -212,6 +213,26 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="homogeneous">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkSeparatorToolItem" id="toolbutton1">
+                <property name="visible">True</property>
+                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkToolButton" id="toolbutton2">
+                <property name="visible">True</property>
+                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                <property name="label" translatable="yes">Quit</property>
+                <property name="stock_id">gtk-quit</property>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
               </packing>
             </child>
           </widget>
