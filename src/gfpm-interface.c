@@ -248,9 +248,9 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			gfpm_package_list_free (GFPM_INSTALL_LIST);
 			gfpm_package_list_free (GFPM_REMOVE_LIST);
 			gfpm_apply_dlg_reset ();
+			return;
 		}
 	}
-	return;
 
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
