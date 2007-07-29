@@ -11,7 +11,7 @@
 #include "gfpm.h"
 
 void gfpm_messages_init (void);
-void gfpm_apply_dlg_show (GList *, GList *);
+gint gfpm_apply_dlg_show (void);
 void gfpm_apply_dlg_show_inst_box (gboolean);
 void gfpm_apply_dlg_show_rem_box (gboolean);
 

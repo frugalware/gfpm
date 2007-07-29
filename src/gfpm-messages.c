@@ -27,6 +27,8 @@ extern GtkWidget	*gfpm_mw;
 extern GladeXML		*xml;
 extern PM_DB		*sync_db;
 extern PM_DB		*local_db;
+extern GfpmList		*install_list;
+extern GfpmList		*remove_list;
 
 static GtkWidget *gfpm_apply_dlg;
 static GtkWidget *gfpm_apply_inst_tvw;
@@ -41,6 +43,7 @@ gfpm_messages_init (void)
 {
 	GtkCellRenderer *ren = NULL;
 	GtkListStore	*store = NULL;
+	GtkWidget	*button = NULL;
 
 	/* lookup necessary widgets */	
 	gfpm_apply_dlg = glade_xml_get_widget (xml, "apply_dlg");
@@ -50,6 +53,14 @@ gfpm_messages_init (void)
 	gfpm_apply_rem_box = glade_xml_get_widget (xml, "rembox");
 	gfpm_apply_inst_sizelbl = glade_xml_get_widget (xml, "instsizelbl");
 	gfpm_apply_rem_sizelbl = glade_xml_get_widget (xml, "remsizelbl");
+
+	/* setup apply dialog */
+	button = gtk_button_new_from_stock (GTK_STOCK_OK);
+	gtk_dialog_add_action_widget (GTK_DIALOG(gfpm_apply_dlg), button, GTK_RESPONSE_OK);
+	gtk_widget_show (button);
+	button = gtk_button_new_from_stock (GTK_STOCK_CANCEL);
+	gtk_dialog_add_action_widget (GTK_DIALOG(gfpm_apply_dlg), button, GTK_RESPONSE_CANCEL);
+	gtk_widget_show (button);
 
 	/* setup treeviews */
 	ren = gtk_cell_renderer_text_new ();
@@ -65,8 +76,8 @@ gfpm_messages_init (void)
 	
 }
 
-void
-gfpm_apply_dlg_show (GList *ilist, GList *rlist)
+static void
+gfpm_apply_dlg_populate (void)
 {
 	gboolean inst = FALSE;
 	gboolean rem = FALSE;
@@ -96,7 +107,7 @@ gfpm_apply_dlg_show (GList *ilist, GList *rlist)
 		gchar		*totaltext = NULL;
 		
 		store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_apply_inst_tvw)));
-		for (i=ilist;i;i=g_list_next(i))
+		for (i=(GList*)install_list;i;i=g_list_next(i))
 		{
 			PM_PKG	*pkg = NULL;
 			char	*size = NULL;
@@ -126,7 +137,7 @@ gfpm_apply_dlg_show (GList *ilist, GList *rlist)
 		gchar		*totaltext = NULL;
 
 		store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_apply_rem_tvw)));
-		for (i=rlist;i;i=g_list_next(i))
+		for (i=(GList*)remove_list;i;i=g_list_next(i))
 		{
 			PM_PKG	*pkg = NULL;
 			char	*size = NULL;
@@ -147,9 +158,19 @@ gfpm_apply_dlg_show (GList *ilist, GList *rlist)
 		gtk_label_set_text (GTK_LABEL(gfpm_apply_rem_sizelbl), totaltext);
 		g_free (totaltext);
 	}
-	gtk_widget_show (gfpm_apply_dlg);
 
 	return;
+}
+
+gint
+gfpm_apply_dlg_show (void)
+{
+	gint res;
+	
+	gfpm_apply_dlg_populate ();
+	res = gtk_dialog_run (gfpm_apply_dlg);
+	
+	return res;
 }
 
 void
