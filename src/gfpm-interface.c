@@ -1172,6 +1172,18 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 				pacman_list_free (trans_data);
 				gfpm_plist_message (_("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
 				break;
+			case PM_ERR_CONFLICTING_DEPS:
+				for (i=pacman_list_first(trans_data);i;i=pacman_list_next(i))
+				{
+					GString	*depstring = g_string_new ("");	
+					PM_DEPMISS *m = pacman_list_getdata (i);
+					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m, PM_DEP_NAME));
+					pkgs = g_list_append (pkgs, (char*)depstring->str);
+					g_string_free (depstring, FALSE);
+				}
+				pacman_list_free (trans_data);
+				gfpm_plist_message (_("This package conflicts with the following packages"), GTK_MESSAGE_WARNING, pkgs);
+				break;
 		}
 
 		goto cleanup;
