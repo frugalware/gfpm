@@ -303,6 +303,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
 	}
 	pacman_trans_release ();
+	gfpm_progress_show (FALSE);
 
 	return;
 }
