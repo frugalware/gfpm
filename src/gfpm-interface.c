@@ -235,7 +235,21 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
 	GString *errorstr = g_string_new ("");
 	
-	gfpm_apply_dlg_show ((GList*)install_list, (GList*)remove_list);
+	if (!gfpm_package_list_is_empty(GFPM_INSTALL_LIST) && !gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
+	{	
+		gfpm_message (_("No changes to apply."));
+		return;
+	}
+	if (gfpm_apply_dlg_show() != GTK_RESPONSE_OK)
+	{	
+		if (gfpm_question(_("Are you sure you want to cancel this operation ? \nNote: All changes made till now will be reverted."))==GTK_RESPONSE_YES)
+		{	
+			/* revert all changes */
+			gfpm_package_list_free (GFPM_INSTALL_LIST);
+			gfpm_package_list_free (GFPM_REMOVE_LIST);
+			gfpm_apply_dlg_reset ();
+		}
+	}
 	return;
 
 	/* process remove list first */

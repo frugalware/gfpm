@@ -162,6 +162,18 @@ gfpm_apply_dlg_populate (void)
 	return;
 }
 
+void
+gfpm_apply_dlg_reset (void)
+{
+	gtk_list_store_clear (GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_apply_inst_tvw))));
+	gtk_list_store_clear (GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_apply_rem_tvw))));
+	gfpm_apply_dlg_show_inst_box (FALSE);
+	gfpm_apply_dlg_show_rem_box (FALSE);
+	gtk_widget_hide (gfpm_apply_dlg);
+
+	return;
+}	
+
 gint
 gfpm_apply_dlg_show (void)
 {
@@ -169,7 +181,7 @@ gfpm_apply_dlg_show (void)
 	
 	gfpm_apply_dlg_populate ();
 	res = gtk_dialog_run (gfpm_apply_dlg);
-	
+
 	return res;
 }
 
