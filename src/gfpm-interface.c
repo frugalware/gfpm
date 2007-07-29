@@ -214,8 +214,9 @@ gfpm_interface_init (void)
 
 	gtk_widget_show (gfpm_splash);
 
-	/* initialize dbs */
+	/* initialize modules */
 	gfpm_db_init ();
+	gfpm_messages_init ();
 	gfpm_progress_init ();
 
 	/* load default repo  */
@@ -233,6 +234,9 @@ static void
 cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
 	GString *errorstr = g_string_new ("");
+	
+	gfpm_apply_dlg_show ((GList*)install_list, (GList*)remove_list);
+	return;
 
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))

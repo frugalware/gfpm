@@ -20,8 +20,160 @@
  */
 
 #include "gfpm-messages.h"
+#include "gfpm-packagelist.h"
+#include <glade/glade.h>
 
-extern GtkWidget *gfpm_mw;
+extern GtkWidget	*gfpm_mw;
+extern GladeXML		*xml;
+extern PM_DB		*sync_db;
+extern PM_DB		*local_db;
+
+static GtkWidget *gfpm_apply_dlg;
+static GtkWidget *gfpm_apply_inst_tvw;
+static GtkWidget *gfpm_apply_inst_box;
+static GtkWidget *gfpm_apply_rem_tvw;
+static GtkWidget *gfpm_apply_rem_box;
+static GtkWidget *gfpm_apply_inst_sizelbl;
+static GtkWidget *gfpm_apply_rem_sizelbl;
+
+void
+gfpm_messages_init (void)
+{
+	GtkCellRenderer *ren = NULL;
+	GtkListStore	*store = NULL;
+
+	/* lookup necessary widgets */	
+	gfpm_apply_dlg = glade_xml_get_widget (xml, "apply_dlg");
+	gfpm_apply_inst_tvw = glade_xml_get_widget (xml, "insttvw");
+	gfpm_apply_inst_box = glade_xml_get_widget (xml, "instbox");
+	gfpm_apply_rem_tvw = glade_xml_get_widget (xml, "remtvw");
+	gfpm_apply_rem_box = glade_xml_get_widget (xml, "rembox");
+	gfpm_apply_inst_sizelbl = glade_xml_get_widget (xml, "instsizelbl");
+	gfpm_apply_rem_sizelbl = glade_xml_get_widget (xml, "remsizelbl");
+
+	/* setup treeviews */
+	ren = gtk_cell_renderer_text_new ();
+	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_apply_inst_tvw), -1, _("Package"), ren, "text", 0, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_apply_inst_tvw), -1, _("Size"), ren, "text", 1, NULL);
+	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_apply_inst_tvw), GTK_TREE_MODEL(store));
+	ren = gtk_cell_renderer_text_new ();
+	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_apply_rem_tvw), -1, _("Package"), ren, "text", 0, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_apply_rem_tvw), -1, _("Size"), ren, "text", 1, NULL);
+	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_apply_rem_tvw), GTK_TREE_MODEL(store));
+	
+}
+
+void
+gfpm_apply_dlg_show (GList *ilist, GList *rlist)
+{
+	gboolean inst = FALSE;
+	gboolean rem = FALSE;
+
+	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
+	{	
+		gfpm_apply_dlg_show_inst_box (TRUE);
+		inst = TRUE;
+	}
+	else
+		gfpm_apply_dlg_show_inst_box (FALSE);
+	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
+	{
+		gfpm_apply_dlg_show_rem_box (TRUE);
+		rem = TRUE;
+	}
+	else
+		gfpm_apply_dlg_show_rem_box (FALSE);
+	
+	/* populate package lists */
+	if (inst)
+	{
+		GtkListStore	*store;
+		GList		*i;
+		GtkTreeIter	iter;
+		float		totalisize = 0;
+		gchar		*totaltext = NULL;
+		
+		store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_apply_inst_tvw)));
+		for (i=ilist;i;i=g_list_next(i))
+		{
+			PM_PKG	*pkg = NULL;
+			char	*size = NULL;
+			float	s = 0;
+			pkg = pacman_db_readpkg (sync_db, (char*)i->data);
+			if (pkg)
+			{
+				s = (float)((long)pacman_pkg_getinfo (pkg, PM_PKG_SIZE)/1024)/1024;
+				totalisize += s;
+			}
+			asprintf (&size, "%0.2f MB", s);
+			gtk_list_store_append (store, &iter);	
+			gtk_list_store_set (store, &iter, 0, (char*)i->data, 1, size, -1);
+			pacman_pkg_free (pkg);
+			if (size) g_free (size);
+		}
+		totaltext = g_strdup_printf (_("Total package size: %0.2f MB"), totalisize);
+		gtk_label_set_text (GTK_LABEL(gfpm_apply_inst_sizelbl), totaltext);
+		g_free (totaltext);
+	}
+	if (rem)
+	{
+		GtkListStore	*store;
+		GList		*i;
+		GtkTreeIter	iter;
+		float		totalrsize = 0;
+		gchar		*totaltext = NULL;
+
+		store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_apply_rem_tvw)));
+		for (i=rlist;i;i=g_list_next(i))
+		{
+			PM_PKG	*pkg = NULL;
+			char	*size = NULL;
+			float	s = 0;
+			pkg = pacman_db_readpkg (local_db, (char*)i->data);
+			if (pkg)
+			{
+				s = (float)((long)pacman_pkg_getinfo (pkg, PM_PKG_SIZE)/1024)/1024;
+				totalrsize += s;
+			}
+			asprintf (&size, "%0.2f MB", s);
+			gtk_list_store_append (store, &iter);	
+			gtk_list_store_set (store, &iter, 0, (char*)i->data, 1, size, -1);
+			pacman_pkg_free (pkg);
+			if (size) g_free (size);
+		}
+		totaltext = g_strdup_printf (_("Total package size: %0.2f MB"), totalrsize);
+		gtk_label_set_text (GTK_LABEL(gfpm_apply_rem_sizelbl), totaltext);
+		g_free (totaltext);
+	}
+	gtk_widget_show (gfpm_apply_dlg);
+
+	return;
+}
+
+void
+gfpm_apply_dlg_show_inst_box (gboolean show)
+{
+	if (show)
+		gtk_widget_show (gfpm_apply_inst_box);
+	else
+		gtk_widget_hide (gfpm_apply_inst_box);
+
+	return;
+}
+
+void
+gfpm_apply_dlg_show_rem_box (gboolean show)
+{
+	if (show)
+		gtk_widget_show (gfpm_apply_rem_box);
+	else
+		gtk_widget_hide (gfpm_apply_rem_box);
+
+	return;
+}
+
 
 void
 gfpm_error (const char *error_str)

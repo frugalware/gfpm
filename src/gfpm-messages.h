@@ -10,6 +10,11 @@
 #include <gtk/gtk.h>
 #include "gfpm.h"
 
+void gfpm_messages_init (void);
+void gfpm_apply_dlg_show (GList *, GList *);
+void gfpm_apply_dlg_show_inst_box (gboolean);
+void gfpm_apply_dlg_show_rem_box (gboolean);
+
 void gfpm_error (const char *);
 
 void gfpm_message (const char *);
