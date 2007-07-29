@@ -60,6 +60,8 @@ static GtkWidget *gfpm_inst_filechooser;
 static GtkWidget *gfpm_inst_upgcheck;
 static GtkWidget *gfpm_inst_depcheck;
 static GtkWidget *gfpm_inst_forcheck;
+static GtkWidget *gfpm_apply_inst_depcheck;
+static GtkWidget *gfpm_apply_rem_depcheck;
 
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
@@ -94,6 +96,8 @@ gfpm_interface_init (void)
 	gfpm_inst_depcheck = glade_xml_get_widget (xml, "depcheck");
 	gfpm_inst_upgcheck = glade_xml_get_widget (xml, "upgcheck");
 	gfpm_inst_forcheck = glade_xml_get_widget (xml, "forcheck");
+	gfpm_apply_inst_depcheck = glade_xml_get_widget (xml, "applyinstdepcheck");
+	gfpm_apply_rem_depcheck = glade_xml_get_widget (xml, "applyremdepcheck");
 
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
@@ -262,7 +266,11 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
-		if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+		gint flags = 0;
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_rem_depcheck)))
+			flags |= PM_TRANS_FLAG_NODEPS;
+		/* create transaction */
+		if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
 		{
 			gchar *str;
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
@@ -293,8 +301,11 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 	}
 	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
 	{
+		gint flags = 0;
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_inst_depcheck)))
+			flags |= PM_TRANS_FLAG_NODEPS;
 		/* create transaction */
-		if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+		if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
 		{
 			gchar *str;
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
