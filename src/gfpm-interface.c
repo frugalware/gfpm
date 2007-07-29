@@ -57,6 +57,9 @@ static GtkWidget *gfpm_clrall_opt;
 static GtkWidget *gfpm_clrold_opt;
 static GtkWidget *gfpm_inst_from_file_dlg;
 static GtkWidget *gfpm_inst_filechooser;
+static GtkWidget *gfpm_inst_upgcheck;
+static GtkWidget *gfpm_inst_depcheck;
+static GtkWidget *gfpm_inst_forcheck;
 
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
@@ -88,6 +91,9 @@ gfpm_interface_init (void)
 	gfpm_clrall_opt = glade_xml_get_widget (xml, "rem_all_opt");
 	gfpm_inst_from_file_dlg = glade_xml_get_widget (xml, "inst_from_file_dlg");
 	gfpm_inst_filechooser = glade_xml_get_widget (xml, "gfpm_inst_filechooser");
+	gfpm_inst_depcheck = glade_xml_get_widget (xml, "depcheck");
+	gfpm_inst_upgcheck = glade_xml_get_widget (xml, "upgcheck");
+	gfpm_inst_forcheck = glade_xml_get_widget (xml, "forcheck");
 
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
@@ -201,7 +207,7 @@ gfpm_interface_init (void)
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
 	
 	/* install from file */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), (gpointer)gfpm_inst_filechooser);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), NULL);
 
 
 	/* Disable Apply, Refresh and File buttons if user is not root */
@@ -1110,6 +1116,8 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	gchar		*str = NULL;
 	GString		*errorstr = g_string_new ("");
 	PM_LIST		*trans_data = NULL;
+	gint		flags = 0;
+	guint		type;
 
 	fpm = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(gfpm_inst_filechooser));
 	if (fpm == NULL)
@@ -1119,7 +1127,15 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	}
 	if (gfpm_question(_("Are you sure you want to install this package ?")) != GTK_RESPONSE_YES)
 		return;
-	if (pacman_trans_init(PM_TRANS_TYPE_ADD, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_inst_upgcheck)))
+		type = PM_TRANS_TYPE_UPGRADE;
+	else
+		type = PM_TRANS_TYPE_ADD;
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_inst_depcheck)))
+		flags |= PM_TRANS_FLAG_NODEPS;
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_inst_forcheck)))
+		flags |= PM_TRANS_FLAG_FORCE;
+	if (pacman_trans_init(type, flags, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
 	{
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
