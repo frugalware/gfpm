@@ -19,8 +19,8 @@
  */
 
 #define _GNU_SOURCE
-#define FW_CURRENT "frugalware-current"
-#define FW_LOCAL "local"
+#define FW_CURRENT	"frugalware-current"
+#define FW_LOCAL	"local"
 
 #include <pacman.h>
 #include "gfpm-db.h"
