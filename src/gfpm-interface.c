@@ -252,6 +252,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		}
 	}
 
+	gfpm_apply_dlg_hide ();
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
@@ -317,6 +318,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
 	}
 	pacman_trans_release ();
+	gfpm_apply_dlg_reset ();
 	gfpm_progress_show (FALSE);
 
 	return;

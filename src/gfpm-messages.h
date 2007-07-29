@@ -15,6 +15,7 @@ gint gfpm_apply_dlg_show (void);
 void gfpm_apply_dlg_show_inst_box (gboolean);
 void gfpm_apply_dlg_show_rem_box (gboolean);
 void gfpm_apply_dlg_reset (void);
+void gfpm_apply_dlg_hide (void);
 
 void gfpm_error (const char *);
 

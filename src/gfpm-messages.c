@@ -186,6 +186,14 @@ gfpm_apply_dlg_show (void)
 }
 
 void
+gfpm_apply_dlg_hide (void)
+{
+	gtk_widget_hide (gfpm_apply_dlg);
+	
+	return;
+}
+
+void
 gfpm_apply_dlg_show_inst_box (gboolean show)
 {
 	if (show)
