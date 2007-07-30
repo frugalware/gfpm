@@ -85,6 +85,10 @@ gfpm_interface_init (void)
 	gfpm_mw		= glade_xml_get_widget (xml, "mainwindow");
 	gfpm_splash	= glade_xml_get_widget (xml, "splash_window");
 	gfpm_statusbar	= glade_xml_get_widget (xml, "statusbar");
+	gtk_widget_show (gfpm_splash);
+	while (gtk_events_pending())
+			gtk_main_iteration ();
+	
 	gfpm_groups_tvw = glade_xml_get_widget (xml, "grouptreeview");
 	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
 	gfpm_info_tvw	= glade_xml_get_widget (xml, "infotreeview");
@@ -222,7 +226,6 @@ gfpm_interface_init (void)
 		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_file1")), FALSE);
 	}
 
-	gtk_widget_show (gfpm_splash);
 
 	/* initialize modules */
 	gfpm_db_init ();
