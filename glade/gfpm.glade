@@ -222,6 +222,7 @@
               </widget>
               <packing>
                 <property name="expand">False</property>
+                <property name="homogeneous">False</property>
               </packing>
             </child>
             <child>
@@ -230,6 +231,7 @@
                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                 <property name="label" translatable="yes">Quit</property>
                 <property name="stock_id">gtk-quit</property>
+                <signal name="clicked" handler="gtk_main_quit"/>
               </widget>
               <packing>
                 <property name="expand">False</property>
