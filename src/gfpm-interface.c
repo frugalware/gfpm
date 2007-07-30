@@ -217,7 +217,7 @@ gfpm_interface_init (void)
 	/* Disable Apply, Refresh and File buttons if user is not root */
 	if ( geteuid() != 0 )
 	{
-		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_execute1")), FALSE);
+		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_apply")), FALSE);
 		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_refresh1")), FALSE);
 		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_file1")), FALSE);
 	}
