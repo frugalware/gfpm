@@ -824,6 +824,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 cleanup:
 	pacman_pkg_free (pm_lpkg);
 	pacman_pkg_free (pm_spkg);
+	pacman_trans_release ();
 
 	return;
 }
