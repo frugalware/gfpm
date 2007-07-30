@@ -1,10 +1,8 @@
-/***************************************************************************
- *  gfpm-progress.c
- *  Author: Priyank Gosalia <priyankmg@gmail.com>	
- *  Copyright 2006-2007 Frugalware Developer Team
- ****************************************************************************/
-
 /*
+ *  gfpm-progress.c for gfpm
+ *
+ *  Copyright (C) 2006-2007 by Priyank Gosalia <priyankmg@gmail.com>
+ *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation; either version 2 of the License, or
@@ -32,9 +30,9 @@
 extern GladeXML *xml;
 
 GtkProgressBar	*progressbar = NULL;
-GtkWidget		*progresswindow = NULL;
-GtkWidget		*main_label = NULL;
-GtkWidget		*sub_label = NULL;
+GtkWidget	*progresswindow = NULL;
+GtkWidget	*main_label = NULL;
+GtkWidget	*sub_label = NULL;
 
 float rate;
 int offset;
@@ -71,8 +69,8 @@ gfpm_progress_show (gboolean show)
 int
 gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 {
-	int		size;
-	int		per;
+	int	size;
+	int	per;
 	char	text[6];
 
 	ctl = NULL;
@@ -141,54 +139,56 @@ void
 gfpm_progress_event (unsigned char event, void *data1, void *data2)
 {
 	char *substr = NULL;
-	int main = 0;
+	int m = 0;
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	switch (event)
 	{
-		case PM_TRANS_EVT_CHECKDEPS_START: substr = g_strdup(_("Checking dependencies"));
-										   break;
-		case PM_TRANS_EVT_FILECONFLICTS_START: substr = g_strdup (_("Checking for file conflicts"));
-											   break;
-		case PM_TRANS_EVT_RESOLVEDEPS_START: substr = g_strdup (_("Resolving dependencies"));
-											 break;
+		case PM_TRANS_EVT_CHECKDEPS_START:	substr = g_strdup(_("Checking dependencies"));
+							break;
+		case PM_TRANS_EVT_FILECONFLICTS_START:	substr = g_strdup (_("Checking for file conflicts"));
+							break;
+		case PM_TRANS_EVT_RESOLVEDEPS_START:	substr = g_strdup (_("Resolving dependencies"));
+							break;
 		case PM_TRANS_EVT_INTERCONFLICTS_START: substr = g_strdup (_("Looking for inter-conflicts"));
-												break;
+							break;
 		case PM_TRANS_EVT_CHECKDEPS_DONE:
 		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
-		case PM_TRANS_EVT_INTERCONFLICTS_DONE: substr = g_strdup (_("Done"));
-												break;
-		case PM_TRANS_EVT_ADD_START: substr = g_strdup_printf (_("installing %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
-									break;
-		case PM_TRANS_EVT_ADD_DONE: substr = g_strdup_printf (_("installed %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
-									break;
-		case PM_TRANS_EVT_UPGRADE_START: substr = g_strdup_printf (_("upgrading %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
-									break;
-		case PM_TRANS_EVT_UPGRADE_DONE: substr = g_strdup_printf (_("upgraded %s from %s to %s"),
-																(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME),
-																(char*)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
-																(char*)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
-									break;
-		case PM_TRANS_EVT_REMOVE_START: substr = g_strdup (_("Removing package"));
-										break;
-		case PM_TRANS_EVT_REMOVE_DONE: substr = g_strdup (_("Done"));
-										break;
-		case PM_TRANS_EVT_INTEGRITY_START: substr = g_strdup (_("Checking package integrity"));
-										   break;
-		case PM_TRANS_EVT_INTEGRITY_DONE: substr = g_strdup (_("Done"));
-										   break;
-		case PM_TRANS_EVT_SCRIPTLET_START: substr = g_strdup ((char*)data1);
-										   break;
-		case PM_TRANS_EVT_SCRIPTLET_DONE: substr = g_strdup (_("Done"));
-										   break;
-		case PM_TRANS_EVT_RETRIEVE_START: substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
-										  main = 1;
-										  break;
+		case PM_TRANS_EVT_INTERCONFLICTS_DONE:	substr = g_strdup (_("Done"));
+							break;
+		case PM_TRANS_EVT_ADD_START:		substr = g_strdup_printf (_("installing %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+							break;
+		case PM_TRANS_EVT_ADD_DONE:		substr = g_strdup_printf (_("installed %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+							break;
+		case PM_TRANS_EVT_UPGRADE_START:	substr = g_strdup_printf (_("upgrading %s"), (char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+							break;
+		case PM_TRANS_EVT_UPGRADE_DONE:		substr = g_strdup_printf (_("upgraded %s from %s to %s"),
+										(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+										(char*)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
+										(char*)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+							break;
+		case PM_TRANS_EVT_REMOVE_START:		substr = g_strdup (_("Removing package"));
+							break;
+		case PM_TRANS_EVT_REMOVE_DONE:		substr = g_strdup (_("Done"));
+							break;
+		case PM_TRANS_EVT_INTEGRITY_START:	substr = g_strdup (_("Checking package integrity"));
+							break;
+		case PM_TRANS_EVT_INTEGRITY_DONE:	substr = g_strdup (_("Done"));
+							break;
+		case PM_TRANS_EVT_SCRIPTLET_INFO:	substr = g_strdup ((char*)data1);
+							break;
+		case PM_TRANS_EVT_SCRIPTLET_START:	substr = g_strdup ((char*)data1);
+							break;
+		case PM_TRANS_EVT_SCRIPTLET_DONE:	substr = g_strdup (_("Done"));
+							break;
+		case PM_TRANS_EVT_RETRIEVE_START:	substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
+							m = 1;
+							break;
 	}
-	if (main == 1)
+	if (m == 1)
 	{	
 		gfpm_progress_set_main_text (substr);
-		main = 0;
+		m = 0;
 	}
 	else
 		gfpm_progress_set_sub_text (substr);
