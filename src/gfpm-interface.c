@@ -297,7 +297,17 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		
 		/* commit transaction */
 		if (pacman_trans_commit(&data) == -1)
-			g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
+		{	
+			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
+			errorstr = g_string_append (errorstr, str);
+			gfpm_error (errorstr->str);
+			g_free (str);
+			g_string_free (errorstr, FALSE);
+			return;
+		}
+
+		/* release the transaction */
+		pacman_trans_release ();
 	}
 	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
 	{
@@ -332,9 +342,19 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		
 		/* commit transaction */
 		if (pacman_trans_commit(&data) == -1)
-			g_print ("failed to commit transaction (%s)\n", pacman_strerror(pm_errno));
+		{	
+			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
+			errorstr = g_string_append (errorstr, str);
+			gfpm_error (errorstr->str);
+			g_free (str);
+			g_string_free (errorstr, FALSE);
+			return;
+		}
+
+		/* release the transaction */
+		pacman_trans_release ();
 	}
-	pacman_trans_release ();
+
 	gfpm_apply_dlg_reset ();
 	gfpm_progress_show (FALSE);
 
