@@ -94,8 +94,9 @@ gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howm
 
 	if (!pkgname)
 		return;
-	if (percent > 100)
+	if (percent < 0 || percent > 100)
 		return;
+
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	switch (event)
@@ -124,6 +125,7 @@ gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howm
 			else
 				main_text = g_strdup (_("Checking package for file conflicts"));
 			break;
+		default: return;
 	}
 	gfpm_progress_set_main_text (main_text);
 	sub_text = g_strdup_printf ("(%d/%d) %s", remain, howmany, pkgname);
@@ -140,6 +142,9 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 {
 	char *substr = NULL;
 	int m = 0;
+
+	if (data1 == NULL)
+		return;
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	switch (event)
@@ -184,6 +189,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_RETRIEVE_START:	substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
 							m = 1;
 							break;
+		default:				return;
 	}
 	if (m == 1)
 	{	

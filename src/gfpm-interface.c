@@ -272,6 +272,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		gint flags = 0;
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_rem_depcheck)))
 			flags |= PM_TRANS_FLAG_NODEPS;
+
 		/* create transaction */
 		if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
 		{
