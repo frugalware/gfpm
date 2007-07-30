@@ -648,7 +648,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 					-1);
 		g_free (st);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_USIZE)/1024)/1024;
+		size = (float)((long)pacman_pkg_getinfo (pm_lpkg, PM_PKG_SIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
 		st = (char*)gfpm_bold (_("Size:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
