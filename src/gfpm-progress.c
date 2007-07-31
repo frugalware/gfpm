@@ -2,6 +2,7 @@
  *  gfpm-progress.c for gfpm
  *
  *  Copyright (C) 2006-2007 by Priyank Gosalia <priyankmg@gmail.com>
+ *  Portions of this code Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux.org>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +20,8 @@
  */
 
 #define _GNU_SOURCE
+#include <time.h>
+#include <sys/time.h>
 #include <glade/glade.h>
 #include "gfpm.h"
 #include "gfpm-progress.h"
@@ -33,10 +36,13 @@ GtkProgressBar	*progressbar = NULL;
 GtkWidget	*progresswindow = NULL;
 GtkWidget	*main_label = NULL;
 GtkWidget	*sub_label = NULL;
+GtkWidget	*rate_label = NULL;
 
-float rate;
-int offset;
-char reponame[PM_DLFNM_LEN+1];
+float		rate;
+int		offset;
+int		xferred1;
+struct timeval	t0, t;
+char 		reponame[PM_DLFNM_LEN+1];
 
 void
 gfpm_progress_init (void)
@@ -51,6 +57,7 @@ gfpm_progress_init (void)
 	progresswindow = glade_xml_get_widget (xml, "progresswindow");
 	main_label = glade_xml_get_widget (xml, "main_pr_label");
 	sub_label = glade_xml_get_widget (xml, "sub_pr_label");
+	rate_label = glade_xml_get_widget (xml, "rate_pr_label");
 
 	return;
 }
@@ -69,17 +76,43 @@ gfpm_progress_show (gboolean show)
 int
 gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 {
-	int	size;
-	int	per;
-	char	text[6];
+	int		size;
+	int		per;
+	char		text[6];
+	char		rate_text[10];
+	struct timeval 	t1;
+	float 		tdiff;
 
 	ctl = NULL;
 	size = *(int*)arg;
 	per = ((float)(xferred+offset) / size) * 100;
 	sprintf (text, "%d %%", per);
+	gettimeofday (&t1, NULL);
+	if (xferred+offset == size)
+		t = t0;
+	tdiff = t1.tv_sec-t.tv_sec + (float)(t1.tv_usec-t.tv_usec) / 1000000; 
+	if (xferred+offset == size)
+	{
+		rate = xferred / (tdiff * 1024);
+	}
+	else if (tdiff > 1)
+	{
+		rate = (xferred - xferred1) / (tdiff * 1024);
+		xferred1 = xferred;
+		gettimeofday (&t, NULL);
+	}
+	if (rate > 1000)
+	{
+		sprintf (rate_text, "%6.0fK/s", rate);
+	}
+	else
+	{
+		sprintf (rate_text, "%6.1fK/s", rate);
+	}
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	gtk_progress_bar_set_text (progressbar, text);
+	gtk_label_set_text (GTK_LABEL(rate_label), rate_text);
 	gtk_progress_bar_set_fraction (progressbar, (float)per/100);
 	gfpm_progress_set_sub_text (reponame);
 
