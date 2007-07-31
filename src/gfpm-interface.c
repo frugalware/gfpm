@@ -314,7 +314,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		pacman_trans_release ();
 		/* clear list */
 		gfpm_package_list_free (GFPM_REMOVE_LIST);
-
+		gfpm_apply_dlg_reset ();
 	}
 	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
 	{
@@ -362,9 +362,8 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		pacman_trans_release ();
 		/* clear list */
 		gfpm_package_list_free (GFPM_INSTALL_LIST);
+		gfpm_apply_dlg_reset ();
 	}
-
-	gfpm_apply_dlg_reset ();
 	gfpm_progress_show (FALSE);
 
 	return;
