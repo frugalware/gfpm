@@ -32,11 +32,12 @@
 
 extern GladeXML *xml;
 
-GtkProgressBar	*progressbar = NULL;
-GtkWidget	*progresswindow = NULL;
-GtkWidget	*main_label = NULL;
-GtkWidget	*sub_label = NULL;
-GtkWidget	*rate_label = NULL;
+GtkProgressBar		*progressbar = NULL;
+GtkWidget		*progresswindow = NULL;
+static GtkWidget	*main_label = NULL;
+static GtkWidget	*sub_label = NULL;
+static GtkWidget	*rate_label = NULL;
+static GtkWidget	*rate_box = NULL;
 
 float		rate;
 int		offset;
@@ -58,6 +59,7 @@ gfpm_progress_init (void)
 	main_label = glade_xml_get_widget (xml, "main_pr_label");
 	sub_label = glade_xml_get_widget (xml, "sub_pr_label");
 	rate_label = glade_xml_get_widget (xml, "rate_pr_label");
+	rate_box = glade_xml_get_widget (xml, "rate_pr_box");
 
 	return;
 }
@@ -178,6 +180,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 
 	if (data1 == NULL)
 		return;
+	gtk_widget_hide (rate_box);
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	switch (event)
@@ -221,6 +224,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 							break;
 		case PM_TRANS_EVT_RETRIEVE_START:	substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
 							m = 1;
+							gtk_widget_show (rate_box);
 							break;
 		default:				return;
 	}
