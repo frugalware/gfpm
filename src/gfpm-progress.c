@@ -37,6 +37,7 @@ GtkWidget		*progresswindow = NULL;
 static GtkWidget	*main_label = NULL;
 static GtkWidget	*sub_label = NULL;
 static GtkWidget	*rate_label = NULL;
+static GtkWidget	*rec_label = NULL;
 static GtkWidget	*rate_box = NULL;
 
 float		rate;
@@ -60,6 +61,7 @@ gfpm_progress_init (void)
 	sub_label = glade_xml_get_widget (xml, "sub_pr_label");
 	rate_label = glade_xml_get_widget (xml, "rate_pr_label");
 	rate_box = glade_xml_get_widget (xml, "rate_pr_box");
+	rec_label = glade_xml_get_widget (xml, "rx_pr_label");
 
 	return;
 }
@@ -84,6 +86,7 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	char		rate_text[10];
 	struct timeval 	t1;
 	float 		tdiff;
+	gchar		*rx_str = NULL;
 
 	ctl = NULL;
 	size = *(int*)arg;
@@ -111,6 +114,9 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	{
 		sprintf (rate_text, "%6.1fK/s", rate);
 	}
+	rx_str = g_strdup_printf ("%dK / %dK", (xferred+offset)/1024, size/1024);
+	gtk_label_set_text (GTK_LABEL(rec_label), rx_str);
+		
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	gtk_progress_bar_set_text (progressbar, text);
@@ -181,6 +187,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 	if (data1 == NULL)
 		return;
 	gtk_widget_hide (rate_box);
+	gtk_widget_hide (rec_label);
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	switch (event)
@@ -225,6 +232,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 		case PM_TRANS_EVT_RETRIEVE_START:	substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
 							m = 1;
 							gtk_widget_show (rate_box);
+							gtk_widget_show (rec_label);
 							break;
 		default:				return;
 	}
