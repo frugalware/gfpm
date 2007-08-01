@@ -61,6 +61,7 @@ static GtkWidget *gfpm_inst_upgcheck;
 static GtkWidget *gfpm_inst_depcheck;
 static GtkWidget *gfpm_inst_forcheck;
 static GtkWidget *gfpm_apply_inst_depcheck;
+static GtkWidget *gfpm_apply_inst_dwocheck;
 static GtkWidget *gfpm_apply_rem_depcheck;
 
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
@@ -102,6 +103,7 @@ gfpm_interface_init (void)
 	gfpm_inst_forcheck = glade_xml_get_widget (xml, "forcheck");
 	gfpm_apply_inst_depcheck = glade_xml_get_widget (xml, "applyinstdepcheck");
 	gfpm_apply_rem_depcheck = glade_xml_get_widget (xml, "applyremdepcheck");
+	gfpm_apply_inst_dwocheck = glade_xml_get_widget (xml, "applyinstdwcheck");
 
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
@@ -321,6 +323,8 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		gint flags = 0;
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_inst_depcheck)))
 			flags |= PM_TRANS_FLAG_NODEPS;
+		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_inst_dwocheck)))
+			flags |= PM_TRANS_FLAG_DOWNLOADONLY;
 		/* create transaction */
 		if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
 		{
