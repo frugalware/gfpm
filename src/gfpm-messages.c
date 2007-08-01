@@ -310,7 +310,7 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 		pkgname = pacman_pkg_getinfo (pkg, PM_PKG_NAME);
 		pkgver = pacman_pkg_getinfo (pkg, PM_PKG_VERSION);
 		gtk_list_store_append (store, &iter);
-		pkgstring = g_strdup_printf("%s%s", pkgname, pkgver);
+		pkgstring = g_strdup_printf("%s-%s", pkgname, pkgver);
 		gtk_list_store_set (store, &iter, 0, pkgstring, -1);
 		g_free (pkgstring);
 	}

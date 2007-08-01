@@ -823,12 +823,23 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	{	
 		g_print ("error %s", pacman_strerror(pm_errno));
 	}
-	packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);
+	packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);	
 	if (gfpm_plist_question("Following packages will be upgraded. Do you want to continue ?", gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
 	{
+	
+		PM_LIST *i = NULL;
+		gfpm_package_list_free (GFPM_INSTALL_LIST);
+		gfpm_package_list_free (GFPM_REMOVE_LIST);
+		for (i=pacman_list_first(packages);i;i=pacman_list_next(i))
+		{
+			PM_SYNCPKG *sync = pacman_list_getdata (i);
+			PM_PKG *pk = pacman_sync_getinfo (sync, PM_SYNC_PKG);
+			gfpm_package_list_add (GFPM_INSTALL_LIST, pacman_pkg_getinfo(pk, PM_PKG_NAME));
+		}
+		pacman_trans_release ();
 		cb_gfpm_apply_btn_clicked (NULL, NULL);
 	}
-	
+
 cleanup:
 	pacman_pkg_free (pm_lpkg);
 	pacman_pkg_free (pm_spkg);
