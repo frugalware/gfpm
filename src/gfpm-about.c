@@ -60,7 +60,7 @@ gfpm_about (void)
 	gtk_show_about_dialog (GTK_WINDOW(gfpm_mw),
 				"name", PACKAGE,
 				"version", VERSION,
-				"copyright", _("(C) 2007 Frugalware Developer Team (GPL)"),
+				"copyright", _("(C) 2006-2007 Frugalware Developer Team (GPL)"),
 				"comments", _("A graphical package manager for Frugalware Linux."),
 				"license", license,
 				"authors", authors,
