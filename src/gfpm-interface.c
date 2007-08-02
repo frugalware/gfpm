@@ -153,6 +153,7 @@ gfpm_interface_init (void)
 							"text", 2,
 							NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_column_set_expand (column, TRUE);
 	gtk_tree_view_column_set_min_width (column, 140);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
