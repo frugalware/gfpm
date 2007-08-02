@@ -123,13 +123,13 @@ gfpm_interface_init (void)
 	g_signal_connect (selection, "changed", G_CALLBACK(cb_gfpm_groups_tvw_selected), NULL);
 
 	/* Setup pkgs treeview */
-	store = gtk_list_store_new (6,
+	store = gtk_list_store_new (5,
 				G_TYPE_BOOLEAN,  /* Install status */
 				GDK_TYPE_PIXBUF, /* Status icon */
 				G_TYPE_STRING,   /* Package name */
 				G_TYPE_STRING,   /* Installed version */
-				G_TYPE_STRING,   /* Latest version */
-				G_TYPE_STRING);  /* Package Description */
+				G_TYPE_STRING);   /* Latest version */
+				//G_TYPE_STRING);  /* Package Description */
 
 	GtkTreeViewColumn *column;
 	renderer = gtk_cell_renderer_toggle_new ();
@@ -175,6 +175,7 @@ gfpm_interface_init (void)
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
+	/*
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Description"),
 							renderer,
@@ -182,7 +183,7 @@ gfpm_interface_init (void)
 							NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
-
+	*/
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_pkgs_tvw), GTK_TREE_MODEL(store));
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));
@@ -498,7 +499,7 @@ gfpm_load_pkgs_tvw (const char *group_name)
 						2, g_strstrip((char*)pacman_list_getdata (i)),
 						3, (check==TRUE)?(char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION) : NULL,
 						4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
-						5, g_strstrip((char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC)),
+						//5, g_strstrip((char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC)),
 						-1);
 		}
 		else if (r == 0)
@@ -528,7 +529,7 @@ gfpm_load_pkgs_tvw (const char *group_name)
 						2, g_strstrip((char*)pacman_list_getdata (i)),
 						3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION),
 						4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
-						5, g_strstrip((char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC)),
+						//5, g_strstrip((char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC)),
 						-1);
 		}
 		pacman_pkg_free (pm_pkg);
