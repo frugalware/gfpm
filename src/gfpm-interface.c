@@ -603,7 +603,22 @@ gfpm_load_info_tvw (const char *pkg_name)
 						1, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
 						-1);
 	g_free (st);
-
+	/* populate license */
+	temp = pacman_pkg_getinfo (pm_lpkg, PM_PKG_LICENSE);
+	str = g_string_new ("");
+	for (i=temp;i;i=pacman_list_next(i))
+	{
+		str = g_string_append (str, (char*)pacman_list_getdata(i));
+		str = g_string_append (str, " ");
+	}
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	st = (char*)gfpm_bold (_("License:"));
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+						0, st,
+						1, (char*)str->str,
+						-1);
+	g_free (st);
+	g_string_free (str, TRUE);
 	/* populate depends */
 	temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_DEPENDS);
 	str = g_string_new ("");
@@ -1026,7 +1041,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					2, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_NAME),
 					3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION),
 					4, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION),
-					5, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC),
+					//5, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC),
 					-1);
 			pacman_pkg_free (pm_lpkg);
 			pacman_pkg_free (pm_spkg);
@@ -1067,7 +1082,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					1, (inst==TRUE)?(up==TRUE)?icon_up:icon_yes:icon_no,
 					2, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
 					4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
-					5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
+					//5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
 					-1);
 			pacman_pkg_free (pm_pkg);
 			pacman_pkg_free (pm_lpkg);
