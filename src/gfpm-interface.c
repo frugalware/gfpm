@@ -88,7 +88,7 @@ gfpm_interface_init (void)
 	gfpm_statusbar	= glade_xml_get_widget (xml, "statusbar");
 	gtk_widget_show (gfpm_splash);
 	while (gtk_events_pending())
-			gtk_main_iteration ();
+		gtk_main_iteration ();
 	
 	gfpm_groups_tvw = glade_xml_get_widget (xml, "grouptreeview");
 	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
@@ -110,9 +110,6 @@ gfpm_interface_init (void)
 	store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(widget)));
 	gtk_combo_box_set_active (GTK_COMBO_BOX(widget), 0);
 	g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
-
-	/* Refresh db button */
-	//g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_refresh_button_clicked), NULL);
 
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
