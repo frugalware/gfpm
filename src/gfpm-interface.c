@@ -604,21 +604,24 @@ gfpm_load_info_tvw (const char *pkg_name)
 						-1);
 	g_free (st);
 	/* populate license */
-	temp = pacman_pkg_getinfo (pm_lpkg, PM_PKG_LICENSE);
-	str = g_string_new ("");
-	for (i=temp;i;i=pacman_list_next(i))
+	if (inst == TRUE)
 	{
-		str = g_string_append (str, (char*)pacman_list_getdata(i));
-		str = g_string_append (str, " ");
+		temp = pacman_pkg_getinfo (pm_lpkg, PM_PKG_LICENSE);
+		str = g_string_new ("");
+		for (i=temp;i;i=pacman_list_next(i))
+		{
+			str = g_string_append (str, (char*)pacman_list_getdata(i));
+			str = g_string_append (str, " ");
+		}
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		st = (char*)gfpm_bold (_("License:"));
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+							0, st,
+							1, (char*)str->str,
+							-1);
+		g_free (st);
+		g_string_free (str, TRUE);
 	}
-	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-	st = (char*)gfpm_bold (_("License:"));
-	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						0, st,
-						1, (char*)str->str,
-						-1);
-	g_free (st);
-	g_string_free (str, TRUE);
 	/* populate depends */
 	temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_DEPENDS);
 	str = g_string_new ("");
@@ -780,6 +783,25 @@ gfpm_load_info_tvw (const char *pkg_name)
 			g_free (st);
 		}
 		g_string_free (str, TRUE);
+		
+		st = (char*)gfpm_bold (_("Reason:"));
+		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+		switch ((int)pacman_pkg_getinfo (pm_lpkg, PM_PKG_REASON))
+		{
+			case PM_PKG_REASON_EXPLICIT:	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+										0, st,
+										1, _("Explicitly Installed"),
+										-1);
+							break;
+			case PM_PKG_REASON_DEPEND:	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+										0, st,
+										1, _("Installed as a dependency for another package"),
+										-1);
+							break;
+			default:			break;
+		}
+		g_free (st);
+		
 	}
 
 	return;

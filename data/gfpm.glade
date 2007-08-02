@@ -5,8 +5,8 @@
   <widget class="GtkWindow" id="mainwindow">
     <property name="title">gfpm - Frugalware Package Manager</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
-    <property name="default_width">700</property>
-    <property name="default_height">600</property>
+    <property name="default_width">740</property>
+    <property name="default_height">575</property>
     <signal name="delete_event" handler="gtk_main_quit"/>
     <child>
       <widget class="GtkVBox" id="vbox1">
