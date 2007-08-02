@@ -41,4 +41,49 @@ gfpm_pmlist_to_glist (PM_LIST *list)
 
 	return ret;
 }
+
+gint
+gfpm_vercmp (const char *str1, const char *str2)
+{
+	int		l1 = 0, l2 = 0;
+	char		st1[l1];
+	char		st2[l2];
+	register int	i;
+	int		j = 0;
+	int		v1, v2;
+	
+	if (str1 == NULL || str2 == NULL)
+		return -1;
+	l1 = strlen(str1);
+	l2 = strlen(str2);
+	for (i=0;i<l1;i++)
+	{
+		if (isdigit(str1[i]))
+		{
+			st1[j] = str1[i];
+			j++;
+		}
+	}
+	st1[j] = 0;
+	for (i=0,j=0;i<l2;i++)
+	{
+		if (isdigit(str1[i]))
+		{
+			st2[j] = str2[i];
+			j++;
+		}
+	}
+	st2[j] = 0;
+
+	v1 = atoi (st1);
+	v2 = atoi (st2);
+	if (v1 == v2)
+		return 0;
+	if (v1 < v2)
+		return -1;
+	if (v1 > v2)
+		return 1;
+	
+	return -1;
+}
 	
