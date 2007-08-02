@@ -509,12 +509,18 @@ gfpm_load_pkgs_tvw (const char *group_name)
 			char *v1 = (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION);
 			char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
 			if (v1!=NULL && v2!=NULL)
-			{	if (!strcmp(v1,v2))
+			{	
+				gint ret = gfpm_vercmp (v1, v2);
+				if (!ret)
+					up = FALSE;
+				else if (ret == -1)
+					up = TRUE;
+				else
 					up = FALSE;
 			}
 			else
 			{	
-				up = TRUE;
+				up = FALSE;
 			}
 			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 						0, TRUE,
@@ -985,12 +991,17 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
 			if (v1!=NULL && v2!=NULL)
 			{
-				if (!strcmp(v1,v2))
+				gint ret = gfpm_vercmp (v1, v2);
+				if (!ret)
+					up = FALSE;
+				else if (ret == -1)
+					up = TRUE;
+				else
 					up = FALSE;
 			}
 			else
-			{	
-				up = TRUE;
+			{
+				up = FALSE;
 			}
 			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter,
