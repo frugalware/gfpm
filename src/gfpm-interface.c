@@ -621,6 +621,23 @@ gfpm_load_info_tvw (const char *pkg_name)
 						-1);
 	g_free (st);
 	g_string_free (str, TRUE);
+	
+	/* populate groups */
+	temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_GROUPS);
+	str = g_string_new ("");
+	for (i=temp;i;i=pacman_list_next(i))
+	{
+		str = g_string_append (str, (char*)pacman_list_getdata(i));
+		str = g_string_append (str, " ");
+	}
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+	st = (char*)gfpm_bold (_("Group(s):"));
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+						0, st,
+						1, (char*)str->str,
+						-1);
+	g_free (st);
+	g_string_free (str, TRUE);
 
 	/* populate provides */
 	temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_PROVIDES);
