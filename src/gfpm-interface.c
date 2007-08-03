@@ -45,6 +45,10 @@ extern GfpmList *install_list;
 extern GfpmList *remove_list;
 extern char	*repo;
 
+/* current group the user is browsing */
+/* used for refreshing the views after a package update */
+static gchar *current_group = NULL;
+
 /* The GFPM main window */
 GtkWidget *gfpm_mw;
 
@@ -369,6 +373,10 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		gfpm_apply_dlg_reset ();
 	}
 	gfpm_progress_show (FALSE);
+	if (current_group != NULL)
+	{
+		gfpm_load_pkgs_tvw (current_group);
+	}
 
 	return;
 }
@@ -535,6 +543,8 @@ gfpm_load_pkgs_tvw (const char *group_name)
 		pacman_pkg_free (pm_lpkg);
 	}
 	gfpm_update_status (_("Loading package list ...DONE"));
+	g_free (current_group);
+	current_group = g_strdup (group_name);
 
 	g_object_unref (icon_yes);
 	g_object_unref (icon_no);
