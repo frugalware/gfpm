@@ -19,6 +19,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#define _GNU_SOURCE
 #include "gfpm-messages.h"
 #include "gfpm-packagelist.h"
 #include <glade/glade.h>
@@ -182,7 +183,7 @@ gfpm_apply_dlg_show (void)
 	gint res;
 	
 	gfpm_apply_dlg_populate ();
-	res = gtk_dialog_run (gfpm_apply_dlg);
+	res = gtk_dialog_run (GTK_DIALOG(gfpm_apply_dlg));
 
 	return res;
 }
@@ -400,7 +401,6 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 	GtkTreeIter		iter;
 	GtkWidget		*tvw;
 	GList			*l;
-	gchar			*pkgname;
 	
 	if (packages == NULL)
 		return;
