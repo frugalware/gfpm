@@ -888,7 +888,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		g_print ("error %s", pacman_strerror(pm_errno));
 	}
 	packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);	
-	if (gfpm_plist_question("Following packages will be upgraded. Do you want to continue ?", gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
+	if (gfpm_plist_question(_("Following packages will be upgraded. Do you want to continue ?"), gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
 	{
 	
 		PM_LIST *i = NULL;
@@ -1170,13 +1170,6 @@ cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, g
 
 		gfpm_package_list_del (GFPM_INSTALL_LIST, pkg);
 	}
-
-	/* remove the following snippet after testing */
-	g_print ("Contents of INSTALL LIST\n");
-	gfpm_package_list_print (GFPM_INSTALL_LIST);
-
-	g_print ("Contents of REMOVE LIST\n");
-	gfpm_package_list_print (GFPM_REMOVE_LIST);
 
 	g_free (pkg);
 	gtk_tree_path_free (path);
