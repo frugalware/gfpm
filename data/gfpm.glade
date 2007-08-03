@@ -494,7 +494,7 @@ Installed packages</property>
         <child>
           <widget class="GtkImage" id="image1">
             <property name="visible">True</property>
-            <property name="pixbuf">gfpmlog.png</property>
+            <property name="pixbuf">splash.png</property>
           </widget>
           <packing>
             <property name="expand">False</property>

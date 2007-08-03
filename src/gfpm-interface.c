@@ -90,6 +90,7 @@ gfpm_interface_init (void)
 	while (gtk_events_pending())
 		gtk_main_iteration ();
 	
+	sleep (2);
 	gfpm_groups_tvw = glade_xml_get_widget (xml, "grouptreeview");
 	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
 	gfpm_info_tvw	= glade_xml_get_widget (xml, "infotreeview");
