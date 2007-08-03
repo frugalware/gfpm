@@ -16,6 +16,4 @@ char * gfpm_bold (const char *);
 
 GList * gfpm_pmlist_to_glist (PM_LIST *);
 
-gint gfpm_vercmp (const char *, const char *);
-
 #endif
