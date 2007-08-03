@@ -298,6 +298,7 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 					main_msg);
 	swindow = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new (NULL, NULL));
 	gtk_scrolled_window_set_policy (swindow, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_shadow_type (swindow, GTK_SHADOW_ETCHED_OUT);
 	tvw = gtk_tree_view_new ();
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(tvw), TRUE);
 	gtk_container_add (GTK_CONTAINER(swindow), tvw);
