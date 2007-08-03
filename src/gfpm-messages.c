@@ -38,6 +38,8 @@ static GtkWidget *gfpm_apply_rem_box;
 static GtkWidget *gfpm_apply_inst_sizelbl;
 static GtkWidget *gfpm_apply_rem_sizelbl;
 
+static void cb_gfpm_plist_question_upgrade_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
+
 void
 gfpm_messages_init (void)
 {
@@ -285,6 +287,7 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 	GtkWidget		*tvw;
 	gint			ret;
 	GList			*l;
+	GtkTreeViewColumn	*column;
 
 	dialog = gtk_message_dialog_new (GTK_WINDOW(gfpm_mw),
 					GTK_DIALOG_DESTROY_WITH_PARENT,
@@ -295,24 +298,47 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 	swindow = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new (NULL, NULL));
 	gtk_scrolled_window_set_policy (swindow, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 	tvw = gtk_tree_view_new ();
-	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(tvw), FALSE);
+	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(tvw), TRUE);
 	gtk_container_add (GTK_CONTAINER(swindow), tvw);
-	store = gtk_list_store_new (1, G_TYPE_STRING);
+	store = gtk_list_store_new (4, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+	r = gtk_cell_renderer_toggle_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Upgrade"), r, "active", 0, NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(tvw), column);
+	g_signal_connect (r, "toggled", G_CALLBACK(cb_gfpm_plist_question_upgrade_toggled), store);
+	
 	r = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(tvw), -1, _("Package"), r, "text", 0, NULL);
+	column = gtk_tree_view_column_new_with_attributes (_("Package"), r, "text", 1, NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_column_set_expand (column, TRUE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(tvw), column);
+	
+	r = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Version"), r, "text", 2, NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_column_set_min_width (column, 70);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(tvw), column);
+
+	r = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Size"), r, "text", 3, NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(tvw), column);
+
 	for (l=g_list_first(packages);l;l=g_list_next(l))
 	{
-		char *pkgname, *pkgver;
-		char *pkgstring;
+		char *pkgname = NULL;
+		char *pkgver = NULL;
+		char *size = NULL;
+		float s = 0;
 		PM_SYNCPKG *sync = l->data;
 		PM_PKG *pkg = pacman_sync_getinfo (sync, PM_SYNC_PKG);
-
 		pkgname = pacman_pkg_getinfo (pkg, PM_PKG_NAME);
 		pkgver = pacman_pkg_getinfo (pkg, PM_PKG_VERSION);
+		s = (float)((long)pacman_pkg_getinfo (pkg, PM_PKG_SIZE)/1024)/1024;
+		asprintf (&size, "%0.2f MB", s);
 		gtk_list_store_append (store, &iter);
-		pkgstring = g_strdup_printf("%s-%s", pkgname, pkgver);
-		gtk_list_store_set (store, &iter, 0, pkgstring, -1);
-		g_free (pkgstring);
+		gtk_list_store_set (store, &iter, 0, TRUE, 1, pkgname, 2, pkgver, 3, size, -1);
+		g_free (size);
 	}
 	gtk_tree_view_set_model (GTK_TREE_VIEW(tvw), GTK_TREE_MODEL(store));
 	gtk_widget_set_size_request (tvw, 230, 120);
@@ -321,9 +347,47 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
 	ret = gtk_dialog_run (GTK_DIALOG(dialog));
+
+	if (ret == GTK_RESPONSE_YES)
+	{
+		gfpm_package_list_free (GFPM_INSTALL_LIST);
+		gfpm_package_list_free (GFPM_REMOVE_LIST);
+		GtkTreeIter	i;
+		GtkTreeModel	*model;
+		gboolean	v;
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(tvw));
+		v = gtk_tree_model_get_iter_first (model, &i);
+		while (v!=FALSE)
+		{
+			gchar *pkgname = NULL;
+			gboolean sel;
+			gtk_tree_model_get (model, &i, 0, &sel, 1, &pkgname, -1);
+			if ((sel==TRUE) && (pkgname!=NULL))
+				gfpm_package_list_add (GFPM_INSTALL_LIST, pkgname);
+			g_free (pkgname);
+			v = gtk_tree_model_iter_next (model, &i);
+		}
+	}
 	gtk_widget_destroy (dialog);
 
 	return ret;
+}
+
+static void
+cb_gfpm_plist_question_upgrade_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data)
+{
+	GtkTreeModel	*model;
+	GtkTreeIter	iter;
+	GtkTreePath	*path;
+	gboolean	check;
+
+	model = (GtkTreeModel *)data;
+	path = gtk_tree_path_new_from_string (path_str);
+	gtk_tree_model_get_iter (model, &iter, path);
+	gtk_tree_model_get (model, &iter, 0, &check, -1);
+	/* manually toggle the toggle button */
+	check ^= 1;
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, check, -1);
 }
 
 void
@@ -336,6 +400,7 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 	GtkTreeIter		iter;
 	GtkWidget		*tvw;
 	GList			*l;
+	gchar			*pkgname;
 	
 	if (packages == NULL)
 		return;
@@ -367,6 +432,7 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
 	gtk_dialog_run (GTK_DIALOG(dialog));
+	
 	gtk_widget_destroy (dialog);
 
 	return;

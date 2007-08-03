@@ -373,6 +373,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		gfpm_apply_dlg_reset ();
 	}
 	gfpm_progress_show (FALSE);
+
 	if (current_group != NULL)
 	{
 		gfpm_load_pkgs_tvw (current_group);
@@ -543,6 +544,7 @@ gfpm_load_pkgs_tvw (const char *group_name)
 		pacman_pkg_free (pm_lpkg);
 	}
 	gfpm_update_status (_("Loading package list ...DONE"));
+
 	g_free (current_group);
 	current_group = g_strdup (group_name);
 
@@ -900,7 +902,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);	
 	if (gfpm_plist_question(_("Following packages will be upgraded. Do you want to continue ?"), gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
 	{
-	
+	/*
 		PM_LIST *i = NULL;
 		gfpm_package_list_free (GFPM_INSTALL_LIST);
 		gfpm_package_list_free (GFPM_REMOVE_LIST);
@@ -910,6 +912,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 			PM_PKG *pk = pacman_sync_getinfo (sync, PM_SYNC_PKG);
 			gfpm_package_list_add (GFPM_INSTALL_LIST, pacman_pkg_getinfo(pk, PM_PKG_NAME));
 		}
+	*/
 		pacman_trans_release ();
 		cb_gfpm_apply_btn_clicked (NULL, NULL);
 	}
@@ -1171,10 +1174,7 @@ cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, g
 	else
 	{
 		if (inst == TRUE)
-		{
 			gfpm_package_list_add (GFPM_REMOVE_LIST, pkg);
-			g_print ("adding to remove list\n");
-		}
 		else
 			gfpm_package_list_del (GFPM_REMOVE_LIST, pkg);
 
