@@ -1077,7 +1077,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			gtk_list_store_set (store, &iter,
 					0, TRUE,
 					1, (up==FALSE)?icon_yes:icon_up,
-					2, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_NAME),
+					2, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_NAME),
 					3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION),
 					4, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION),
 					//5, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC),
@@ -1114,7 +1114,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			if (inst == TRUE)
 				gtk_list_store_set (store, &iter, 3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION), -1);
 			else
-				gtk_list_store_set (store, &iter, 3, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION), -1); 
+				gtk_list_store_set (store, &iter, 3, NULL, -1);
 
 			gtk_list_store_set (store, &iter,
 					0, inst,
