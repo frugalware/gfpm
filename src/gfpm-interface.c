@@ -626,14 +626,17 @@ gfpm_load_info_tvw (const char *pkg_name)
 			str = g_string_append (str, (char*)pacman_list_getdata(i));
 			str = g_string_append (str, " ");
 		}
-		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		st = (char*)gfpm_bold (_("License:"));
-		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-							0, st,
-							1, (char*)str->str,
-							-1);
-		g_free (st);
-		g_string_free (str, TRUE);
+		if (str->len > 1)
+		{
+			st = (char*)gfpm_bold (_("License:"));
+			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+						0, st,
+						1, (char*)str->str,
+						-1);
+			g_free (st);
+			g_string_free (str, TRUE);
+		}
 	}
 	/* populate depends */
 	temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_DEPENDS);
