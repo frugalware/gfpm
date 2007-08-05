@@ -25,6 +25,7 @@
 #include <glade/glade.h>
 #include "gfpm.h"
 #include "gfpm-progress.h"
+#include "gfpm-systray.h"
 
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
@@ -73,11 +74,13 @@ gfpm_progress_show (gboolean show)
 	if (show == TRUE)
 	{	
 		gtk_widget_show (progresswindow);
+		gfpm_systray_set_visible (TRUE);
 		gtk_widget_hide (gfpm_mw);
 	}
 	else
 	{	
 		gtk_widget_hide (progresswindow);
+		gfpm_systray_set_visible (FALSE);
 		gtk_widget_show (gfpm_mw);
 	}
 

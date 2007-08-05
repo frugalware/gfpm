@@ -22,18 +22,24 @@
 #include <time.h>
 #include <sys/time.h>
 #include <glade/glade.h>
+#include <gtk/gtk.h>
 #include "gfpm-systray.h"
 
 #ifdef HAVE_CONFIG_H
 	#include "config.h"
 #endif
 
+extern GtkWidget *progresswindow;
+
 GtkStatusIcon *gfpm_statusicon;
+
+static void cb_gfpm_systray_activated (GtkStatusIcon *icon, gpointer data);
 
 void
 gfpm_systray_init (void)
 {
 	gfpm_statusicon = gtk_status_icon_new_from_icon_name ("gfpm");
+	g_signal_connect (G_OBJECT(gfpm_statusicon), "activate", G_CALLBACK(cb_gfpm_systray_activated), NULL);
 	gtk_status_icon_set_visible (gfpm_statusicon, FALSE);
 
 	return;
@@ -42,7 +48,18 @@ gfpm_systray_init (void)
 void
 gfpm_systray_set_visible (gboolean visible)
 {
-	gtk_status_icon_set_visible (gfpm_statusicon, FALSE);
+	gtk_status_icon_set_visible (gfpm_statusicon, visible);
+
+	return;
+}
+
+static void
+cb_gfpm_systray_activated (GtkStatusIcon *icon, gpointer data)
+{
+	if (GTK_WIDGET_VISIBLE(progresswindow))
+		gtk_widget_hide (progresswindow);
+	else
+		gtk_widget_show (progresswindow);
 
 	return;
 }
