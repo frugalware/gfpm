@@ -29,6 +29,7 @@
 
 #include "gfpm.h"
 #include "gfpm-interface.h"
+#include "gfpm-systray.h"
 #include "gfpm-messages.h"
 
 #define GLADE_FILE	"/share/gfpm/gfpm.glade"
@@ -74,6 +75,7 @@ main (int argc, char *argv[])
 	gfpm_interface_init ();
 	gtk_main ();
 	gfpm_db_cleanup ();
+	gfpm_systray_free ();
 	pacman_release ();
 
 	return 0;
