@@ -46,6 +46,14 @@ gfpm_systray_init (void)
 }
 
 void
+gfpm_systray_free (void)
+{
+	g_object_unref (gfpm_statusicon);
+
+	return;
+}
+
+void
 gfpm_systray_set_visible (gboolean visible)
 {
 	gtk_status_icon_set_visible (gfpm_statusicon, visible);

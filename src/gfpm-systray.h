@@ -10,6 +10,7 @@
 #include <gtk/gtk.h>
 
 void gfpm_systray_init (void);
+void gfpm_systray_free (void);
 void gfpm_systray_set_visible (gboolean);
 
 #endif
