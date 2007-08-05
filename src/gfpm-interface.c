@@ -34,6 +34,7 @@
 #include "gfpm-messages.h"
 #include "gfpm-packagelist.h"
 #include "gfpm-progress.h"
+#include "gfpm-systray.h"
 #include "gfpm-util.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
@@ -237,6 +238,7 @@ gfpm_interface_init (void)
 	gfpm_db_init ();
 	gfpm_messages_init ();
 	gfpm_progress_init ();
+	gfpm_systray_init ();
 
 	/* load default repo  */
 	gfpm_load_groups_tvw ("frugalware-current");
