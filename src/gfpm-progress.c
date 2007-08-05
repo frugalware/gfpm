@@ -30,7 +30,8 @@
 	#include "config.h"
 #endif
 
-extern GladeXML *xml;
+extern GladeXML		*xml;
+extern GtkWidget	*gfpm_mw;
 
 GtkProgressBar		*progressbar = NULL;
 GtkWidget		*progresswindow = NULL;
@@ -70,9 +71,15 @@ void
 gfpm_progress_show (gboolean show)
 {
 	if (show == TRUE)
+	{	
 		gtk_widget_show (progresswindow);
+		gtk_widget_hide (gfpm_mw);
+	}
 	else
+	{	
 		gtk_widget_hide (progresswindow);
+		gtk_widget_show (gfpm_mw);
+	}
 
 	return;
 }
