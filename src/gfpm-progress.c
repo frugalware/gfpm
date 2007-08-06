@@ -72,7 +72,7 @@ void
 gfpm_progress_show (gboolean show, gint sync)
 {
 	if (show == TRUE)
-	{	
+	{
 		gtk_widget_show (progresswindow);
 		if (!sync)
 		{
@@ -81,7 +81,7 @@ gfpm_progress_show (gboolean show, gint sync)
 		}
 	}
 	else
-	{	
+	{
 		gtk_widget_hide (progresswindow);
 		if (!sync)
 		{
