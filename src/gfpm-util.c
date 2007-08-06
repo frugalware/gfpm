@@ -41,5 +41,3 @@ gfpm_pmlist_to_glist (PM_LIST *list)
 
 	return ret;
 }
-
-	
