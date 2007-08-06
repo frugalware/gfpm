@@ -10,14 +10,30 @@ AC_PROG_INTLTOOL([0.21])
 AC_PROG_LIBTOOL
 AM_INIT_AUTOMAKE
 
-AC_PROG_CC
+AC_PROG_CC(GCC)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/ioctl.h unistd.h alpm.h])
 
-if test "${GCC}" = "yes"
-then
-	CFLAGS="${CFLAGS} -pipe -Wall"
+if test "${GCC}" = "yes" ; then
+    CFLAGS="${ENV_CFLAGS} -pipe"
 fi
+
+AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug="yes")
+dnl Check for debug enabled or not
+AC_MSG_CHECKING(for debug request)
+if test "x$debug" = "xyes" ; then
+    AC_DEFINE(GFPM_DEBUG, 1, [Debug support: enabled])
+    CFLAGS="${CFLAGS} -ggdb3 -Wall -Werror -DGFPM_DEBUG"
+    debug=yes
+    AC_MSG_RESULT(yes)
+else
+    AC_DEFINE(GFPM_DEBUG, 0, [Debug support: disabled])
+    CFLAGS="${CFLAGS} -Wall"
+    debug=no
+    AC_MSG_RESULT(no)
+fi
+
+AC_SUBST([GFPM_DEBUG])
 
 ALL_LINGUAS=""
 GETTEXT_PACKAGE=gfpm
@@ -52,4 +68,5 @@ Gfpm $VERSION configuration summary:
         source code location     : ${srcdir}
         compiler                 : ${CC}
         compiler flags           : ${CFLAGS}
+	debug support            : ${debug}
 "
