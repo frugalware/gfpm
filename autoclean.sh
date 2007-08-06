@@ -18,3 +18,8 @@ rm -rf compile
 rm -rf libtool
 rm -rf mkinstalldirs
 rm -rf config.rpath
+rm -rf data/Makefile.in
+rm -rf data/icons/Makefile.in
+rm -rf data/icons/{32x32,128x128,48x48}/Makefile.in
+rm -rf po/stamp-it
+rm -rf intltool-{extract,merge,update}
