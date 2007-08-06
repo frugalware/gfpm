@@ -69,19 +69,25 @@ gfpm_progress_init (void)
 }
 
 void
-gfpm_progress_show (gboolean show)
+gfpm_progress_show (gboolean show, gint sync)
 {
 	if (show == TRUE)
 	{	
 		gtk_widget_show (progresswindow);
-		gfpm_systray_set_visible (TRUE);
-		gtk_widget_hide (gfpm_mw);
+		if (!sync)
+		{
+			gtk_widget_hide (gfpm_mw);
+			gfpm_systray_set_visible (TRUE);
+		}
 	}
 	else
 	{	
 		gtk_widget_hide (progresswindow);
-		gfpm_systray_set_visible (FALSE);
-		gtk_widget_show (gfpm_mw);
+		if (!sync)
+		{
+			gtk_widget_show (gfpm_mw);
+			gfpm_systray_set_visible (FALSE);
+		}
 	}
 
 	return;

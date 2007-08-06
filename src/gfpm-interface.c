@@ -294,7 +294,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			return;
 		}
 		
-		gfpm_progress_show (TRUE);
+		gfpm_progress_show (TRUE, 0);
 		GList *i = NULL;
 		PM_LIST *data, *pkgs;
 		for (i = (GList*)remove_list; i; i = i->next)
@@ -344,7 +344,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			return;
 		}
 		
-		gfpm_progress_show (TRUE);
+		gfpm_progress_show (TRUE, 0);
 		GList *i = NULL;
 		PM_LIST *data, *pkgs;
 		for (i = (GList*)install_list; i; i = i->next)
@@ -374,7 +374,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		gfpm_package_list_free (GFPM_INSTALL_LIST);
 		gfpm_apply_dlg_reset ();
 	}
-	gfpm_progress_show (FALSE);
+	gfpm_progress_show (FALSE, 0);
 
 	if (current_group != NULL)
 	{
@@ -871,9 +871,9 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		 "Do you want to continue upgrading pacman-g2 ?");
 
 	gfpm_progress_set_main_text (_("Synchronizing package databases"));
-	gfpm_progress_show (TRUE);
+	gfpm_progress_show (TRUE, 1);
 	ret = pacman_db_update (0, sync_db);
-	gfpm_progress_show (FALSE);
+	gfpm_progress_show (FALSE, 1);
 	/* check for a pacman-g2 update */
 	pm_lpkg = pacman_db_readpkg (local_db, "pacman-g2");
 	pm_spkg = pacman_db_readpkg (sync_db, "pacman-g2");
@@ -1274,7 +1274,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 			}
 			return;
 	}
-	gfpm_progress_show (TRUE);
+	gfpm_progress_show (TRUE, 0);
 	/* add the target */
 	pacman_trans_addtarget ((char*)fpm);
 	if (pacman_trans_prepare(&trans_data) == -1)
@@ -1348,7 +1348,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	g_string_free (errorstr, FALSE);
 	pacman_trans_release ();
 	gtk_widget_hide (gfpm_inst_from_file_dlg);
-	gfpm_progress_show (FALSE);
+	gfpm_progress_show (FALSE, 0);
 	return;
 }
 
