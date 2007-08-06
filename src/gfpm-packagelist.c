@@ -86,7 +86,7 @@ gfpm_package_list_del (GfpmListType type, const gchar *item)
 	else
 		temp = remove_list;
 
-	for (temp; temp!=NULL; temp=temp->next)
+	for (; temp!=NULL; temp=temp->next)
 	{
 		if (strcmp (item, temp->data) == 0)
 			break;
