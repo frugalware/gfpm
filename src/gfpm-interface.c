@@ -804,7 +804,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 		
 		st = (char*)gfpm_bold (_("Reason:"));
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		switch ((int)pacman_pkg_getinfo (pm_lpkg, PM_PKG_REASON))
+		switch ((long)pacman_pkg_getinfo (pm_lpkg, PM_PKG_REASON))
 		{
 			case PM_PKG_REASON_EXPLICIT:	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 										0, st,
