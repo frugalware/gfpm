@@ -18,12 +18,27 @@ if test "${GCC}" = "yes" ; then
     CFLAGS="${ENV_CFLAGS} -pipe"
 fi
 
-AC_ARG_ENABLE(debug, [  --enable-debug    Enable debugging support], debug="yes")
+AC_ARG_ENABLE(werror,
+    AC_HELP_STRING([  --enable-werror], [Enable -Werror usage]), [werror="yes"])
+AC_ARG_ENABLE(debug,
+    AC_HELP_STRING([  --enable-debug], [Enable debugging support]), [debug="yes"])
+
+dnl Check for Werror request
+AC_MSG_CHECKING(for werror usage)
+if test "x$werror" = "xyes" ; then
+    CFLAGS="${CFLAGS} -Werror"
+    werror=yes
+    AC_MSG_RESULT(yes)
+else
+    werror=no
+    AC_MSG_RESULT(no)
+fi
+
 dnl Check for debug enabled or not
 AC_MSG_CHECKING(for debug request)
 if test "x$debug" = "xyes" ; then
     AC_DEFINE(GFPM_DEBUG, 1, [Debug support: enabled])
-    CFLAGS="${CFLAGS} -ggdb3 -Wall -Werror -DGFPM_DEBUG"
+    CFLAGS="${CFLAGS} -ggdb3 -Wall -DGFPM_DEBUG"
     debug=yes
     AC_MSG_RESULT(yes)
 else
@@ -69,4 +84,5 @@ Gfpm $VERSION configuration summary:
         compiler                 : ${CC}
         compiler flags           : ${CFLAGS}
 	debug support            : ${debug}
+	werror usage             : ${werror}
 "
