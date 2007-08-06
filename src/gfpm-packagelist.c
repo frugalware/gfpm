@@ -154,7 +154,7 @@ gfpm_package_list_is_empty (GfpmListType type)
 			{
 				if (install_list == NULL)
 					return 0;
-				else if (g_list_length(install_list)==0)
+				else if (g_list_length((GList *)install_list)==0)
 					return 0;
 				else
 					return 1;
@@ -164,7 +164,7 @@ gfpm_package_list_is_empty (GfpmListType type)
 			{
 				if (remove_list == NULL)
 					return 0;
-				else if (g_list_length(remove_list)==0)
+				else if (g_list_length((GList *)remove_list)==0)
 					return 0;
 				else
 					return 1;
