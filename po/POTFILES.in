@@ -1,3 +1,9 @@
+src/gfpm-about.c
+src/gfpm-db.c
+src/gfpm-interface.c
+src/gfpm-progress.c
+src/gfpm-systray.c
+src/gfpm-util.c
 src/gfpm.c
 src/gfpm-packagelist.c
 src/gfpm-messages.c
