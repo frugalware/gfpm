@@ -48,13 +48,6 @@ main (int argc, char *argv[])
 
 	gtk_init (&argc, &argv);
 
-	/* FIX ME */
-	/*if ( geteuid() != 0 )
-	{
-		gfpm_error (_("Gfpm should be run as root."));
-		return 1;
-	}*/
-
 	path = g_strdup_printf ("%s%s", PREFIX, GLADE_FILE);
 	xml = glade_xml_new (path, NULL, NULL);
 	g_free (path);
