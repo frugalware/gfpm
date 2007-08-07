@@ -26,7 +26,7 @@
 #include <gdk/gdkkeysyms.h>
 
 #ifdef HAVE_CONFIG_H
-#	include "config.h"
+#include "config.h"
 #endif
 
 #include "gfpm.h"
@@ -94,7 +94,7 @@ gfpm_interface_init (void)
 	gtk_widget_show (gfpm_splash);
 	while (gtk_events_pending())
 		gtk_main_iteration ();
-	
+
 	sleep (2);
 	gfpm_groups_tvw = glade_xml_get_widget (xml, "grouptreeview");
 	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
@@ -208,10 +208,10 @@ gfpm_interface_init (void)
 
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
-	
+
 	/* about */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
-	
+
 	/* aply */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
 
@@ -220,7 +220,7 @@ gfpm_interface_init (void)
 
 	/* clear cache dialog */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
-	
+
 	/* install from file */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), NULL);
 
@@ -255,16 +255,16 @@ static void
 cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
 	GString *errorstr = g_string_new ("");
-	
+
 	if (!gfpm_package_list_is_empty(GFPM_INSTALL_LIST) && !gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
-	{	
+	{
 		gfpm_message (_("No changes to apply."));
 		return;
 	}
 	if (gfpm_apply_dlg_show() != GTK_RESPONSE_OK)
-	{	
+	{
 		if (gfpm_question(_("Are you sure you want to cancel this operation ? \nNote: All changes made till now will be reverted."))==GTK_RESPONSE_YES)
-		{	
+		{
 			/* revert all changes */
 			gfpm_package_list_free (GFPM_INSTALL_LIST);
 			gfpm_package_list_free (GFPM_REMOVE_LIST);
@@ -293,7 +293,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			gfpm_error (errorstr->str);
 			return;
 		}
-		
+
 		gfpm_progress_show (TRUE, 0);
 		GList *i = NULL;
 		PM_LIST *data, *pkgs;
@@ -306,10 +306,10 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			g_print ("failed to prepare transaction (%s)\n", pacman_strerror(pm_errno));
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
-		
+
 		/* commit transaction */
 		if (pacman_trans_commit(&data) == -1)
-		{	
+		{
 			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
 			gfpm_error (errorstr->str);
@@ -343,7 +343,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			gfpm_error (errorstr->str);
 			return;
 		}
-		
+
 		gfpm_progress_show (TRUE, 0);
 		GList *i = NULL;
 		PM_LIST *data, *pkgs;
@@ -356,10 +356,10 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			g_print ("failed to prepare transaction (%s)\n", pacman_strerror(pm_errno));
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
-		
+
 		/* commit transaction */
 		if (pacman_trans_commit(&data) == -1)
-		{	
+		{
 			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
 			gfpm_error (errorstr->str);
@@ -520,7 +520,7 @@ gfpm_load_pkgs_tvw (const char *group_name)
 			char *v1 = (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION);
 			char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
 			if (v1!=NULL && v2!=NULL)
-			{	
+			{
 				gint ret = pacman_pkg_vercmp (v1, v2);
 				if (!ret)
 					up = FALSE;
@@ -576,7 +576,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 	if (!strcmp(repo,"local"))
 		pm_pkg = pacman_db_readpkg (local_db, (char*)pkg_name);
 	else
-	{	
+	{
 		pm_pkg = pacman_db_readpkg (sync_db, (char*)pkg_name);
 		r = 1;
 	}
@@ -604,14 +604,14 @@ gfpm_load_info_tvw (const char *pkg_name)
 						1, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
 						-1);
 	g_free (st);
-	gtk_list_store_append (GTK_LIST_STORE(model), &iter); 
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 	st = (char*)gfpm_bold (_("Version:"));
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 						0, st,
 						1, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
 						-1);
 	g_free (st);
-	gtk_list_store_append (GTK_LIST_STORE(model), &iter); 
+	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 	st = (char*)gfpm_bold (_("Description:"));
 	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 						0, st,
@@ -656,7 +656,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 						-1);
 	g_free (st);
 	g_string_free (str, TRUE);
-	
+
 	/* populate groups */
 	temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_GROUPS);
 	str = g_string_new ("");
@@ -693,7 +693,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 		g_free (st);
 	}
 	g_string_free (str, TRUE);
-	
+
 	/* populate conflicts */
 	temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_CONFLICTS);
 	str = g_string_new ("");
@@ -801,7 +801,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 			g_free (st);
 		}
 		g_string_free (str, TRUE);
-		
+
 		st = (char*)gfpm_bold (_("Reason:"));
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		switch ((long)pacman_pkg_getinfo (pm_lpkg, PM_PKG_REASON))
@@ -819,7 +819,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 			default:			break;
 		}
 		g_free (st);
-		
+
 	}
 
 	return;
@@ -839,7 +839,7 @@ gfpm_load_files_txtvw (const char *pkg_name, gboolean inst)
 	if (inst == TRUE)
 	{
 		pkg = pacman_db_readpkg (local_db, (char*)pkg_name);
-		gtk_text_buffer_insert (buffer, &iter, _("Files in package:\n"), -1);		
+		gtk_text_buffer_insert (buffer, &iter, _("Files in package:\n"), -1);
 		for (i = pacman_pkg_getinfo(pkg, PM_PKG_FILES); i; i = pacman_list_next(i))
 		{
 			gtk_text_buffer_insert (buffer, &iter, "   /", -1);
@@ -865,7 +865,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	gint ret;
 	PM_PKG *pm_lpkg, *pm_spkg;
 	PM_LIST *packages;
-	static gchar *updatestr = 
+	static gchar *updatestr =
 		("Gfpm has detected a newer version of the pacman-g2 package. "
 		 "It is recommended that you allow gfpm to upgrade pacman-g2 first. "
 		 "Do you want to continue upgrading pacman-g2 ?");
@@ -881,13 +881,13 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 				(char*)pacman_pkg_getinfo(pm_spkg, PM_PKG_VERSION)))
 	{
 		if (gfpm_question (updatestr) == GTK_RESPONSE_YES)
-		{	
+		{
 			gfpm_package_list_add (GFPM_INSTALL_LIST, "pacman-g2");
 			cb_gfpm_apply_btn_clicked (NULL, NULL);
 			goto cleanup;
 		}
 	}
-	
+
 	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
 	{
 		gchar *str;
@@ -901,10 +901,10 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		return;
 	}
 	if (pacman_trans_sysupgrade()==-1)
-	{	
+	{
 		g_print ("error %s", pacman_strerror(pm_errno));
 	}
-	packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);	
+	packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 	if (gfpm_plist_question(_("Following packages will be upgraded. Do you want to continue ?"), gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
 	{
 	/*
@@ -1052,7 +1052,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		PM_PKG	*pm_spkg;
 		PM_PKG	*pm_lpkg;
 		gboolean up = FALSE;
-			
+
 		while (gtk_events_pending())
 			gtk_main_iteration ();
 		for (i=l;i;i=pacman_list_next(i))
@@ -1099,7 +1099,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			pm_pkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
 			if (pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION)!=NULL)
-			{	
+			{
 				inst = TRUE;
 				char *v1 = (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION);
 				char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
@@ -1249,7 +1249,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 
 	fpm = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(gfpm_inst_filechooser));
 	if (fpm == NULL)
-	{	
+	{
 		gfpm_error (_("No package selected for install. Please select a package to install."));
 		return;
 	}
@@ -1278,7 +1278,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	/* add the target */
 	pacman_trans_addtarget ((char*)fpm);
 	if (pacman_trans_prepare(&trans_data) == -1)
-	{	
+	{
 		PM_LIST *i;
 		GList	*pkgs = NULL;
 
@@ -1290,7 +1290,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 			case PM_ERR_UNSATISFIED_DEPS:
 				for (i=pacman_list_first(trans_data);i;i=pacman_list_next(i))
 				{
-					GString	*depstring = g_string_new ("");	
+					GString	*depstring = g_string_new ("");
 					PM_DEPMISS *m = pacman_list_getdata (i);
 					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_NAME));
 					switch ((long)pacman_dep_getinfo(m, PM_DEP_MOD))
@@ -1319,7 +1319,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 			case PM_ERR_CONFLICTING_DEPS:
 				for (i=pacman_list_first(trans_data);i;i=pacman_list_next(i))
 				{
-					GString	*depstring = g_string_new ("");	
+					GString	*depstring = g_string_new ("");
 					PM_DEPMISS *m = pacman_list_getdata (i);
 					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m, PM_DEP_NAME));
 					pkgs = g_list_append (pkgs, (char*)depstring->str);
@@ -1333,7 +1333,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 		goto cleanup;
 	}
 	if (pacman_trans_commit(&trans_data) == -1)
-	{	
+	{
 		str = g_strdup_printf (_("Failed to commit transaction (%s)\n"), pacman_strerror (pm_errno));
 		gfpm_error (str);
 		g_free (str);

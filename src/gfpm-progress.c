@@ -28,7 +28,7 @@
 #include "gfpm-systray.h"
 
 #ifdef HAVE_CONFIG_H
-	#include "config.h"
+#include "config.h"
 #endif
 
 extern GladeXML		*xml;
@@ -111,7 +111,7 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	gettimeofday (&t1, NULL);
 	if (xferred+offset == size)
 		t = t0;
-	tdiff = t1.tv_sec-t.tv_sec + (float)(t1.tv_usec-t.tv_usec) / 1000000; 
+	tdiff = t1.tv_sec-t.tv_sec + (float)(t1.tv_usec-t.tv_usec) / 1000000;
 	if (xferred+offset == size)
 	{
 		rate = xferred / (tdiff * 1024);
@@ -132,7 +132,7 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	}
 	rx_str = g_strdup_printf ("%dK / %dK", (xferred+offset)/1024, size/1024);
 	gtk_label_set_text (GTK_LABEL(rec_label), rx_str);
-		
+
 	while (gtk_events_pending ())
 		gtk_main_iteration ();
 	gtk_progress_bar_set_text (progressbar, text);
@@ -253,7 +253,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 		default:				return;
 	}
 	if (m == 1)
-	{	
+	{
 		gfpm_progress_set_main_text (substr);
 		m = 0;
 	}
@@ -268,7 +268,7 @@ void
 gfpm_progress_set_main_text (const char *msg)
 {
 	if (msg != NULL)
-	{	
+	{
 		gchar *markup = g_markup_printf_escaped ("<span size=\"large\" weight=\"bold\">%s</span>", msg);
 		gtk_label_set_markup (GTK_LABEL(main_label), markup);
 		g_free (markup);

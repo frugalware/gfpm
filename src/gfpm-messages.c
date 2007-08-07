@@ -48,7 +48,7 @@ gfpm_messages_init (void)
 	GtkListStore	*store = NULL;
 	GtkWidget	*button = NULL;
 
-	/* lookup necessary widgets */	
+	/* lookup necessary widgets */
 	gfpm_apply_dlg = glade_xml_get_widget (xml, "apply_dlg");
 	gfpm_apply_inst_tvw = glade_xml_get_widget (xml, "insttvw");
 	gfpm_apply_inst_box = glade_xml_get_widget (xml, "instbox");
@@ -76,7 +76,7 @@ gfpm_messages_init (void)
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_apply_rem_tvw), -1, _("Package"), ren, "text", 0, NULL);
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_apply_rem_tvw), -1, _("Size"), ren, "text", 1, NULL);
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_apply_rem_tvw), GTK_TREE_MODEL(store));
-	
+
 }
 
 static void
@@ -86,7 +86,7 @@ gfpm_apply_dlg_populate (void)
 	gboolean rem = FALSE;
 
 	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
-	{	
+	{
 		gfpm_apply_dlg_show_inst_box (TRUE);
 		inst = TRUE;
 	}
@@ -99,7 +99,7 @@ gfpm_apply_dlg_populate (void)
 	}
 	else
 		gfpm_apply_dlg_show_rem_box (FALSE);
-	
+
 	/* populate package lists */
 	if (inst)
 	{
@@ -108,7 +108,7 @@ gfpm_apply_dlg_populate (void)
 		GtkTreeIter	iter;
 		float		totalisize = 0;
 		gchar		*totaltext = NULL;
-		
+
 		store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_apply_inst_tvw)));
 		for (i=(GList*)install_list;i;i=g_list_next(i))
 		{
@@ -122,7 +122,7 @@ gfpm_apply_dlg_populate (void)
 				totalisize += s;
 			}
 			asprintf (&size, "%0.2f MB", s);
-			gtk_list_store_append (store, &iter);	
+			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter, 0, (char*)i->data, 1, size, -1);
 			pacman_pkg_free (pkg);
 			if (size) g_free (size);
@@ -152,10 +152,11 @@ gfpm_apply_dlg_populate (void)
 				totalrsize += s;
 			}
 			asprintf (&size, "%0.2f MB", s);
-			gtk_list_store_append (store, &iter);	
+			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter, 0, (char*)i->data, 1, size, -1);
 			pacman_pkg_free (pkg);
-			if (size) g_free (size);
+			if (size)
+				g_free (size);
 		}
 		totaltext = g_strdup_printf (_("Total package size: %0.2f MB"), totalrsize);
 		gtk_label_set_text (GTK_LABEL(gfpm_apply_rem_sizelbl), totaltext);
@@ -175,13 +176,13 @@ gfpm_apply_dlg_reset (void)
 	gtk_widget_hide (gfpm_apply_dlg);
 
 	return;
-}	
+}
 
 gint
 gfpm_apply_dlg_show (void)
 {
 	gint res;
-	
+
 	gfpm_apply_dlg_populate ();
 	res = gtk_dialog_run (GTK_DIALOG(gfpm_apply_dlg));
 
@@ -192,7 +193,7 @@ void
 gfpm_apply_dlg_hide (void)
 {
 	gtk_widget_hide (gfpm_apply_dlg);
-	
+
 	return;
 }
 
@@ -308,13 +309,13 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(tvw), column);
 	g_signal_connect (r, "toggled", G_CALLBACK(cb_gfpm_plist_question_upgrade_toggled), store);
-	
+
 	r = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Package"), r, "text", 1, NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_column_set_expand (column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(tvw), column);
-	
+
 	r = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Version"), r, "text", 2, NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
@@ -402,7 +403,7 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 	GtkTreeIter		iter;
 	GtkWidget		*tvw;
 	GList			*l;
-	
+
 	if (packages == NULL)
 		return;
 	dialog = gtk_message_dialog_new (GTK_WINDOW(gfpm_mw),
@@ -433,7 +434,7 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
 	gtk_dialog_run (GTK_DIALOG(dialog));
-	
+
 	gtk_widget_destroy (dialog);
 
 	return;

@@ -1,6 +1,6 @@
 /***************************************************************************
  *  gfpm-packagelist.c
- *  Author: Priyank Gosalia <priyankmg@gmail.com>	
+ *  Author: Priyank Gosalia <priyankmg@gmail.com>
  *  Copyright 2006-2007 Frugalware Developer Team
  ****************************************************************************/
 
@@ -21,7 +21,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#	include "config.h"
+#include "config.h"
 #endif
 
 #include "gfpm-packagelist.h"

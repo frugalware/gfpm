@@ -24,7 +24,7 @@
 #include <glade/glade.h>
 
 #ifdef HAVE_CONFIG_H
-#	include "config.h"
+#include "config.h"
 #endif
 
 #include "gfpm.h"
@@ -48,7 +48,7 @@ main (int argc, char *argv[])
 
 	gtk_init (&argc, &argv);
 
-	/* FIX ME */	
+	/* FIX ME */
 	/*if ( geteuid() != 0 )
 	{
 		gfpm_error (_("Gfpm should be run as root."));
