@@ -905,6 +905,17 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		g_print ("error %s", pacman_strerror(pm_errno));
 	}
 	packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);
+
+	/* Drop 'no changes to apply' instead of an empty list, if no need to
+	   upgrade any package */
+	/* FIXME FIX ME FIXME PLS! pacman_list_count() seems a bit slow, need some
+	   better way to check this!! */
+	if (pacman_list_count(packages) <= 0)
+	{
+		gfpm_message (_("No changes to apply."));
+		return;
+	} /* FIXME END */
+
 	if (gfpm_plist_question(_("Following packages will be upgraded. Do you want to continue ?"), gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
 	{
 	/*
