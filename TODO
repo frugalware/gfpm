@@ -1,5 +1,7 @@
+----- krix -----
 - Check FIXME tags in source and review those
 
+----- krix -----
 - We can create a 'Not installed packages' entry in our combobox. How can be ?
   Well give for the reponame some like: "frugalware-current-ni" then check for
   that in treeview group loading function, if reponam is frugalware-current-ni
@@ -14,6 +16,16 @@
   and check in group treeview function for it. Maybe it is better, because we can deal
   with custom repos or file based repos too.
 
+----- krix -----
+- Support for reading repos from pacman conf
 
-Last updated: 2007. aug. 9 - 23.55.01 CEST
+----- krix -----
+- Rewrite or redesign all dialog_* callback and window to support dialog titles
+  can be done such: 
+  foo_dialog_run(char *foobar) -> foo_dialog_run(char *foobar, char *title)
+  Then we can set up our titles for every dialogs, because now there are tons of
+  untitled dialogs which looks ugly :)
+
+
+Last updated: 2007. aug. 10. 00.02.37 CEST
 Last updater: Christian Hamar alias kRiX
