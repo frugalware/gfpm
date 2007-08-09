@@ -1,0 +1,19 @@
+- Check FIXME tags in source and review those
+
+- We can create a 'Not installed packages' entry in our combobox. How can be ?
+  Well give for the reponame some like: "frugalware-current-ni" then check for
+  that in treeview group loading function, if reponam is frugalware-current-ni
+  then setup an integer, write back reponame to frugalware-current and then
+  just do an if else at treeview loading (we can figure out which package installed
+  and which not, so we can deal what we want to display.
+
+  Another way, Bring some global variable to somewhere, which can be reach from
+  treeview_group but can be set in the treeview_group loading functions some like:
+  int notinstalled = 0; (this is extern or it will be in .h somewhere)
+  And now when Not installed packages triggered via combobox, then set notinstalled=1
+  and check in group treeview function for it. Maybe it is better, because we can deal
+  with custom repos or file based repos too.
+
+
+Last updated: 2007. aug. 9 - 23.55.01 CEST
+Last updater: Christian Hamar alias kRiX
