@@ -282,7 +282,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			flags |= PM_TRANS_FLAG_NODEPS;
 
 		/* create transaction */
-		if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+		if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 		{
 			gchar *str;
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
@@ -333,7 +333,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_inst_dwocheck)))
 			flags |= PM_TRANS_FLAG_DOWNLOADONLY;
 		/* create transaction */
-		if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+		if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 		{
 			gchar *str;
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
@@ -954,7 +954,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		}
 	}
 
-	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 	{
 		gchar *str;
 		GString *errorstr = g_string_new ("");
@@ -1340,7 +1340,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 		flags |= PM_TRANS_FLAG_NODEPS;
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_inst_forcheck)))
 		flags |= PM_TRANS_FLAG_FORCE;
-	if (pacman_trans_init(type, flags, gfpm_progress_event, NULL, gfpm_progress_install) == -1)
+	if (pacman_trans_init(type, flags, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 	{
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);

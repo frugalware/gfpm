@@ -475,3 +475,78 @@ gfpm_input (const char *title, const char *message, int *res)
 	return ret;
 }
 
+void
+cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, int *response)
+{
+	switch (event)
+	{
+		char *str = NULL;
+
+		case PM_TRANS_CONV_REPLACE_PKG:
+			str = g_strdup_printf ("Do you want to replace %s with %s/%s ?",
+						(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
+						(char*)data3,
+						(char*)pacman_pkg_getinfo (data2, PM_PKG_NAME));
+			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+				*response = 1;
+			else
+				*response = 0;
+			break;
+		case PM_TRANS_CONV_INSTALL_IGNOREPKG:
+			str = g_strdup_printf ("%s requires %s, but it is IgnorePkg. Install anyway?",
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
+									(char*)pacman_pkg_getinfo (data2, PM_PKG_NAME));
+			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+				*response = 1;
+			else
+				*response = 0;
+			break;
+		case PM_TRANS_CONV_REMOVE_HOLDPKG:
+			str = g_strdup_printf ("%s is designated as HoldPkg. Remove anyway?",
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME));
+			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+				*response = 1;
+			else
+				*response = 0;
+			break;
+		case PM_TRANS_CONV_CONFLICT_PKG:
+			str = g_strdup_printf ("%s conflicts with %s. Remove %s?",
+									(char*)data1,
+									(char*)data2,
+									(char*)data2);
+			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+				*response = 1;
+			else
+				*response = 0;
+			break;
+		case PM_TRANS_CONV_LOCAL_NEWER:
+			str = g_strdup_printf ("%s-%s: local version is newer. Upgrade anyway?",
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
+			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+				*response = 1;
+			else
+				*response = 0;
+			break;
+		case PM_TRANS_CONV_LOCAL_UPTODATE:
+			str = g_strdup_printf ("%s-%s: local version is up to date. Upgrade anyway?",
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
+			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+				*response = 1;
+			else
+				*response = 0;
+			break;
+		case PM_TRANS_CONV_CORRUPTED_PKG:
+			str = g_strdup_printf ("Archive %s is corrupted. Do you want to delete it?",
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
+			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+				*response = 1;
+			else
+				*response = 0;
+			break;
+	}
+	return;
+}
+	

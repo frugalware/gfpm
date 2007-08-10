@@ -29,4 +29,6 @@ void gfpm_plist_message (const char *, GtkMessageType, GList *);
 
 char * gfpm_input (const char *, const char *, int *);
 
+void cb_gfpm_trans_conv (unsigned char, void *, void *, void *, int *);
+
 #endif
