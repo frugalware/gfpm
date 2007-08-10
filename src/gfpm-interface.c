@@ -302,8 +302,8 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			char *target = i->data;
 			pacman_trans_addtarget (target);
 		}
-		if (pacman_trans_prepare(&data) == -1)
-			g_print ("failed to prepare transaction (%s)\n", pacman_strerror(pm_errno));
+		if (gfpm_trans_prepare(data) == -1)
+			goto down;
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
 
@@ -318,6 +318,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			return;
 		}
 
+		down:
 		/* release the transaction */
 		pacman_trans_release ();
 		/* clear list */
@@ -352,8 +353,8 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			char *target = i->data;
 			pacman_trans_addtarget (target);
 		}
-		if (pacman_trans_prepare(&data) == -1)
-			g_print ("failed to prepare transaction (%s)\n", pacman_strerror(pm_errno));
+		if (gfpm_trans_prepare(data) == -1)
+			goto cleanup;
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
 
@@ -368,6 +369,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			return;
 		}
 
+		cleanup:
 		/* release the transaction */
 		pacman_trans_release ();
 		/* clear list */
@@ -858,6 +860,68 @@ gfpm_load_files_txtvw (const char *pkg_name, gboolean inst)
 	return;
 }
 
+gint
+gfpm_trans_prepare (PM_LIST *list)
+{
+	if (pacman_trans_prepare(&list))
+	{
+		PM_LIST *i;
+		GList	*pkgs = NULL;
+		gchar	*str = NULL;
+		str = g_strdup_printf (_("Failed to prepare transaction (%s)\n"), pacman_strerror (pm_errno));
+		gfpm_error (str);
+		g_free (str);
+		switch ((long)pm_errno)
+		{
+			case PM_ERR_UNSATISFIED_DEPS:
+				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
+				{
+					GString	*depstring = g_string_new ("");
+					PM_DEPMISS *m = pacman_list_getdata (i);
+					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_NAME));
+					switch ((long)pacman_dep_getinfo(m, PM_DEP_MOD))
+					{
+						gchar *val = NULL;
+						case PM_DEP_MOD_EQ:
+							val = g_strdup_printf ("=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+							depstring = g_string_append (depstring, val);
+							break;
+						case PM_DEP_MOD_GE:
+							val = g_strdup_printf (">=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+							depstring = g_string_append (depstring, val);
+							break;
+						case PM_DEP_MOD_LE:
+							val = g_strdup_printf ("<=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+							depstring = g_string_append (depstring, val);
+							break;
+						default: break;
+					}
+					pkgs = g_list_append (pkgs, (char*)g_strdup(depstring->str));
+					g_string_free (depstring, FALSE);
+				}
+				pacman_list_free (list);
+				gfpm_plist_message (_("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
+				break;
+			case PM_ERR_CONFLICTING_DEPS:
+				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
+				{
+					GString	*depstring = g_string_new ("");
+					PM_DEPMISS *m = pacman_list_getdata (i);
+					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m, PM_DEP_NAME));
+					pkgs = g_list_append (pkgs, (char*)depstring->str);
+					g_string_free (depstring, FALSE);
+				}
+				pacman_list_free (list);
+				gfpm_plist_message (_("This package conflicts with the following packages"), GTK_MESSAGE_WARNING, pkgs);
+				break;
+		}
+		return -1;
+	}
+	else
+	{
+		return 0;
+	}
+}
 
 /* CALLBACKS */
 
@@ -1290,61 +1354,8 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	gfpm_progress_show (TRUE, 0);
 	/* add the target */
 	pacman_trans_addtarget ((char*)fpm);
-	if (pacman_trans_prepare(&trans_data) == -1)
-	{
-		PM_LIST *i;
-		GList	*pkgs = NULL;
-
-		str = g_strdup_printf (_("Failed to prepare transaction (%s)\n"), pacman_strerror (pm_errno));
-		gfpm_error (str);
-		g_free (str);
-		switch ((long)pm_errno)
-		{
-			case PM_ERR_UNSATISFIED_DEPS:
-				for (i=pacman_list_first(trans_data);i;i=pacman_list_next(i))
-				{
-					GString	*depstring = g_string_new ("");
-					PM_DEPMISS *m = pacman_list_getdata (i);
-					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_NAME));
-					switch ((long)pacman_dep_getinfo(m, PM_DEP_MOD))
-					{
-						gchar *val = NULL;
-						case PM_DEP_MOD_EQ:
-							val = g_strdup_printf ("=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
-							depstring = g_string_append (depstring, val);
-							break;
-						case PM_DEP_MOD_GE:
-							val = g_strdup_printf (">=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
-							depstring = g_string_append (depstring, val);
-							break;
-						case PM_DEP_MOD_LE:
-							val = g_strdup_printf ("<=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
-							depstring = g_string_append (depstring, val);
-							break;
-						default: break;
-					}
-					pkgs = g_list_append (pkgs, (char*)g_strdup(depstring->str));
-					g_string_free (depstring, FALSE);
-				}
-				pacman_list_free (trans_data);
-				gfpm_plist_message (_("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
-				break;
-			case PM_ERR_CONFLICTING_DEPS:
-				for (i=pacman_list_first(trans_data);i;i=pacman_list_next(i))
-				{
-					GString	*depstring = g_string_new ("");
-					PM_DEPMISS *m = pacman_list_getdata (i);
-					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m, PM_DEP_NAME));
-					pkgs = g_list_append (pkgs, (char*)depstring->str);
-					g_string_free (depstring, FALSE);
-				}
-				pacman_list_free (trans_data);
-				gfpm_plist_message (_("This package conflicts with the following packages"), GTK_MESSAGE_WARNING, pkgs);
-				break;
-		}
-
+	if (gfpm_trans_prepare(trans_data) == -1)
 		goto cleanup;
-	}
 	if (pacman_trans_commit(&trans_data) == -1)
 	{
 		str = g_strdup_printf (_("Failed to commit transaction (%s)\n"), pacman_strerror (pm_errno));

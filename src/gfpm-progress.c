@@ -280,7 +280,9 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 		m = 0;
 	}
 	else
+	{	
 		gfpm_progress_set_sub_text (substr);
+	}
 	g_free (substr);
 
 	return;
