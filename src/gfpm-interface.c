@@ -356,7 +356,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		if (gfpm_trans_prepare(data) == -1)
 			goto cleanup;
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
-		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
+		if (pkgs == NULL) gfpm_error ("Error getting transaction info");
 
 		/* commit transaction */
 		if (pacman_trans_commit(&data) == -1)
