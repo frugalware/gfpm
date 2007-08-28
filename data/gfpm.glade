@@ -109,7 +109,7 @@
                 <property name="visible">True</property>
                 <property name="tooltip" translatable="yes">Apply Changes</property>
                 <property name="label" translatable="yes">Apply</property>
-                <property name="stock_id">gtk-apply</property>
+                <property name="icon_name">gfpm-apply</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -133,7 +133,7 @@
                 <property name="tooltip" translatable="yes">Refresh the package lists</property>
                 <property name="label">Install from file</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-go-down</property>
+                <property name="icon_name">gfpm-instfromfile</property>
                 <signal name="clicked" handler="gtk_widget_show" object="inst_from_file_dlg"/>
               </widget>
               <packing>
@@ -202,11 +202,11 @@
               <widget class="GtkToolItem" id="toolitem3">
                 <property name="visible">True</property>
                 <child>
-                  <widget class="GtkImage" id="image2">
+                  <widget class="GtkImage" id="search_image">
                     <property name="visible">True</property>
                     <property name="xpad">10</property>
-                    <property name="stock">gtk-find</property>
                     <property name="icon_size">3</property>
+                    <property name="icon_name">gfpm-search</property>
                   </widget>
                 </child>
               </widget>
@@ -628,6 +628,9 @@ Installed packages</property>
             <property name="padding">4</property>
             <property name="position">2</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </widget>
     </child>
