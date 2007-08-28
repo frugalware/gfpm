@@ -24,6 +24,7 @@
 
 #include <gtk/gtk.h>
 #include "gfpm.h"
+#include "gfpm-util.h"
 #include "gfpm-about.h"
 
 static gchar	*license =
@@ -56,7 +57,7 @@ void
 gfpm_about (void)
 {
 	if (!about_pixbuf)
-		about_pixbuf = gtk_widget_render_icon (gfpm_mw, GTK_STOCK_NETWORK, GTK_ICON_SIZE_DIALOG, NULL);
+		about_pixbuf = gfpm_get_icon ("gfpm", 128);
 	gtk_show_about_dialog (GTK_WINDOW(gfpm_mw),
 				"name", PACKAGE,
 				"version", VERSION,
