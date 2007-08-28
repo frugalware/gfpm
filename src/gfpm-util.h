@@ -16,4 +16,6 @@ char * gfpm_bold (const char *);
 
 GList * gfpm_pmlist_to_glist (PM_LIST *);
 
+GdkPixbuf *gfpm_get_icon (const char *, int);
+
 #endif

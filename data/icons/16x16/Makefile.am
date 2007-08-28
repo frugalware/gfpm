@@ -1,4 +1,4 @@
-icondir = $(datadir)/icons/hicolor/32x32/apps
+icondir = $(datadir)/icons/hicolor/16x16/apps
 icon_DATA = 	gfpm.png	\
 		gfpm-installed.png \
 		gfpm-ninstalled.png \

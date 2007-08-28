@@ -18,6 +18,10 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "gfpm-util.h"
 
 char *
@@ -41,3 +45,17 @@ gfpm_pmlist_to_glist (PM_LIST *list)
 
 	return ret;
 }
+
+GdkPixbuf *
+gfpm_get_icon (const char *icon, int size)
+{
+	GtkIconTheme 	*icon_theme = NULL;
+	GdkPixbuf	*ret = NULL;
+	GError		*error = NULL;
+
+	icon_theme = gtk_icon_theme_get_default ();
+	ret = gtk_icon_theme_load_icon (icon_theme, icon, size, 0, &error);
+	
+	return ret;
+}
+

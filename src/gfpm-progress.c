@@ -261,6 +261,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 			break;
 		case PM_TRANS_EVT_SCRIPTLET_START:
 			substr = g_strdup ((char*)data1);
+			
 			break;
 		case PM_TRANS_EVT_SCRIPTLET_DONE:
 			substr = g_strdup (_("Done"));

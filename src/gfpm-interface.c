@@ -29,6 +29,10 @@
 #include "config.h"
 #endif
 
+#define ICON_INSTALLED		"gfpm-installed"
+#define ICON_NINSTALLED		"gfpm-ninstalled"
+#define ICON_NEEDUPDATE		"gfpm-nupdate"
+
 #include "gfpm.h"
 #include "gfpm-interface.h"
 #include "gfpm-messages.h"
@@ -472,6 +476,7 @@ gfpm_load_pkgs_tvw (const char *group_name)
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
+	/*
 	icon_yes = gtk_widget_render_icon	(gfpm_pkgs_tvw,
 						GTK_STOCK_YES,
 						GTK_ICON_SIZE_MENU,
@@ -484,7 +489,10 @@ gfpm_load_pkgs_tvw (const char *group_name)
 						GTK_STOCK_GO_UP,
 						GTK_ICON_SIZE_MENU,
 						NULL);
-
+	*/
+	icon_yes = gfpm_get_icon (ICON_INSTALLED, 16);
+	icon_no = gfpm_get_icon (ICON_NINSTALLED, 16);
+	icon_up = gfpm_get_icon (ICON_NEEDUPDATE, 16);
 	// display status
 	for (i=l;i;i=pacman_list_next(i))
 	{
