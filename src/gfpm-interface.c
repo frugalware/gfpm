@@ -38,7 +38,6 @@
 #include "gfpm-messages.h"
 #include "gfpm-packagelist.h"
 #include "gfpm-progress.h"
-#include "gfpm-systray.h"
 #include "gfpm-util.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
@@ -76,12 +75,14 @@ static GtkWidget *gfpm_apply_rem_depcheck;
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data);
+static void cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event);
 static void cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 static void cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
 
 void
 gfpm_interface_init (void)
@@ -196,6 +197,7 @@ gfpm_interface_init (void)
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	g_signal_connect(selection, "changed", G_CALLBACK(cb_gfpm_pkgs_tvw_selected), NULL);
+	g_signal_connect (gfpm_pkgs_tvw, "button-release-event", G_CALLBACK(cb_gfpm_pkgs_tvw_right_click), NULL);
 
 	/* Setup info treeview */
 	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
@@ -242,7 +244,6 @@ gfpm_interface_init (void)
 	gfpm_db_init ();
 	gfpm_messages_init ();
 	gfpm_progress_init ();
-	gfpm_systray_init ();
 
 	/* load default repo  */
 	gfpm_load_groups_tvw ("frugalware-current");
@@ -298,7 +299,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			return;
 		}
 
-		gfpm_progress_show (TRUE, 0);
+		gfpm_progress_show (TRUE);
 		GList *i = NULL;
 		PM_LIST *data, *pkgs;
 		for (i = (GList*)remove_list; i; i = i->next)
@@ -349,7 +350,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			return;
 		}
 
-		gfpm_progress_show (TRUE, 0);
+		gfpm_progress_show (TRUE);
 		GList *i = NULL;
 		PM_LIST *data, *pkgs;
 		for (i = (GList*)install_list; i; i = i->next)
@@ -380,7 +381,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		gfpm_package_list_free (GFPM_INSTALL_LIST);
 		gfpm_apply_dlg_reset ();
 	}
-	gfpm_progress_show (FALSE, 0);
+	gfpm_progress_show (FALSE);
 
 	if (current_group != NULL)
 	{
@@ -475,21 +476,6 @@ gfpm_load_pkgs_tvw (const char *group_name)
 	l = pacman_grp_getinfo (pm_group, PM_GRP_PKGNAMES);
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
-
-	/*
-	icon_yes = gtk_widget_render_icon	(gfpm_pkgs_tvw,
-						GTK_STOCK_YES,
-						GTK_ICON_SIZE_MENU,
-						NULL);
-	icon_no = gtk_widget_render_icon	(gfpm_pkgs_tvw,
-						GTK_STOCK_NO,
-						GTK_ICON_SIZE_MENU,
-						NULL);
-	icon_up = gtk_widget_render_icon	(gfpm_pkgs_tvw,
-						GTK_STOCK_GO_UP,
-						GTK_ICON_SIZE_MENU,
-						NULL);
-	*/
 	icon_yes = gfpm_get_icon (ICON_INSTALLED, 16);
 	icon_no = gfpm_get_icon (ICON_NINSTALLED, 16);
 	icon_up = gfpm_get_icon (ICON_NEEDUPDATE, 16);
@@ -818,17 +804,20 @@ gfpm_load_info_tvw (const char *pkg_name)
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		switch ((long)pacman_pkg_getinfo (pm_lpkg, PM_PKG_REASON))
 		{
-			case PM_PKG_REASON_EXPLICIT:	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-										0, st,
-										1, _("Explicitly Installed"),
-										-1);
-							break;
-			case PM_PKG_REASON_DEPEND:	gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-										0, st,
-										1, _("Installed as a dependency for another package"),
-										-1);
-							break;
-			default:			break;
+			case PM_PKG_REASON_EXPLICIT:
+					gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+								0, st,
+								1, _("Explicitly Installed"),
+								-1);
+					break;
+			case PM_PKG_REASON_DEPEND:
+					gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+								0, st,
+								1, _("Installed as a dependency for another package"),
+								-1);
+					break;
+			default:
+					break;
 		}
 		g_free (st);
 
@@ -945,9 +934,9 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		 "Do you want to continue upgrading pacman-g2 ?");
 
 	gfpm_progress_set_main_text (_("Synchronizing package databases"));
-	gfpm_progress_show (TRUE, 1);
+	gfpm_progress_show (TRUE);
 	ret = pacman_db_update (0, sync_db);
-	gfpm_progress_show (FALSE, 1);
+	gfpm_progress_show (FALSE);
 	/* check for a pacman-g2 update */
 	pm_lpkg = pacman_db_readpkg (local_db, "pacman-g2");
 	pm_spkg = pacman_db_readpkg (sync_db, "pacman-g2");
@@ -1079,6 +1068,73 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 }
 
 static void
+cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
+{
+	GtkWidget 		*menu;
+	GtkWidget 		*menu_item;
+	GtkWidget		*image;
+	GtkTreeModel		*model = NULL;
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeIter		iter;
+	char			*iversion = NULL;
+	char			*lversion = NULL;
+	char			*pkgname = NULL;
+	gboolean		up = FALSE;
+
+	if (event->button != 3)
+		return;
+
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));
+	if ( FALSE == gtk_tree_selection_get_selected (selection, &model, &iter) )
+		return;
+	gtk_tree_model_get (model, &iter, 2, &pkgname, 3, &iversion, 4, &lversion, -1);
+	menu = gtk_menu_new ();
+	menu_item = gtk_image_menu_item_new_with_label (_("Mark for upgrade"));
+	image = gtk_image_new_from_stock ("gtk-connect", GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
+	g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_mark_for_upgrade), (gpointer)pkgname);
+	gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
+	gtk_widget_show (menu_item);
+	if (lversion!=NULL && iversion!=NULL)
+	{
+		gint ret = pacman_pkg_vercmp (lversion, iversion);
+		if (!ret)
+			up = FALSE;
+		else if (ret > 0)
+			up = TRUE;
+		else
+			up = FALSE;
+	}
+	else
+	{
+		up = FALSE;
+	}
+	gtk_widget_set_sensitive (menu_item, up);
+	gtk_widget_show (menu);
+	gtk_menu_popup (GTK_MENU(menu),
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			3,
+			gtk_get_current_event_time());
+
+	return;
+}
+
+static void
+cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data)
+{
+	char *pkgname;
+
+	pkgname = (char*) data;	
+	g_print (pkgname);
+
+	return;
+}
+
+static void
 cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
 	GtkListStore	*store;
@@ -1119,18 +1175,9 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		gfpm_error (_("No package found"));
 		return;
 	}
-	icon_yes = gtk_widget_render_icon (gfpm_pkgs_tvw,
-					GTK_STOCK_YES,
-					GTK_ICON_SIZE_MENU,
-					NULL);
-	icon_no = gtk_widget_render_icon (gfpm_pkgs_tvw,
-					GTK_STOCK_NO,
-					GTK_ICON_SIZE_MENU,
-					NULL);
-	icon_up = gtk_widget_render_icon (gfpm_pkgs_tvw,
-					GTK_STOCK_GO_UP,
-					GTK_ICON_SIZE_MENU,
-					NULL);
+	icon_yes = gfpm_get_icon (ICON_INSTALLED, 16);
+	icon_no = gfpm_get_icon (ICON_NINSTALLED, 16);
+	icon_up = gfpm_get_icon (ICON_NEEDUPDATE, 16);
 	gfpm_update_status (_("Searching for packages ..."));
 	if (r == 0)
 	{
@@ -1359,7 +1406,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 			}
 			return;
 	}
-	gfpm_progress_show (TRUE, 0);
+	gfpm_progress_show (TRUE);
 	/* add the target */
 	pacman_trans_addtarget ((char*)fpm);
 	if (gfpm_trans_prepare(trans_data) == -1)
@@ -1380,7 +1427,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	g_string_free (errorstr, FALSE);
 	pacman_trans_release ();
 	gtk_widget_hide (gfpm_inst_from_file_dlg);
-	gfpm_progress_show (FALSE, 0);
+	gfpm_progress_show (FALSE);
 	return;
 }
 

@@ -29,7 +29,6 @@
 
 #include "gfpm.h"
 #include "gfpm-interface.h"
-#include "gfpm-systray.h"
 #include "gfpm-messages.h"
 #include "gfpm-db.h"
 
@@ -69,7 +68,6 @@ main (int argc, char *argv[])
 	gfpm_interface_init ();
 	gtk_main ();
 	gfpm_db_cleanup ();
-	gfpm_systray_free ();
 	pacman_release ();
 
 	return 0;

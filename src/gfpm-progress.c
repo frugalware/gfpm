@@ -25,7 +25,6 @@
 #include <glade/glade.h>
 #include "gfpm.h"
 #include "gfpm-progress.h"
-#include "gfpm-systray.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -42,11 +41,11 @@ static GtkWidget	*rate_label = NULL;
 static GtkWidget	*rec_label = NULL;
 static GtkWidget	*rate_box = NULL;
 
-float		rate;
-int		offset;
-int		xferred1;
-struct timeval	t0, t;
-char 		reponame[PM_DLFNM_LEN+1];
+float			rate;
+int			offset;
+int			xferred1;
+struct timeval		t0, t;
+char 			reponame[PM_DLFNM_LEN+1];
 
 void
 gfpm_progress_init (void)
@@ -69,25 +68,15 @@ gfpm_progress_init (void)
 }
 
 void
-gfpm_progress_show (gboolean show, gint sync)
+gfpm_progress_show (gboolean show)
 {
 	if (show == TRUE)
 	{
 		gtk_widget_show (progresswindow);
-		if (!sync)
-		{
-			gtk_widget_hide (gfpm_mw);
-			gfpm_systray_set_visible (TRUE);
-		}
 	}
 	else
 	{
 		gtk_widget_hide (progresswindow);
-		if (!sync)
-		{
-			gtk_widget_show (gfpm_mw);
-			gfpm_systray_set_visible (FALSE);
-		}
 	}
 
 	return;
