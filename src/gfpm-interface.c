@@ -1091,7 +1091,7 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 	gtk_tree_model_get (model, &iter, 2, &pkgname, 3, &iversion, 4, &lversion, -1);
 	menu = gtk_menu_new ();
 	menu_item = gtk_image_menu_item_new_with_label (_("Mark for upgrade"));
-	image = gtk_image_new_from_stock ("gtk-connect", GTK_ICON_SIZE_MENU);
+	image = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
 	g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_mark_for_upgrade), (gpointer)pkgname);
 	gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
@@ -1129,7 +1129,7 @@ cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data)
 	char *pkgname;
 
 	pkgname = (char*) data;	
-	g_print (pkgname);
+	gfpm_package_list_add (GFPM_INSTALL_LIST, pkgname);
 
 	return;
 }
