@@ -230,7 +230,6 @@ gfpm_interface_init (void)
 	/* install from file */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), NULL);
 
-
 	/* Disable Apply, Refresh and File buttons if user is not root */
 	if ( geteuid() != 0 )
 	{
@@ -976,7 +975,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	if (pacman_list_count(packages) <= 0)
 	{
 		gfpm_message (_("No changes to apply."));
-		return;
+		goto cleanup;
 	} /* FIXME END */
 
 	if (gfpm_plist_question(_("Following packages will be upgraded. Do you want to continue ?"), gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
