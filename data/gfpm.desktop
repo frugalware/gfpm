@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Gfpm
+Comment=Graphical Frugalware Package Manager
+Exec=gksu gfpm
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=gfpm
+Categories=Application;GTK;System;
+MimeType=
+OnlyShowIn=GNOME;XFCE;
