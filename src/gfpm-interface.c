@@ -426,10 +426,6 @@ gfpm_load_groups_tvw (const char *repo_name)
 
 	for (l=pacman_db_getgrpcache(db); l; l=pacman_list_next(l))
 	{
-		/* FIXME - why we doing iteration twice ?? Maybe just we can remove this one and
-		   put asprintf* line before gfpm_update_status(temp) */
-		while (gtk_events_pending())
-			gtk_main_iteration ();
 		asprintf (&temp, _("Loading groups ... [%s]"), (char*)pacman_list_getdata(l));
 		while (gtk_events_pending())
 			gtk_main_iteration ();
