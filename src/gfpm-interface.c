@@ -84,6 +84,8 @@ static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
+static gint gfpm_trans_prepare (PM_LIST *list);
+
 
 static void
 gfpm_populate_repos_combobox (GtkComboBox *combo)
@@ -878,7 +880,7 @@ gfpm_load_files_txtvw (const char *pkg_name, gboolean inst)
 	return;
 }
 
-gint
+static gint
 gfpm_trans_prepare (PM_LIST *list)
 {
 	if (pacman_trans_prepare(&list))
