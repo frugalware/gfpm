@@ -2,6 +2,7 @@ ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
 AC_INIT([Gfpm], 1.0.0, [priyankmg@gmail.com], gfpm)
+AC_DEFINE_UNQUOTED([GFPM_RELEASE_NAME], ["fill it"], [Release codenames])
 AC_CONFIG_SRCDIR([src/gfpm.c])
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
@@ -49,6 +50,7 @@ else
 fi
 
 AC_SUBST([GFPM_DEBUG])
+AC_SUBST([GFPM_RELEASE_NAME])
 
 ALL_LINGUAS=""
 GETTEXT_PACKAGE=gfpm
