@@ -19,13 +19,5 @@
 ----- krix -----
 - Support for reading repos from pacman conf
 
------ krix -----
-- Rewrite or redesign all dialog_* callback and window to support dialog titles
-  can be done such: 
-  foo_dialog_run(char *foobar) -> foo_dialog_run(char *foobar, char *title)
-  Then we can set up our titles for every dialogs, because now there are tons of
-  untitled dialogs which looks ugly :)
-
-
 Last updated: 2007. aug. 10. 00.02.37 CEST
 Last updater: Christian Hamar alias kRiX
