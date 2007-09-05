@@ -16,8 +16,5 @@
   and check in group treeview function for it. Maybe it is better, because we can deal
   with custom repos or file based repos too.
 
------ krix -----
-- Support for reading repos from pacman conf
-
 Last updated: 2007. aug. 10. 00.02.37 CEST
 Last updater: Christian Hamar alias kRiX
