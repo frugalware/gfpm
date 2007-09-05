@@ -221,7 +221,7 @@ gfpm_apply_dlg_show_rem_box (gboolean show)
 
 
 void
-gfpm_error (const char *error_str)
+gfpm_error (const char *message_title, const char *error_str)
 {
 	GtkWidget *error_dlg = NULL;
 
@@ -235,6 +235,7 @@ gfpm_error (const char *error_str)
 					"%s",
 					error_str);
 	gtk_window_set_resizable (GTK_WINDOW(error_dlg), FALSE);
+	gtk_window_set_title (GTK_WINDOW(error_dlg), message_title);
 	gtk_dialog_run (GTK_DIALOG(error_dlg));
 	gtk_widget_destroy (error_dlg);
 
@@ -242,7 +243,7 @@ gfpm_error (const char *error_str)
 }
 
 void
-gfpm_message (const char *message_str)
+gfpm_message (const char *message_title, const char *message_str)
 {
 	GtkWidget *message_dlg;
 
@@ -253,6 +254,7 @@ gfpm_message (const char *message_str)
 					"%s",
 					message_str);
 	gtk_window_set_resizable (GTK_WINDOW(message_dlg), FALSE);
+	gtk_window_set_title (GTK_WINDOW(message_dlg), message_title);
 	gtk_dialog_run (GTK_DIALOG(message_dlg));
 	gtk_widget_destroy (message_dlg);
 
@@ -260,7 +262,7 @@ gfpm_message (const char *message_str)
 }
 
 gint
-gfpm_question (const char *message_str)
+gfpm_question (const char *message_title, const char *message_str)
 {
 	GtkWidget 	*dialog;
 	gint 		ret;
@@ -272,6 +274,7 @@ gfpm_question (const char *message_str)
 					"%s",
 					message_str);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
+	gtk_window_set_title (GTK_WINDOW(dialog), message_title);
 	ret = gtk_dialog_run (GTK_DIALOG(dialog));
 	gtk_widget_destroy (dialog);
 
@@ -279,7 +282,7 @@ gfpm_question (const char *message_str)
 }
 
 gint
-gfpm_plist_question (const char *main_msg, GList *packages)
+gfpm_plist_question (const char *message_title, const char *main_msg, GList *packages)
 {
 	GtkWidget		*dialog;
 	GtkListStore		*store;
@@ -349,6 +352,7 @@ gfpm_plist_question (const char *main_msg, GList *packages)
 	gtk_box_pack_start (GTK_BOX(GTK_DIALOG(dialog)->vbox), GTK_WIDGET(swindow), FALSE, FALSE, 0);
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
+	gtk_window_set_title (GTK_WINDOW(dialog), message_title);
 	ret = gtk_dialog_run (GTK_DIALOG(dialog));
 
 	if (ret == GTK_RESPONSE_YES)
@@ -394,7 +398,7 @@ cb_gfpm_plist_question_upgrade_toggled (GtkCellRendererToggle *toggle, gchar *pa
 }
 
 void
-gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
+gfpm_plist_message (const char *message_title, const char *main_msg, GtkMessageType type, GList *packages)
 {
 	GtkWidget		*dialog;
 	GtkListStore		*store;
@@ -433,6 +437,7 @@ gfpm_plist_message (const char *main_msg, GtkMessageType type, GList *packages)
 	gtk_box_pack_start (GTK_BOX(GTK_DIALOG(dialog)->vbox), GTK_WIDGET(swindow), FALSE, FALSE, 0);
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
+	gtk_window_set_title (GTK_WINDOW(dialog), message_title);
 	gtk_dialog_run (GTK_DIALOG(dialog));
 
 	gtk_widget_destroy (dialog);
@@ -487,7 +492,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 						(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 						(char*)data3,
 						(char*)pacman_pkg_getinfo (data2, PM_PKG_NAME));
-			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Replace package"), _(str)) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
@@ -496,7 +501,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 			str = g_strdup_printf ("%s requires %s, but it is IgnorePkg. Install anyway?",
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 									(char*)pacman_pkg_getinfo (data2, PM_PKG_NAME));
-			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question("Gfpm", _(str)) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
@@ -504,7 +509,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 		case PM_TRANS_CONV_REMOVE_HOLDPKG:
 			str = g_strdup_printf ("%s is designated as HoldPkg. Remove anyway?",
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME));
-			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question("Gfpm", _(str)) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
@@ -514,7 +519,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 									(char*)data1,
 									(char*)data2,
 									(char*)data2);
-			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Conflict"), _(str)) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
@@ -523,7 +528,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 			str = g_strdup_printf ("%s-%s: local version is newer. Upgrade anyway?",
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
-			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Local version newer"), _(str)) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
@@ -532,7 +537,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 			str = g_strdup_printf ("%s-%s: local version is up to date. Upgrade anyway?",
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
-			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Local version up to date"), _(str)) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
@@ -541,7 +546,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 			str = g_strdup_printf ("Archive %s is corrupted. Do you want to delete it?",
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
-			if (gfpm_question(_(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Package corrupted"), _(str)) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
@@ -549,4 +554,4 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 	}
 	return;
 }
-	
+

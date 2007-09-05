@@ -17,15 +17,15 @@ void gfpm_apply_dlg_show_rem_box (gboolean);
 void gfpm_apply_dlg_reset (void);
 void gfpm_apply_dlg_hide (void);
 
-void gfpm_error (const char *);
+void gfpm_error (const char *, const char *);
 
-void gfpm_message (const char *);
+void gfpm_message (const char *, const char *);
 
-gint gfpm_question (const char *);
+gint gfpm_question (const char *, const char *);
 
-gint gfpm_plist_question (const char *, GList *);
+gint gfpm_plist_question (const char *, const char *, GList *);
 
-void gfpm_plist_message (const char *, GtkMessageType, GList *);
+void gfpm_plist_message (const char *, const char *, GtkMessageType, GList *);
 
 char * gfpm_input (const char *, const char *, int *);
 

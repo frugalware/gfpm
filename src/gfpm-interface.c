@@ -262,12 +262,12 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 
 	if (!gfpm_package_list_is_empty(GFPM_INSTALL_LIST) && !gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
-		gfpm_message (_("No changes to apply."));
+		gfpm_message (_("Gfpm"), _("No changes to apply."));
 		return;
 	}
 	if (gfpm_apply_dlg_show() != GTK_RESPONSE_OK)
 	{
-		if (gfpm_question(_("Are you sure you want to cancel this operation ? \nNote: All changes made till now will be reverted."))==GTK_RESPONSE_YES)
+		if (gfpm_question(_("Cancel Operation"), _("Are you sure you want to cancel this operation ? \nNote: All changes made till now will be reverted."))==GTK_RESPONSE_YES)
 		{
 			/* revert all changes */
 			gfpm_package_list_free (GFPM_INSTALL_LIST);
@@ -294,7 +294,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			if (pm_errno == PM_ERR_HANDLE_LOCK)
 				errorstr = g_string_append (errorstr,
 							_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
-			gfpm_error (errorstr->str);
+			gfpm_error (_("Error"), errorstr->str);
 			return;
 		}
 
@@ -316,7 +316,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		{
 			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
-			gfpm_error (errorstr->str);
+			gfpm_error (_("Error"), errorstr->str);
 			g_free (str);
 			g_string_free (errorstr, FALSE);
 			return;
@@ -345,7 +345,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			if (pm_errno == PM_ERR_HANDLE_LOCK)
 				errorstr = g_string_append (errorstr,
 							_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
-			gfpm_error (errorstr->str);
+			gfpm_error (_("Error"), errorstr->str);
 			return;
 		}
 
@@ -360,14 +360,14 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		if (gfpm_trans_prepare(data) == -1)
 			goto cleanup;
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
-		if (pkgs == NULL) gfpm_error ("Error getting transaction info");
+		if (pkgs == NULL) gfpm_error (_("Error"), "Error getting transaction info");
 
 		/* commit transaction */
 		if (pacman_trans_commit(&data) == -1)
 		{
 			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
-			gfpm_error (errorstr->str);
+			gfpm_error (_("Error"), errorstr->str);
 			g_free (str);
 			g_string_free (errorstr, FALSE);
 			return;
@@ -865,7 +865,7 @@ gfpm_trans_prepare (PM_LIST *list)
 		GList	*pkgs = NULL;
 		gchar	*str = NULL;
 		str = g_strdup_printf (_("Failed to prepare transaction (%s)\n"), pacman_strerror (pm_errno));
-		gfpm_error (str);
+		gfpm_error (_("Error"), str);
 		g_free (str);
 		switch ((long)pm_errno)
 		{
@@ -896,7 +896,7 @@ gfpm_trans_prepare (PM_LIST *list)
 					g_string_free (depstring, FALSE);
 				}
 				pacman_list_free (list);
-				gfpm_plist_message (_("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
+				gfpm_plist_message (_("Missing dependencies"), _("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
 				break;
 			case PM_ERR_CONFLICTING_DEPS:
 				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
@@ -908,7 +908,7 @@ gfpm_trans_prepare (PM_LIST *list)
 					g_string_free (depstring, FALSE);
 				}
 				pacman_list_free (list);
-				gfpm_plist_message (_("This package conflicts with the following packages"), GTK_MESSAGE_WARNING, pkgs);
+				gfpm_plist_message (_("Package conflict"), _("This package conflicts with the following packages"), GTK_MESSAGE_WARNING, pkgs);
 				break;
 		}
 		return -1;
@@ -942,7 +942,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	if (strcmp((char*)pacman_pkg_getinfo(pm_lpkg, PM_PKG_VERSION),
 				(char*)pacman_pkg_getinfo(pm_spkg, PM_PKG_VERSION)))
 	{
-		if (gfpm_question (updatestr) == GTK_RESPONSE_YES)
+		if (gfpm_question (_("Update pacman-g2"), updatestr) == GTK_RESPONSE_YES)
 		{
 			gfpm_package_list_add (GFPM_INSTALL_LIST, "pacman-g2");
 			cb_gfpm_apply_btn_clicked (NULL, NULL);
@@ -959,7 +959,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		if (pm_errno == PM_ERR_HANDLE_LOCK)
 			errorstr = g_string_append (errorstr,
 						_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
-		gfpm_error (errorstr->str);
+		gfpm_error (_("Error"), errorstr->str);
 		return;
 	}
 	if (pacman_trans_sysupgrade()==-1)
@@ -974,11 +974,11 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	   better way to check this!! */
 	if (pacman_list_count(packages) <= 0)
 	{
-		gfpm_message (_("No changes to apply."));
+		gfpm_message ("Gfpm", _("No changes to apply."));
 		goto cleanup;
 	} /* FIXME END */
 
-	if (gfpm_plist_question(_("Following packages will be upgraded. Do you want to continue ?"), gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
+	if (gfpm_plist_question(_("Package upgrade"), _("Following packages will be upgraded. Do you want to continue ?"), gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
 	{
 	/*
 		PM_LIST *i = NULL;
@@ -1171,7 +1171,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	if (l == NULL)
 	{
 		gfpm_update_status (_("Search Complete"));
-		gfpm_error (_("No package found"));
+		gfpm_error (_("Package not found"), _("No such package found"));
 		return;
 	}
 	icon_yes = gfpm_get_icon (ICON_INSTALLED, 16);
@@ -1331,17 +1331,17 @@ cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
 
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_clrold_opt)) == TRUE)
 	{
-		if (gfpm_question(_("Are you sure you want to remove old packages from cache ?")) == GTK_RESPONSE_YES)
+		if (gfpm_question(_("Clear package cache"), _("Are you sure you want to remove old packages from cache ?")) == GTK_RESPONSE_YES)
 		{
 			while (gtk_events_pending())
 				gtk_main_iteration ();
 			ret = pacman_sync_cleancache (0);
 			if (!ret)
-				gfpm_message (_("Finished clearing the cache"));
+				gfpm_message ("Gfpm", _("Finished clearing the cache"));
 			else
 			{
 				errstr = g_strdup_printf (_("Failed to clean the cache (%s)"), pacman_strerror(pm_errno));
-				gfpm_message (errstr);
+				gfpm_error (_("Error clearing cache"), errstr);
 				g_free (errstr);
 			}
 		}
@@ -1349,17 +1349,17 @@ cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
 	}
 	else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_clrall_opt)) == TRUE)
 	{
-		if (gfpm_question(_("Are you sure you want to remove all packages from cache ?")) == GTK_RESPONSE_YES)
+		if (gfpm_question(_("Clear package cache"), _("Are you sure you want to remove all packages from cache ?")) == GTK_RESPONSE_YES)
 		{
 			while (gtk_events_pending())
 				gtk_main_iteration ();
 			ret = pacman_sync_cleancache (1);
 			if (!ret)
-				gfpm_message (_("Finished clearing the cache"));
+				gfpm_message ("Gfpm", _("Finished clearing the cache"));
 			else
 			{
 				errstr = g_strdup_printf (_("Failed to clean the cache (%s)"), pacman_strerror(pm_errno));
-				gfpm_message (errstr);
+				gfpm_message (_("Error clearing cache"), errstr);
 				g_free (errstr);
 			}
 		}
@@ -1381,10 +1381,10 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	fpm = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(gfpm_inst_filechooser));
 	if (fpm == NULL)
 	{
-		gfpm_error (_("No package selected for install. Please select a package to install."));
+		gfpm_error (_("No packages selected"), _("No package selected for install. Please select a package to install."));
 		return;
 	}
-	if (gfpm_question(_("Are you sure you want to install this package ?")) != GTK_RESPONSE_YES)
+	if (gfpm_question(_("Install package"), _("Are you sure you want to install this package ?")) != GTK_RESPONSE_YES)
 		return;
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_inst_upgcheck)))
 		type = PM_TRANS_TYPE_UPGRADE;
@@ -1401,7 +1401,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 			if (pm_errno == PM_ERR_HANDLE_LOCK)
 			{	errorstr = g_string_append (errorstr,
 							_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
-				gfpm_error (errorstr->str);
+				gfpm_error (_("Error"), errorstr->str);
 			}
 			return;
 	}
@@ -1413,13 +1413,13 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	if (pacman_trans_commit(&trans_data) == -1)
 	{
 		str = g_strdup_printf (_("Failed to commit transaction (%s)\n"), pacman_strerror (pm_errno));
-		gfpm_error (str);
+		gfpm_error (_("Error"), str);
 		g_free (str);
 		goto cleanup;
 	}
 	else
 	{
-		gfpm_message (_("Package successfully installed"));
+		gfpm_message ("Gfpm", _("Package successfully installed"));
 	}
 
 	cleanup:

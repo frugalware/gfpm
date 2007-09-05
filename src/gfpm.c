@@ -53,7 +53,7 @@ main (int argc, char *argv[])
 
 	if (!xml)
 	{
-		gfpm_error (_("Failed to initialize interface."));
+		gfpm_error (_("Interface initialization failed"), _("Failed to initialize interface."));
 		return 1;
 	}
 
@@ -61,7 +61,7 @@ main (int argc, char *argv[])
 
 	if (pacman_initialize ("/") == -1)
 	{
-		gfpm_error (_("Failed to initialize libpacman"));
+		gfpm_error (_("Error initializing libpacman"), _("Failed to initialize libpacman"));
 		return 1;
 	}
 
