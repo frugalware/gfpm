@@ -72,6 +72,7 @@ static GtkWidget *gfpm_apply_inst_depcheck;
 static GtkWidget *gfpm_apply_inst_dwocheck;
 static GtkWidget *gfpm_apply_rem_depcheck;
 
+static void gfpm_populate_repos_combobox (GtkComboBox *combo);
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data);
@@ -83,6 +84,32 @@ static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
+
+static void
+gfpm_populate_repos_combobox (GtkComboBox *combo)
+{
+	GList *rlist = NULL;
+	GtkListStore *store = NULL;
+	GtkTreeIter	iter;
+	gint	index = -1;
+
+	store = GTK_LIST_STORE (gtk_combo_box_get_model(GTK_COMBO_BOX(combo)));
+	rlist = gfpm_db_get_repolist ();
+	for (;rlist != NULL;rlist=rlist->next)
+	{
+		char *repo = (char *)pacman_db_getinfo ((PM_DB *)rlist->data, PM_DB_TREENAME);
+		gtk_list_store_append (store, &iter);
+		gtk_list_store_set (store, &iter, 0, repo, -1);
+		if (!strcmp(repo,FW_CURRENT))
+			index++;
+	}
+	gtk_list_store_append (store, &iter);
+	gtk_list_store_set (store, &iter, 0, (char*)_("Installed Packages"), -1);
+	g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
+	gtk_combo_box_set_active (GTK_COMBO_BOX(combo), index);
+
+	return;
+}
 
 void
 gfpm_interface_init (void)
@@ -116,11 +143,7 @@ gfpm_interface_init (void)
 	gfpm_apply_rem_depcheck = glade_xml_get_widget (xml, "applyremdepcheck");
 	gfpm_apply_inst_dwocheck = glade_xml_get_widget (xml, "applyinstdwcheck");
 
-	/* Setup repository combobox */
-	widget = glade_xml_get_widget (xml, "combobox_repos");
-	store = GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(widget)));
-	gtk_combo_box_set_active (GTK_COMBO_BOX(widget), 0);
-	g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
+	//g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
 
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -211,6 +234,11 @@ gfpm_interface_init (void)
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_info_tvw), -1, "Value", renderer, "text", 1, NULL);
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_info_tvw), GTK_TREE_MODEL(store));
 	g_object_set (gfpm_info_tvw, "hover-selection", TRUE, NULL);
+	
+	/* Setup repository combobox */
+	widget = glade_xml_get_widget (xml, "combobox_repos");
+	if (gfpm_db_populate_repolist() == 0)
+		gfpm_populate_repos_combobox (widget);
 
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
@@ -245,7 +273,6 @@ gfpm_interface_init (void)
 	gfpm_progress_init ();
 
 	/* load default repo  */
-	gfpm_load_groups_tvw ("frugalware-current");
 	gtk_widget_hide (gfpm_splash);
 	gtk_widget_show_all (gfpm_mw);
 
@@ -413,7 +440,7 @@ gfpm_load_groups_tvw (const char *repo_name)
 	PM_DB		*db;
 	char		*temp;
 
-	if (!strcmp(repo_name,"frugalware-current"))
+	if (strcmp(repo_name,"local"))
 		db = sync_db;
 	else
 		db = local_db;
@@ -422,7 +449,6 @@ gfpm_load_groups_tvw (const char *repo_name)
 	// clear tvws
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_groups_tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
-
 
 	for (l=pacman_db_getgrpcache(db); l; l=pacman_list_next(l))
 	{
@@ -1000,29 +1026,20 @@ cleanup:
 static void
 cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data)
 {
-	gint index;
+	gchar *text = NULL;
 
-	index = gtk_combo_box_get_active (combo);
-	switch (index)
+	text = gtk_combo_box_get_active_text (combo);
+	if (!strcmp(text, "Installed Packages"))
 	{
-		case 0: /* frugalware-Current */
-				g_free (repo);
-				asprintf (&repo, "frugalware-current");
-				gfpm_load_groups_tvw ("frugalware-current");
-				break;
-
-		case 1:	/* local */
-				g_free (repo);
-				asprintf (&repo, "local");
-				gfpm_load_groups_tvw ("local");
-				break;
-
-		default: break;
+		g_free (text);
+		text = g_strdup ("local");
 	}
+	gfpm_db_register (text);
+	gfpm_load_groups_tvw (text);
+	g_free (text);
 
 	return;
 }
-
 
 static void
 cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data)

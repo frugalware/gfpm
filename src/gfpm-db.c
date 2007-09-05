@@ -19,8 +19,7 @@
  */
 
 #define _GNU_SOURCE
-#define FW_CURRENT	"frugalware-current"
-#define FW_LOCAL	"local"
+#define CFG_FILE	"/etc/pacman.conf"
 
 #include <pacman.h>
 #include "gfpm-db.h"
@@ -30,17 +29,36 @@ PM_DB *sync_db = NULL;
 PM_DB *local_db = NULL;
 
 char *repo = NULL;
+static GList *dblist = NULL;
+
+static void _db_callback (char *section, PM_DB *db);
 
 int
 gfpm_db_init (void)
 {
-	if (NULL == (sync_db=pacman_db_register(FW_CURRENT)))
-		return 1;
+	//if (NULL == (sync_db=pacman_db_register(FW_CURRENT)))
+	//	return 1;
 	if (NULL == (local_db=pacman_db_register(FW_LOCAL)))
 		return 1;
-	asprintf (&repo, "%s", FW_CURRENT);
+	//asprintf (&repo, "%s", FW_CURRENT);
 
 	return 0;
+}
+
+void
+gfpm_db_register (const char *dbname)
+{
+	if (sync_db != NULL);
+	{
+		pacman_db_unregister (sync_db);
+		sync_db = NULL;
+		g_free (repo);
+	}
+	if (strcmp(dbname,"local"))
+		sync_db = pacman_db_register (dbname);
+	asprintf (&repo, dbname);
+
+	return;
 }
 
 void
@@ -51,5 +69,32 @@ gfpm_db_cleanup (void)
 	free (repo);
 
 	return;
+}
+
+static void
+_db_callback (char *section, PM_DB *db)
+{
+	dblist = g_list_append (dblist, db);
+
+	return;
+}
+
+int
+gfpm_db_populate_repolist (void)
+{
+	/* get the list of usable repositories */
+	if (pacman_parse_config (CFG_FILE, _db_callback, "") == -1)
+	{
+		printf ("error parsing config file");
+		return 1;
+	}
+
+	return 0;
+}
+
+GList *
+gfpm_db_get_repolist (void)
+{
+	return dblist;
 }
 

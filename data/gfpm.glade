@@ -269,8 +269,7 @@
                             <child>
                               <widget class="GtkComboBox" id="combobox_repos">
                                 <property name="visible">True</property>
-                                <property name="items">All packages
-Installed packages</property>
+                                <property name="items"></property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
