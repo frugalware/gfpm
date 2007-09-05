@@ -53,6 +53,11 @@ static gchar *authors[] = {	"Priyank M. Gosalia <priyankmg@gmail.com>",
 			};
 static gchar *translators[] = { NULL };
 
+static gchar *artists[] = {	"Viktor Gondor <nadfoka@frugalware.org>",
+				"Sekkyumu <charavel.olivier@gmail.com>",
+				"Priyank Gosalia <priyankmg@gmail.com>",
+				NULL
+			};
 void
 gfpm_about (void)
 {
@@ -65,6 +70,7 @@ gfpm_about (void)
 				"comments", _("A graphical package manager for Frugalware Linux."),
 				"license", license,
 				"authors", authors,
+				"artists", artists,
 				"translator-credits", translators,
 				"website", "http://www.frugalware.org/",
 				"website-label", "http://www.frugalware.org/",
