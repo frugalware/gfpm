@@ -64,11 +64,12 @@ static gchar *artists[] = {	"Viktor Gondor <nadfoka@frugalware.org>",
 void
 gfpm_about (void)
 {
+	gchar *ver = g_strdup_printf ("%s (%s)", VERSION, GFPM_RELEASE_NAME);
 	if (!about_pixbuf)
 		about_pixbuf = gfpm_get_icon ("gfpm", 128);
 	gtk_show_about_dialog (GTK_WINDOW(gfpm_mw),
 				"name", PACKAGE,
-				"version", VERSION,
+				"version", ver,
 				"copyright", _("(C) 2006-2007 Frugalware Developer Team (GPL)"),
 				"comments", _("A graphical package manager for Frugalware Linux."),
 				"license", license,
@@ -80,6 +81,7 @@ gfpm_about (void)
 				"logo", about_pixbuf,
 				"wrap-license", TRUE,
 				NULL);
+	g_free (ver);
 	return;
 }
 
