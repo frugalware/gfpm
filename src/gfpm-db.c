@@ -55,7 +55,7 @@ gfpm_db_register (const char *dbname)
 		g_free (repo);
 	}
 	if (strcmp(dbname,"local"))
-		sync_db = pacman_db_register (dbname);
+		sync_db = pacman_db_register ((char*)dbname);
 	asprintf (&repo, dbname);
 
 	return;
