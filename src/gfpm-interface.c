@@ -1176,7 +1176,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		l = pacman_db_search (local_db);
 		r = 0;
 	}
-	else if (!strcmp("frugalware-current", repo))
+	else
 	{
 		l = pacman_db_search (sync_db);
 		r = 1;
@@ -1223,7 +1223,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			gtk_list_store_set (store, &iter,
 					0, TRUE,
 					1, (up==FALSE)?icon_yes:icon_up,
-					2, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_NAME),
+					2, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_NAME),
 					3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION),
 					4, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION),
 					//5, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC),
