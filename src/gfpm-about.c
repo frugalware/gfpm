@@ -51,7 +51,10 @@ static gchar *authors[] = {	"Priyank M. Gosalia <priyankmg@gmail.com>",
 				"Miklos Nemeth <desco@frugalware.org>",
 				NULL
 			};
-static gchar *translators[] = { NULL };
+static gchar *translators[] = { "Vajna Miklos <vmiklos@frugalware.org> (hu)",
+				"Michel Hermier <michel.hermier@gmail.com> (fr)",
+				NULL
+			};
 
 static gchar *artists[] = {	"Viktor Gondor <nadfoka@frugalware.org>",
 				"Sekkyumu <charavel.olivier@gmail.com>",

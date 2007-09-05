@@ -129,7 +129,7 @@ gfpm_interface_init (void)
 	while (gtk_events_pending())
 		gtk_main_iteration ();
 
-	sleep (2);
+	sleep (1);
 	gfpm_groups_tvw = glade_xml_get_widget (xml, "grouptreeview");
 	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
 	gfpm_info_tvw	= glade_xml_get_widget (xml, "infotreeview");
@@ -144,8 +144,6 @@ gfpm_interface_init (void)
 	gfpm_apply_inst_depcheck = glade_xml_get_widget (xml, "applyinstdepcheck");
 	gfpm_apply_rem_depcheck = glade_xml_get_widget (xml, "applyremdepcheck");
 	gfpm_apply_inst_dwocheck = glade_xml_get_widget (xml, "applyinstdwcheck");
-
-	//g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
 
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -209,15 +207,6 @@ gfpm_interface_init (void)
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 
-	/*
-	renderer = gtk_cell_renderer_text_new ();
-	column = gtk_tree_view_column_new_with_attributes (_("Description"),
-							renderer,
-							"text", 5,
-							NULL);
-	gtk_tree_view_column_set_resizable (column, FALSE);
-	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
-	*/
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_pkgs_tvw), GTK_TREE_MODEL(store));
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));
@@ -274,8 +263,10 @@ gfpm_interface_init (void)
 	gfpm_messages_init ();
 	gfpm_progress_init ();
 
-	/* load default repo  */
 	gtk_widget_hide (gfpm_splash);
+	gchar *title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
+	gtk_window_set_title (gfpm_mw, title);
+	g_free (title);
 	gtk_widget_show_all (gfpm_mw);
 
 	/* unref the glade xml object */
