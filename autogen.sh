@@ -18,8 +18,8 @@ import_pootle()
 		: > po/LINGUAS
 		for i in $(/bin/ls $po_dir/gfpm)
 		do
-			[ -e $po_dir/gfpm/$i/gnetconfig.po ] || continue
-			cp $po_dir/gfpm/$i/gnetconfig.po po/$i.po
+			[ -e $po_dir/gfpm/$i/gfpm.po ] || continue
+			cp $po_dir/gfpm/$i/gfpm.po po/$i.po
 			if msgfmt -c --statistics -o po/$i.gmo po/$i.po; then
 				echo $i >> po/LINGUAS
 			else
