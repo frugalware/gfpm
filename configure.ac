@@ -1,7 +1,7 @@
 ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
-AC_INIT([Gfpm], 0.1, [priyankmg@gmail.com], gfpm)
+AC_INIT([Gfpm], 1.0.0, [priyankmg@gmail.com], gfpm)
 AC_CONFIG_SRCDIR([src/gfpm.c])
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
