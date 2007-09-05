@@ -1,7 +1,4 @@
 ----- krix -----
-- Check FIXME tags in source and review those
-
------ krix -----
 - We can create a 'Not installed packages' entry in our combobox. How can be ?
   Well give for the reponame some like: "frugalware-current-ni" then check for
   that in treeview group loading function, if reponam is frugalware-current-ni
