@@ -238,7 +238,7 @@ gfpm_interface_init (void)
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
 	if (gfpm_db_populate_repolist() == 0)
-		gfpm_populate_repos_combobox (widget);
+		gfpm_populate_repos_combobox (GTK_COMBO_BOX(widget));
 
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
