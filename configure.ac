@@ -15,10 +15,6 @@ AC_PROG_CC(GCC)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/ioctl.h unistd.h alpm.h])
 
-if test "${GCC}" = "yes" ; then
-    CFLAGS="${CFLAGS} -pipe"
-fi
-
 AC_ARG_ENABLE(werror,
     AC_HELP_STRING([  --enable-werror], [Enable -Werror usage]), [werror="yes"])
 AC_ARG_ENABLE(debug,
