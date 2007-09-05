@@ -544,8 +544,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 			break;
 		case PM_TRANS_CONV_CORRUPTED_PKG:
 			str = g_strdup_printf ("Archive %s is corrupted. Do you want to delete it?",
-									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
-									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
+									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME));
 			if (gfpm_question(_("Package corrupted"), _(str)) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
