@@ -1,4 +1,6 @@
 VERSION					DESCRIPTION
 ---------------------------------------------------------------------------------------------------------
+1.0.1					- *.po generation fixes
+					- added gfpm.desktop for KDE and GNOME/XFCE
 1.0.0 Triton (2007-09-05)		- Initial Release
 
