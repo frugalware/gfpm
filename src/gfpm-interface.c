@@ -265,7 +265,7 @@ gfpm_interface_init (void)
 
 	gtk_widget_hide (gfpm_splash);
 	gchar *title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
-	gtk_window_set_title (gfpm_mw, title);
+	gtk_window_set_title (GTK_WINDOW(gfpm_mw), title);
 	g_free (title);
 	gtk_widget_show_all (gfpm_mw);
 
