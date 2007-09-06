@@ -954,17 +954,19 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	/* check for a pacman-g2 update */
 	pm_lpkg = pacman_db_readpkg (local_db, "pacman-g2");
 	pm_spkg = pacman_db_readpkg (sync_db, "pacman-g2");
-	if (strcmp((char*)pacman_pkg_getinfo(pm_lpkg, PM_PKG_VERSION),
-				(char*)pacman_pkg_getinfo(pm_spkg, PM_PKG_VERSION)))
+	if (pm_lpkg && pm_spkg)
 	{
-		if (gfpm_question (_("Update pacman-g2"), updatestr) == GTK_RESPONSE_YES)
+		if (strcmp((char*)pacman_pkg_getinfo(pm_lpkg, PM_PKG_VERSION),
+				(char*)pacman_pkg_getinfo(pm_spkg, PM_PKG_VERSION)))
 		{
-			gfpm_package_list_add (GFPM_INSTALL_LIST, "pacman-g2");
-			cb_gfpm_apply_btn_clicked (NULL, NULL);
-			goto cleanup;
+			if (gfpm_question (_("Update pacman-g2"), updatestr) == GTK_RESPONSE_YES)
+			{
+				gfpm_package_list_add (GFPM_INSTALL_LIST, "pacman-g2");
+				cb_gfpm_apply_btn_clicked (NULL, NULL);
+				goto cleanup;
+			}
 		}
 	}
-
 	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 	{
 		gchar *str;
@@ -987,7 +989,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	   upgrade any package */
 	if (packages == NULL)
 	{
-		gfpm_message ("Gfpm", _("No changes to apply."));
+		gfpm_message ("No new updates available", _("No new package updates are available. The system is up to date."));
 		goto cleanup;
 	}
 
