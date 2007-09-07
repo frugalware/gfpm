@@ -62,10 +62,23 @@ gfpm_db_register (const char *dbname)
 }
 
 void
+gfpm_db_reset_localdb (void)
+{
+	if (local_db)
+	{
+		pacman_db_unregister (local_db);
+		local_db = pacman_db_register (FW_LOCAL);
+	}
+
+	return;
+}
+
+void
 gfpm_db_cleanup (void)
 {
 	pacman_db_unregister (sync_db);
-	pacman_db_unregister (local_db);
+	if (local_db)
+		pacman_db_unregister (local_db);
 	free (repo);
 
 	return;

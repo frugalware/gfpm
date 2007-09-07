@@ -16,6 +16,7 @@
 
 void gfpm_db_register (const char *);
 int gfpm_db_init (void);
+void gfpm_db_reset_localdb (void);
 void gfpm_db_cleanup (void);
 int gfpm_db_populate_repolist (void);
 GList *gfpm_db_get_repolist (void);

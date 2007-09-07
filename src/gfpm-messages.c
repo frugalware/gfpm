@@ -150,11 +150,12 @@ gfpm_apply_dlg_populate (void)
 			{
 				s = (float)((long)pacman_pkg_getinfo (pkg, PM_PKG_SIZE)/1024)/1024;
 				totalrsize += s;
+				asprintf (&size, "%0.2f MB", s);
+				pacman_pkg_free (pkg);
 			}
-			asprintf (&size, "%0.2f MB", s);
+			
 			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter, 0, (char*)i->data, 1, size, -1);
-			pacman_pkg_free (pkg);
 			if (size)
 				g_free (size);
 		}

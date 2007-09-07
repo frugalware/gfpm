@@ -400,12 +400,11 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		gfpm_package_list_free (GFPM_INSTALL_LIST);
 		gfpm_apply_dlg_reset ();
 	}
+	gfpm_db_reset_localdb ();
 	gfpm_progress_show (FALSE);
 
 	if (current_group != NULL)
-	{
-		gfpm_load_pkgs_tvw (current_group);
-	}
+		gfpm_load_pkgs_tvw ((const char*)current_group);
 
 	return;
 }
@@ -558,9 +557,6 @@ gfpm_load_pkgs_tvw (const char *group_name)
 		pacman_pkg_free (pm_lpkg);
 	}
 	gfpm_update_status (_("Loading package list ...DONE"));
-
-	g_free (current_group);
-	current_group = g_strdup (group_name);
 
 	g_object_unref (icon_yes);
 	g_object_unref (icon_no);
@@ -1046,7 +1042,9 @@ cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data)
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
 		gtk_tree_model_get (model, &iter, 0, &group, -1);
-		gfpm_load_pkgs_tvw (group);
+		g_free (current_group);
+		current_group = g_strdup (group);
+		gfpm_load_pkgs_tvw (current_group);
 		g_free (group);
 	}
 
