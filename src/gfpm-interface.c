@@ -278,6 +278,9 @@ gfpm_interface_init (void)
 static void
 cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
+	static gchar *lck_error = ("Gfpm has detected that another instance of a package manager is already running. "
+			"If you're sure that a package manager is not already running, you can delete /tmp/pacman-g2.lck\n"
+			"Do you want gfpm to delete it and continue with the operation ?\n");
 	GString *errorstr = g_string_new ("");
 
 	if (!gfpm_package_list_is_empty(GFPM_INSTALL_LIST) && !gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
@@ -306,16 +309,22 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			flags |= PM_TRANS_FLAG_NODEPS;
 
 		/* create transaction */
-		if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
+try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 		{
 			gchar *str;
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
 			if (pm_errno == PM_ERR_HANDLE_LOCK)
-				errorstr = g_string_append (errorstr,
-							_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
-			gfpm_error (_("Error"), errorstr->str);
-			return;
+				g_string_printf (errorstr, "%s", lck_error);
+			if (gfpm_question (_("Error"), errorstr->str) == GTK_RESPONSE_YES)
+			{
+				g_remove ("/tmp/pacman-g2.lck");
+				goto try;
+			}
+			else
+			{
+				return;
+			}
 		}
 
 		gfpm_progress_show (TRUE);
@@ -357,16 +366,22 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_inst_dwocheck)))
 			flags |= PM_TRANS_FLAG_DOWNLOADONLY;
 		/* create transaction */
-		if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
+itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 		{
 			gchar *str;
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
 			if (pm_errno == PM_ERR_HANDLE_LOCK)
-				errorstr = g_string_append (errorstr,
-							_("If you're sure a package manager is not already running, you can delete /tmp/pacman-g2.lck"));
-			gfpm_error (_("Error"), errorstr->str);
-			return;
+				g_string_printf (errorstr, "%s", lck_error);
+			if (gfpm_question (_("Error"), errorstr->str) == GTK_RESPONSE_YES)
+			{
+				g_remove ("/tmp/pacman-g2.lck");
+				goto itry;
+			}
+			else
+			{
+				return;
+			}
 		}
 
 		gfpm_progress_show (TRUE);
