@@ -85,6 +85,7 @@ gfpm_progress_init (void)
 					NULL);
 	gtk_window_set_default_size (GTK_WINDOW(progresswindow), 350, 140);
 	gtk_window_resize (GTK_WINDOW(progresswindow), 350, 140);
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(progress_txtvw));
 
 	return;
 }
@@ -126,7 +127,6 @@ cb_gfpm_details_button_toggled (GtkWidget *button, gpointer data)
 static void
 gfpm_progress_textview_reset (void)
 {
-	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(progress_txtvw));
 	gtk_text_buffer_set_text (buffer, "", 0);
 	gtk_text_buffer_get_iter_at_offset (buffer, &t_iter, 0);
 
