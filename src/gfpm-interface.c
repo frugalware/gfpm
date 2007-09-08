@@ -51,7 +51,7 @@ extern char	*repo;
 
 /* current group the user is browsing */
 /* used for refreshing the views after a package update */
-static gchar *current_group = NULL;
+gchar *current_group = NULL;
 
 /* The GFPM main window */
 GtkWidget *gfpm_mw;
