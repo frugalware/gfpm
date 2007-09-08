@@ -53,6 +53,9 @@ int			xferred1;
 struct timeval		t0, t;
 char 			reponame[PM_DLFNM_LEN+1];
 
+static void gfpm_progress_textview_reset (void);
+
+/* callbacks */
 static void cb_gfpm_close_button_clicked (GtkWidget *button, gpointer data);
 static void cb_gfpm_details_button_toggled (GtkWidget *button, gpointer data);
 
@@ -85,7 +88,7 @@ gfpm_progress_init (void)
 					NULL);
 	gtk_window_set_default_size (GTK_WINDOW(progresswindow), 350, 140);
 	gtk_window_resize (GTK_WINDOW(progresswindow), 350, 140);
-	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(progress_txtvw));
+	gfpm_progress_textview_reset ();
 
 	return;
 }
@@ -127,6 +130,7 @@ cb_gfpm_details_button_toggled (GtkWidget *button, gpointer data)
 static void
 gfpm_progress_textview_reset (void)
 {
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(progress_txtvw));
 	gtk_text_buffer_set_text (buffer, "", 0);
 	gtk_text_buffer_get_iter_at_offset (buffer, &t_iter, 0);
 
@@ -138,16 +142,16 @@ gfpm_progress_show (gboolean show)
 {
 	if (show == TRUE)
 	{
-		/* reset dialog attributes before showing */
-		gfpm_progress_textview_reset ();
-		gtk_label_set_text (GTK_LABEL(sub_label), "");
-		gtk_label_set_text (GTK_LABEL(main_label), "");
-
+		gtk_widget_hide (details_scroll);
 		gtk_widget_show (progresswindow);
 	}
 	else
 	{
 		gtk_widget_hide (progresswindow);
+		/* reset dialog attributes before showing */
+		gfpm_progress_textview_reset ();
+		gtk_label_set_text (GTK_LABEL(sub_label), "");
+		gtk_label_set_text (GTK_LABEL(main_label), "");
 	}
 
 	return;
