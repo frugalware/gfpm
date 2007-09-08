@@ -22,7 +22,7 @@ void gfpm_progress_install (unsigned char, char *, int, int, int);
 
 void gfpm_progress_show (gboolean);
 
-void gfpm_progress_set_main_text (const char *msg);
+void gfpm_progress_set_main_text (const char *msg, int txt);
 
 void gfpm_progress_set_sub_text (const char *msg);
 

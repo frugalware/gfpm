@@ -40,12 +40,21 @@ static GtkWidget	*sub_label = NULL;
 static GtkWidget	*rate_label = NULL;
 static GtkWidget	*rec_label = NULL;
 static GtkWidget	*rate_box = NULL;
+static GtkWidget	*progress_txtvw = NULL;
+static GtkWidget	*details_scroll = NULL;
+static GtkWidget	*button_close = NULL;
+
+GtkTextIter	t_iter;
+GtkTextBuffer *buffer = NULL;
 
 float			rate;
 int			offset;
 int			xferred1;
 struct timeval		t0, t;
 char 			reponame[PM_DLFNM_LEN+1];
+
+static void cb_gfpm_close_button_clicked (GtkWidget *button, gpointer data);
+static void cb_gfpm_details_button_toggled (GtkWidget *button, gpointer data);
 
 void
 gfpm_progress_init (void)
@@ -63,6 +72,63 @@ gfpm_progress_init (void)
 	rate_label = glade_xml_get_widget (xml, "rate_pr_label");
 	rate_box = glade_xml_get_widget (xml, "rate_pr_box");
 	rec_label = glade_xml_get_widget (xml, "rx_pr_label");
+	progress_txtvw = glade_xml_get_widget (xml, "progress_txtvw");
+	button_close = glade_xml_get_widget (xml, "close_progress");
+	details_scroll = glade_xml_get_widget (xml, "details_scrollwindow");
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml,"show_details")),
+					"toggled",
+					G_CALLBACK(cb_gfpm_details_button_toggled),
+					NULL);
+	g_signal_connect (G_OBJECT(button_close),
+					"clicked",
+					G_CALLBACK(cb_gfpm_close_button_clicked),
+					NULL);
+	gtk_window_set_default_size (GTK_WINDOW(progresswindow), 350, 140);
+	gtk_window_resize (GTK_WINDOW(progresswindow), 350, 140);
+
+	return;
+}
+
+static void
+cb_gfpm_close_button_clicked (GtkWidget *button, gpointer data)
+{
+	gfpm_progress_show (FALSE);
+
+	return;
+}
+
+static void
+cb_gfpm_details_button_toggled (GtkWidget *button, gpointer data)
+{
+	static int width = 0;
+	static int height = 0;
+
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button)))
+	{
+		gtk_widget_show (GTK_WIDGET(details_scroll));
+		if (height>0 && width>0)
+			gtk_window_resize (GTK_WINDOW(progresswindow), width, height);
+		gtk_window_get_size (GTK_WINDOW(progresswindow), &width, &height);
+		gtk_window_set_resizable (GTK_WINDOW(progresswindow), TRUE);
+	}
+	else
+	{
+		gint w;
+		w = progresswindow->allocation.width;
+		gtk_widget_hide (GTK_WIDGET(details_scroll));
+		gtk_window_get_size (GTK_WINDOW(progresswindow), &width, &height);
+		gtk_window_resize (GTK_WINDOW(progresswindow), 350, 1);
+		gtk_window_set_resizable (GTK_WINDOW(progresswindow), FALSE);
+	}
+	return;
+}
+
+static void
+gfpm_progress_textview_reset (void)
+{
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(progress_txtvw));
+	gtk_text_buffer_set_text (buffer, "", 0);
+	gtk_text_buffer_get_iter_at_offset (buffer, &t_iter, 0);
 
 	return;
 }
@@ -72,6 +138,11 @@ gfpm_progress_show (gboolean show)
 {
 	if (show == TRUE)
 	{
+		/* reset dialog attributes before showing */
+		gfpm_progress_textview_reset ();
+		gtk_label_set_text (GTK_LABEL(sub_label), "");
+		gtk_label_set_text (GTK_LABEL(main_label), "");
+
 		gtk_widget_show (progresswindow);
 	}
 	else
@@ -93,6 +164,8 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	float 		tdiff;
 	gchar		*rx_str = NULL;
 
+	while (gtk_events_pending())
+		gtk_main_iteration ();
 	ctl = NULL;
 	size = *(int*)arg;
 	per = ((float)(xferred+offset) / size) * 100;
@@ -122,12 +195,13 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	rx_str = g_strdup_printf ("%dK / %dK", (xferred+offset)/1024, size/1024);
 	gtk_label_set_text (GTK_LABEL(rec_label), rx_str);
 
-	while (gtk_events_pending ())
-		gtk_main_iteration ();
 	gtk_progress_bar_set_text (progressbar, text);
 	gtk_label_set_text (GTK_LABEL(rate_label), rate_text);
 	gtk_progress_bar_set_fraction (progressbar, (float)per/100);
 	gfpm_progress_set_sub_text (reponame);
+	while (gtk_events_pending())
+		gtk_main_iteration ();
+
 
 	return 1;
 }
@@ -135,51 +209,61 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 void
 gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howmany, int remain)
 {
+	static int ph = 0;
+	static int rh = 0;
 	char *main_text = NULL;
 	char *sub_text = NULL;
 
+//	if (ph == howmany)
+//		return;
 	if (!pkgname)
 		return;
 	if (percent < 0 || percent > 100)
 		return;
-
-	while (gtk_events_pending ())
+	while (gtk_events_pending())
 		gtk_main_iteration ();
+
 	switch (event)
 	{
 		case PM_TRANS_PROGRESS_ADD_START:
 			if (howmany > 1)
-				main_text = g_strdup (_("Installing packages"));
+				main_text = g_strdup (_("Installing packages..."));
 			else
-				main_text = g_strdup (_("Installing package"));
+				main_text = g_strdup (_("Installing package..."));
 			break;
 		case PM_TRANS_PROGRESS_UPGRADE_START:
 			if (howmany > 1)
-				main_text = g_strdup (_("Upgrading packages"));
+				main_text = g_strdup (_("Upgrading packages..."));
 			else
-				main_text = g_strdup (_("Upgrading package"));
+				main_text = g_strdup (_("Upgrading package..."));
 			break;
 		case PM_TRANS_PROGRESS_REMOVE_START:
 			if (howmany > 1)
-				main_text = g_strdup (_("Removing packages"));
+				main_text = g_strdup (_("Removing packages..."));
 			else
-				main_text = g_strdup (_("Removing package"));
+				main_text = g_strdup (_("Removing package..."));
 			break;
 		case PM_TRANS_PROGRESS_CONFLICTS_START:
 			if (howmany > 1)
-				main_text = g_strdup (_("Checking packages for file conflicts"));
+				main_text = g_strdup (_("Checking packages for file conflicts..."));
 			else
-				main_text = g_strdup (_("Checking package for file conflicts"));
+				main_text = g_strdup (_("Checking package for file conflicts..."));
 			break;
 		default:
 			return;
 	}
-	gfpm_progress_set_main_text (main_text);
-	sub_text = g_strdup_printf ("(%d/%d) %s", remain, howmany, pkgname);
-	gfpm_progress_set_sub_text (sub_text);
+	gfpm_progress_set_main_text (main_text, 0);
+	if (howmany > 1)
+	{
+		sub_text = g_strdup_printf ("(%d/%d) %s", remain, howmany, pkgname);
+	//ph = howmany;
+		gfpm_progress_set_sub_text (sub_text);
+		g_free (sub_text);
+	}
 	gtk_progress_bar_set_fraction (progressbar, (float)percent/100);
 	g_free (main_text);
-	g_free (sub_text);
+	while (gtk_events_pending())
+		gtk_main_iteration ();
 
 	return;
 }
@@ -194,21 +278,22 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 		return;
 	gtk_widget_hide (rate_box);
 	gtk_widget_hide (rec_label);
-	while (gtk_events_pending ())
-		gtk_main_iteration ();
 	switch (event)
 	{
 		case PM_TRANS_EVT_CHECKDEPS_START:
 			substr = g_strdup(_("Checking dependencies"));
+			m = 1;
 			break;
 		case PM_TRANS_EVT_FILECONFLICTS_START:
 			substr = g_strdup (_("Checking for file conflicts"));
+			m = 1;
 			break;
 		case PM_TRANS_EVT_RESOLVEDEPS_START:
 			substr = g_strdup (_("Resolving dependencies"));
 			break;
 		case PM_TRANS_EVT_INTERCONFLICTS_START:
 			substr = g_strdup (_("Looking for inter-conflicts"));
+			m = 1;
 			break;
 		case PM_TRANS_EVT_CHECKDEPS_DONE:
 		case PM_TRANS_EVT_RESOLVEDEPS_DONE:
@@ -216,34 +301,45 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 			substr = g_strdup (_("Done"));
 			break;
 		case PM_TRANS_EVT_ADD_START:
-			substr = g_strdup_printf (_("installing %s"),
-					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+			substr = g_strdup_printf (_("Installing %s-%s"),
+					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+					(char*)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
+			m = 1;
 			break;
 		case PM_TRANS_EVT_ADD_DONE:
-			substr = g_strdup_printf (_("installed %s"),
-					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+			gfpm_progress_set_main_text (_("Package installation finished"), 0);
+			substr = g_strdup_printf (_("Installed %s-%s"),
+					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME),
+					(char*)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
 			break;
 		case PM_TRANS_EVT_UPGRADE_START:
-			substr = g_strdup_printf (_("upgrading %s"),
+			substr = g_strdup_printf (_("Upgrading %s"),
 					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+			m = 1;
 			break;
 		case PM_TRANS_EVT_UPGRADE_DONE:
+			gfpm_progress_set_main_text (_("Package upgrade finished"), 0);
 			substr = g_strdup_printf (_("upgraded %s from %s to %s"),
 					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME),
 					(char*)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
 					(char*)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
 			break;
 		case PM_TRANS_EVT_REMOVE_START:
-			substr = g_strdup (_("Removing package"));
+			substr = g_strdup_printf (_("removing %s"),
+					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
 			break;
 		case PM_TRANS_EVT_REMOVE_DONE:
-			substr = g_strdup (_("Done"));
+			gfpm_progress_set_main_text (_("Package removal finished"), 0);
+			substr = g_strdup_printf (_("removed %s"),
+					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
+			gtk_widget_set_sensitive (button_close, TRUE);
 			break;
 		case PM_TRANS_EVT_INTEGRITY_START:
 			substr = g_strdup (_("Checking package integrity"));
 			break;
 		case PM_TRANS_EVT_INTEGRITY_DONE:
 			substr = g_strdup (_("Done"));
+			gtk_widget_set_sensitive (button_close, TRUE);
 			break;
 		case PM_TRANS_EVT_SCRIPTLET_INFO:
 			substr = g_strdup ((char*)data1);
@@ -253,6 +349,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 			break;
 		case PM_TRANS_EVT_SCRIPTLET_DONE:
 			substr = g_strdup (_("Done"));
+			gtk_widget_set_sensitive (button_close, TRUE);
 			break;
 		case PM_TRANS_EVT_RETRIEVE_START:
 			substr = g_strdup_printf (_("Retrieving packages from %s"), (char*)data1);
@@ -265,37 +362,92 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 	}
 	if (m == 1)
 	{
-		gfpm_progress_set_main_text (substr);
+		gfpm_progress_set_main_text (substr, 1);
 		m = 0;
 	}
 	else
-	{	
+	{
 		gfpm_progress_set_sub_text (substr);
 	}
 	g_free (substr);
-
+/*	
+	if (gtk_events_pending())
+	{
+		while (gtk_events_pending ())
+			gtk_main_iteration ();
+	}
+	else
+	{
+		g_print ("boogaing\n");
+		usleep (5000);
+	}
+*/
 	return;
 }
 
+
 void
-gfpm_progress_set_main_text (const char *msg)
+gfpm_progress_set_main_text (const char *msg, int txt)
 {
+	gchar *str = NULL;
+	gchar *nstr = NULL;
+	static char *prev_msg = NULL;
+
 	if (msg != NULL)
 	{
-		gchar *markup = g_markup_printf_escaped ("<span size=\"large\" weight=\"bold\">%s</span>", msg);
+		str = g_strdup (msg);
+		g_strstrip (str);
+		gchar *markup = g_markup_printf_escaped ("<span size=\"large\" weight=\"bold\">%s</span>", str);
+		nstr = g_strdup_printf ("%s\n", str);
+		g_free (str);
 		gtk_label_set_markup (GTK_LABEL(main_label), markup);
 		g_free (markup);
+	
+		if (txt)
+		{
+		if (prev_msg != NULL)
+		{
+			if (!strcmp(prev_msg, msg))
+				return;
+		}
+		gtk_text_buffer_insert (buffer, &t_iter, nstr, strlen(nstr));
+		g_free (prev_msg);
+		prev_msg = g_strdup_printf (msg);
+		g_free (nstr);
+		}
 	}
 
 	return;
 }
+
 
 void
 gfpm_progress_set_sub_text (const char *msg)
 {
-	if (msg != NULL)
-		gtk_label_set_text (GTK_LABEL(sub_label), msg);
+	gchar *str = NULL;
+	gchar *nstr = NULL;
+	static char *sub_prev_msg = NULL;
 
+	if (msg != NULL)
+	{
+		if (sub_prev_msg != NULL)
+		{
+			if (!strcmp(sub_prev_msg, msg))
+				return;
+		}
+
+
+		str = g_strdup (msg);
+		g_strstrip (str);
+		gtk_label_set_text (GTK_LABEL(sub_label), str);
+		nstr = g_strdup_printf ("%s\n", str);
+		g_free (str);
+		gtk_text_buffer_insert (buffer, &t_iter, nstr, strlen(nstr));
+		g_free (nstr);
+		g_free (sub_prev_msg);
+		sub_prev_msg = g_strdup_printf (msg);
+	}
+	
 	return;
 }
 

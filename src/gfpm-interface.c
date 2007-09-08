@@ -460,9 +460,9 @@ gfpm_load_groups_tvw (const char *repo_name)
 	for (l=pacman_db_getgrpcache(db); l; l=pacman_list_next(l))
 	{
 		asprintf (&temp, _("Loading groups ... [%s]"), (char*)pacman_list_getdata(l));
+		gfpm_update_status (temp);
 		while (gtk_events_pending())
 			gtk_main_iteration ();
-		gfpm_update_status (temp);
 		//display temp status
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, (char*)pacman_list_getdata(l), -1);
@@ -498,8 +498,6 @@ gfpm_load_pkgs_tvw (const char *group_name)
 	}
 
 	gfpm_update_status (_("Loading package list ..."));
-	while (gtk_events_pending())
-		gtk_main_iteration ();
 	pm_group = pacman_db_readgrp (pm_db, (char*)group_name);
 	l = pacman_grp_getinfo (pm_group, PM_GRP_PKGNAMES);
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
@@ -568,9 +566,12 @@ gfpm_load_pkgs_tvw (const char *group_name)
 						//5, g_strstrip((char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC)),
 						-1);
 		}
+		while (gtk_events_pending()) gtk_main_iteration ();
 		pacman_pkg_free (pm_pkg);
 		pacman_pkg_free (pm_lpkg);
 	}
+	//while (gtk_events_pending())
+	//	gtk_main_iteration_do (TRUE);
 	gfpm_update_status (_("Loading package list ...DONE"));
 
 	g_object_unref (icon_yes);
@@ -958,7 +959,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		 "It is recommended that you allow gfpm to upgrade pacman-g2 first. "
 		 "Do you want to continue upgrading pacman-g2 ?");
 
-	gfpm_progress_set_main_text (_("Synchronizing package databases"));
+	gfpm_progress_set_main_text (_("Synchronizing package databases"), 1);
 	gfpm_progress_show (TRUE);
 	ret = pacman_db_update (0, sync_db);
 	gfpm_progress_show (FALSE);
