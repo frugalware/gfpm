@@ -416,7 +416,7 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		gfpm_apply_dlg_reset ();
 	}
 	gfpm_db_reset_localdb ();
-	gfpm_progress_show (FALSE);
+	//gfpm_progress_show (FALSE);
 
 	if (current_group != NULL)
 		gfpm_load_pkgs_tvw ((const char*)current_group);
