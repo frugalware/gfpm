@@ -12,6 +12,7 @@ gfpm_SOURCES=				\
 			gfpm-progress.c		\
 			gfpm-interface.c \
 			gfpm-messages.c \
+			gfpm-optimizedb.c \
 			gfpm-about.c \
 			gfpm.c
 

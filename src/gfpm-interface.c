@@ -38,6 +38,7 @@
 #include "gfpm-messages.h"
 #include "gfpm-packagelist.h"
 #include "gfpm-progress.h"
+#include "gfpm-optimizedb.h"
 #include "gfpm-util.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
@@ -262,6 +263,7 @@ gfpm_interface_init (void)
 	gfpm_db_init ();
 	gfpm_messages_init ();
 	gfpm_progress_init ();
+	gfpm_optimize_db_dlg_init ();
 
 	gtk_widget_hide (gfpm_splash);
 	gchar *title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
