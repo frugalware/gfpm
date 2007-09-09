@@ -172,10 +172,12 @@ gfpm_optimize_db (void)
 	if (system(cmdline)!=0)
 	{
 		gfpm_error (_("Optimization failed"), _("Integrity check failed"));
+		gfpm_optimize_db_set_progress_status (_("Failed."));
 		g_free (cmdline);
 		cmdline = g_strdup_printf ("rm -rf %s;mv %s.bak %s", DBLOC, DBLOC, DBLOC);
 		system (cmdline);
 		g_free (cmdline);
+		goto cleanup;
 	}
 	g_free (cmdline);
 	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR(gfpm_optimize_db_progressbar), 0.85);
@@ -197,12 +199,12 @@ gfpm_optimize_db (void)
 	gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR(gfpm_optimize_db_progressbar), 1.0);
 	while (gtk_events_pending()) gtk_main_iteration ();
 	sleep (2);
+	gfpm_optimize_db_set_progress_status (_("Database optimized."));
+	gfpm_message (_("Database optimized"), _("Your package database is now optimized."));
 
 cleanup:
-	gfpm_optimize_db_set_progress_status (_("Database optimized."));
 	gtk_widget_set_sensitive (gfpm_optimize_db_startbtn, TRUE);
 	gtk_widget_set_sensitive (gfpm_optimize_db_closebtn, TRUE);
-	gfpm_message (_("Database optimized"), _("Your package database is now optimized."));
 
 	return;
 }
