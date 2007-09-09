@@ -213,13 +213,9 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 void
 gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howmany, int remain)
 {
-	static int ph = 0;
-	static int rh = 0;
 	char *main_text = NULL;
 	char *sub_text = NULL;
 
-//	if (ph == howmany)
-//		return;
 	if (!pkgname)
 		return;
 	if (percent < 0 || percent > 100)
@@ -260,7 +256,6 @@ gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howm
 	if (howmany > 1)
 	{
 		sub_text = g_strdup_printf ("(%d/%d) %s", remain, howmany, pkgname);
-	//ph = howmany;
 		gfpm_progress_set_sub_text (sub_text);
 		g_free (sub_text);
 	}
