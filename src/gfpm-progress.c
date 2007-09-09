@@ -194,7 +194,7 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	}
 	else
 	{
-		sprintf (rate_text, "%6.1fK/s", rate);
+		sprintf (rate_text, "%6.1fK/s", (rate>0)?rate:0);
 	}
 	rx_str = g_strdup_printf ("%dK / %dK", (xferred+offset)/1024, size/1024);
 	gtk_label_set_text (GTK_LABEL(rec_label), rx_str);
