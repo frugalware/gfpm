@@ -6,5 +6,6 @@ src/gfpm-systray.c
 src/gfpm-util.c
 src/gfpm.c
 src/gfpm-packagelist.c
+src/gfpm-optimizedb.c
 src/gfpm-messages.c
 data/gfpm.glade
