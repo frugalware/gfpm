@@ -896,6 +896,7 @@ gfpm_trans_prepare (PM_LIST *list)
 		str = g_strdup_printf (_("Failed to prepare transaction (%s)\n"), pacman_strerror (pm_errno));
 		gfpm_error (_("Error"), str);
 		g_free (str);
+		int t = pacman_trans_getinfo (PM_TRANS_TYPE);
 		switch ((long)pm_errno)
 		{
 			case PM_ERR_UNSATISFIED_DEPS:
@@ -903,29 +904,42 @@ gfpm_trans_prepare (PM_LIST *list)
 				{
 					GString	*depstring = g_string_new ("");
 					PM_DEPMISS *m = pacman_list_getdata (i);
-					depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_NAME));
-					switch ((long)pacman_dep_getinfo(m, PM_DEP_MOD))
+					gchar *val = NULL;
+					if (t == PM_TRANS_TYPE_REMOVE)
 					{
-						gchar *val = NULL;
-						case PM_DEP_MOD_EQ:
-							val = g_strdup_printf ("=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
-							depstring = g_string_append (depstring, val);
-							break;
-						case PM_DEP_MOD_GE:
-							val = g_strdup_printf (">=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
-							depstring = g_string_append (depstring, val);
-							break;
-						case PM_DEP_MOD_LE:
-							val = g_strdup_printf ("<=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
-							depstring = g_string_append (depstring, val);
-							break;
-						default: break;
+						g_print ("this is being executed\n");
+						val = g_strdup_printf ("%s : %s %s",
+												(char*)pacman_dep_getinfo (m, PM_DEP_TARGET),
+												_("is required by"),
+												(char*)pacman_dep_getinfo (m, PM_DEP_NAME));
+						depstring = g_string_append (depstring, val);
+					}
+					else
+					{
+						depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_NAME));
+						switch ((long)pacman_dep_getinfo(m, PM_DEP_MOD))
+						{
+							gchar *val = NULL;
+							case PM_DEP_MOD_EQ:
+								val = g_strdup_printf ("=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+								depstring = g_string_append (depstring, val);
+								break;
+							case PM_DEP_MOD_GE:
+								val = g_strdup_printf (">=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+								depstring = g_string_append (depstring, val);
+								break;
+							case PM_DEP_MOD_LE:
+								val = g_strdup_printf ("<=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
+								depstring = g_string_append (depstring, val);
+								break;
+							default: break;
+						}
 					}
 					pkgs = g_list_append (pkgs, (char*)g_strdup(depstring->str));
+					g_free (val);
 					g_string_free (depstring, FALSE);
 				}
 				pacman_list_free (list);
-				int t = pacman_trans_getinfo (PM_TRANS_TYPE);
 				if ((t == PM_TRANS_TYPE_ADD) || (t == PM_TRANS_TYPE_UPGRADE))
 					gfpm_plist_message (_("Missing dependencies"), _("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
 				else
