@@ -1218,14 +1218,14 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	icon_no = gfpm_get_icon (ICON_NINSTALLED, 16);
 	icon_up = gfpm_get_icon (ICON_NEEDUPDATE, 16);
 	gfpm_update_status (_("Searching for packages ..."));
+	while (gtk_events_pending())
+			gtk_main_iteration ();
 	if (r == 0)
 	{
 		PM_PKG	*pm_spkg;
 		PM_PKG	*pm_lpkg;
 		gboolean up = FALSE;
 
-		while (gtk_events_pending())
-			gtk_main_iteration ();
 		for (i=l;i;i=pacman_list_next(i))
 		{
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
@@ -1258,6 +1258,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			pacman_pkg_free (pm_lpkg);
 			pacman_pkg_free (pm_spkg);
 		}
+		while (gtk_events_pending())
+			gtk_main_iteration ();
 	}
 	else
 	if (r == 1)
@@ -1265,6 +1267,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		PM_PKG		*pm_lpkg;
 		gboolean	inst = FALSE;
 		gboolean	up = FALSE;
+		
 		for (i=l;i;i=pacman_list_next(i))
 		{
 			pm_pkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
@@ -1276,9 +1279,17 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 				char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
 				if (v1!=NULL && v2!=NULL)
 				{
-					if (!strcmp(v1,v2))
+					gint ret = pacman_pkg_vercmp (v1, v2);
+					if (!ret)
 						up = FALSE;
-					else up = TRUE;
+					else if (ret == -1)
+						up = FALSE;
+					else
+						up = TRUE;
+				}
+				else
+				{
+					up = FALSE;
 				}
 			}
 			else
