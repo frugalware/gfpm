@@ -1021,6 +1021,8 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 				goto cleanup;
 			}
 		}
+		g_free (v1);
+		g_free (v2);
 	}
 	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 	{
@@ -1203,6 +1205,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	GdkPixbuf	*icon_yes;
 	GdkPixbuf	*icon_no;
 	GdkPixbuf	*icon_up;
+	GdkPixbuf	*icon_ln;
 	GtkTreeModel	*model;
 	GtkTreeIter	iter;
 	PM_PKG		*pm_pkg;
@@ -1240,6 +1243,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	icon_yes = gfpm_get_icon (ICON_INSTALLED, 16);
 	icon_no = gfpm_get_icon (ICON_NINSTALLED, 16);
 	icon_up = gfpm_get_icon (ICON_NEEDUPDATE, 16);
+	icon_ln = gfpm_get_icon (ICON_LOCALNEWER, 16);
 	gfpm_update_status (_("Searching for packages ..."));
 	while (gtk_events_pending())
 			gtk_main_iteration ();
@@ -1280,6 +1284,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					-1);
 			pacman_pkg_free (pm_lpkg);
 			pacman_pkg_free (pm_spkg);
+			g_free (v1);
+			g_free (v2);
 		}
 		while (gtk_events_pending())
 			gtk_main_iteration ();
@@ -1290,6 +1296,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		PM_PKG		*pm_lpkg;
 		gboolean	inst = FALSE;
 		gboolean	up = FALSE;
+		gboolean	ln = FALSE;
 		
 		for (i=l;i;i=pacman_list_next(i))
 		{
@@ -1304,11 +1311,18 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 				{
 					gint ret = pacman_pkg_vercmp (v1, v2);
 					if (!ret)
+					{
 						up = FALSE;
+					}
 					else if (ret == -1)
+					{
 						up = FALSE;
+						ln = TRUE;
+					}
 					else
+					{
 						up = TRUE;
+					}
 				}
 				else
 				{
@@ -1325,7 +1339,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 
 			gtk_list_store_set (store, &iter,
 					0, inst,
-					1, (inst==TRUE)?(up==TRUE)?icon_up:icon_yes:icon_no,
+					1, (inst==TRUE)?(ln==TRUE)?icon_ln:(up==TRUE)?icon_up:icon_yes:icon_no,
 					2, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_NAME),
 					4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
 					//5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
@@ -1340,6 +1354,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	g_object_unref (icon_yes);
 	g_object_unref (icon_no);
 	g_object_unref (icon_up);
+	g_object_unref (icon_ln);
+
 	return;
 }
 
