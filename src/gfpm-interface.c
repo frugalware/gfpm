@@ -925,7 +925,11 @@ gfpm_trans_prepare (PM_LIST *list)
 					g_string_free (depstring, FALSE);
 				}
 				pacman_list_free (list);
-				gfpm_plist_message (_("Missing dependencies"), _("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
+				int t = pacman_trans_getinfo (PM_TRANS_TYPE);
+				if ((t == PM_TRANS_TYPE_ADD) || (t == PM_TRANS_TYPE_UPGRADE))
+					gfpm_plist_message (_("Missing dependencies"), _("Following dependencies were not met. Please install these packages first."), GTK_MESSAGE_WARNING, pkgs);
+				else
+					gfpm_plist_message (_("Could not satisfy dependencies"), _("The packages you are trying to remove are required by the following packages:"), GTK_MESSAGE_WARNING, pkgs);
 				break;
 			case PM_ERR_CONFLICTING_DEPS:
 				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
