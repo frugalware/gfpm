@@ -1296,10 +1296,10 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		PM_PKG		*pm_lpkg;
 		gboolean	inst = FALSE;
 		gboolean	up = FALSE;
-		gboolean	ln = FALSE;
 		
 		for (i=l;i;i=pacman_list_next(i))
 		{
+			gboolean	ln = FALSE;
 			pm_pkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
 			if (pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION)!=NULL)
