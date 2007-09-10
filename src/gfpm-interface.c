@@ -930,7 +930,6 @@ gfpm_trans_prepare (PM_LIST *list)
 					gchar *val = NULL;
 					if (t == PM_TRANS_TYPE_REMOVE)
 					{
-						g_print ("this is being executed\n");
 						val = g_strdup_printf ("%s : %s %s",
 												(char*)pacman_dep_getinfo (m, PM_DEP_TARGET),
 												_("is required by"),
