@@ -988,8 +988,9 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	pm_spkg = pacman_db_readpkg (sync_db, "pacman-g2");
 	if (pm_lpkg && pm_spkg)
 	{
-		if (strcmp((char*)pacman_pkg_getinfo(pm_lpkg, PM_PKG_VERSION),
-				(char*)pacman_pkg_getinfo(pm_spkg, PM_PKG_VERSION)))
+		char *v1 = (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION);
+		char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
+		if (pacman_pkg_vercmp(v1,v2)==1)
 		{
 			if (gfpm_question (_("Update pacman-g2"), updatestr) == GTK_RESPONSE_YES)
 			{
