@@ -1501,7 +1501,10 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	/* add the target */
 	pacman_trans_addtarget ((char*)fpm);
 	if (gfpm_trans_prepare(trans_data) == -1)
+	{	
+		gfpm_progress_show (FALSE);
 		goto cleanup;
+	}
 	if (pacman_trans_commit(&trans_data) == -1)
 	{
 		str = g_strdup_printf (_("Failed to commit transaction (%s)\n"), pacman_strerror (pm_errno));
@@ -1520,6 +1523,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	gtk_widget_hide (gfpm_inst_from_file_dlg);
 	if (gfpm_progress_is_autoclose_checkbtn_set())
 		gfpm_progress_show (FALSE);
+
 	return;
 }
 
