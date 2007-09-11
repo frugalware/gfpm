@@ -51,10 +51,6 @@ static gchar *authors[] = {	"Priyank M. Gosalia <priyankmg@gmail.com>",
 				"Miklos Nemeth <desco@frugalware.org>",
 				NULL
 			};
-static gchar *translators[] = { "Vajna Miklos <vmiklos@frugalware.org> (hu)",
-				"Michel Hermier <michel.hermier@gmail.com> (fr)",
-				NULL
-			};
 
 static gchar *artists[] = {	"Viktor Gondor <nadfoka@frugalware.org>",
 				"Sekkyumu <charavel.olivier@gmail.com>",
@@ -75,7 +71,7 @@ gfpm_about (void)
 				"license", license,
 				"authors", authors,
 				"artists", artists,
-				"translator-credits", translators,
+				"translator-credits", _("translator-name"),
 				"website", "http://www.frugalware.org/",
 				"website-label", "http://www.frugalware.org/",
 				"logo", about_pixbuf,
