@@ -48,7 +48,7 @@ gfpm_db_init (void)
 void
 gfpm_db_register (const char *dbname)
 {
-	if (sync_db != NULL);
+	if (sync_db != NULL)
 	{
 		pacman_db_unregister (sync_db);
 		sync_db = NULL;
