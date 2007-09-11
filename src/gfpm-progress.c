@@ -43,6 +43,7 @@ static GtkWidget	*rate_box = NULL;
 static GtkWidget	*progress_txtvw = NULL;
 static GtkWidget	*details_scroll = NULL;
 static GtkWidget	*button_close = NULL;
+static GtkWidget	*autoclose_checkbtn = NULL;
 
 GtkTextIter	t_iter;
 GtkTextBuffer *buffer = NULL;
@@ -78,6 +79,7 @@ gfpm_progress_init (void)
 	progress_txtvw = glade_xml_get_widget (xml, "progress_txtvw");
 	button_close = glade_xml_get_widget (xml, "close_progress");
 	details_scroll = glade_xml_get_widget (xml, "details_scrollwindow");
+	autoclose_checkbtn = glade_xml_get_widget (xml, "autoclose_checkbtn");
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml,"show_details")),
 					"toggled",
 					G_CALLBACK(cb_gfpm_details_button_toggled),
@@ -135,6 +137,12 @@ gfpm_progress_textview_reset (void)
 	gtk_text_buffer_get_iter_at_offset (buffer, &t_iter, 0);
 
 	return;
+}
+
+gboolean
+gfpm_progress_is_autoclose_checkbtn_set (void)
+{
+	return (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(autoclose_checkbtn)));
 }
 
 void

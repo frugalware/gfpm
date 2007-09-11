@@ -26,5 +26,7 @@ void gfpm_progress_set_main_text (const char *msg, int txt);
 
 void gfpm_progress_set_sub_text (const char *msg);
 
+gboolean gfpm_progress_is_autoclose_checkbtn_set (void);
+
 #endif
 

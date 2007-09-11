@@ -75,7 +75,7 @@ gfpm_about (void)
 				"license", license,
 				"authors", authors,
 				"artists", artists,
-				"translator-credits", translators,
+				"translator-credits", _(translators),
 				"website", "http://www.frugalware.org/",
 				"website-label", "http://www.frugalware.org/",
 				"logo", about_pixbuf,

@@ -424,6 +424,9 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 	if (current_group != NULL)
 		gfpm_load_pkgs_tvw ((const char*)current_group);
 
+	if (gfpm_progress_is_autoclose_checkbtn_set())
+		gfpm_progress_show (FALSE);
+
 	return;
 }
 
@@ -1514,7 +1517,8 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	g_string_free (errorstr, FALSE);
 	pacman_trans_release ();
 	gtk_widget_hide (gfpm_inst_from_file_dlg);
-	gfpm_progress_show (FALSE);
+	if (gfpm_progress_is_autoclose_checkbtn_set())
+		gfpm_progress_show (FALSE);
 	return;
 }
 
