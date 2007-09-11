@@ -92,25 +92,25 @@ static gint gfpm_trans_prepare (PM_LIST *list);
 static void
 gfpm_populate_repos_combobox (GtkComboBox *combo)
 {
-	GList *rlist = NULL;
-	GtkListStore *store = NULL;
+	GList		*rlist = NULL;
+	GtkListStore	*store = NULL;
 	GtkTreeIter	iter;
-	gint	index = -1;
+	gint		c_index = -1;
 
 	store = GTK_LIST_STORE (gtk_combo_box_get_model(GTK_COMBO_BOX(combo)));
 	rlist = gfpm_db_get_repolist ();
 	for (;rlist != NULL;rlist=rlist->next)
 	{
-		char *repo = (char *)pacman_db_getinfo ((PM_DB *)rlist->data, PM_DB_TREENAME);
+		char *c_repo = (char *)pacman_db_getinfo ((PM_DB *)rlist->data, PM_DB_TREENAME);
 		gtk_list_store_append (store, &iter);
-		gtk_list_store_set (store, &iter, 0, repo, -1);
-		if (!strcmp(repo,FW_CURRENT))
-			index++;
+		gtk_list_store_set (store, &iter, 0, c_repo, -1);
+		if (!strcmp(c_repo,FW_CURRENT))
+			c_index++;
 	}
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set (store, &iter, 0, (char*)_("Installed Packages"), -1);
 	g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
-	gtk_combo_box_set_active (GTK_COMBO_BOX(combo), index);
+	gtk_combo_box_set_active (GTK_COMBO_BOX(combo), c_index);
 
 	return;
 }
@@ -123,6 +123,8 @@ gfpm_interface_init (void)
 	GtkListStore		*store;
 	GtkCellRenderer		*renderer;
 	GtkTreeSelection	*selection;
+	GtkTreeViewColumn	*column;
+	gchar			*title = NULL;
 
 	gfpm_mw		= glade_xml_get_widget (xml, "mainwindow");
 	gfpm_splash	= glade_xml_get_widget (xml, "splash_window");
@@ -162,9 +164,8 @@ gfpm_interface_init (void)
 				G_TYPE_STRING,   /* Package name */
 				G_TYPE_STRING,   /* Installed version */
 				G_TYPE_STRING);   /* Latest version */
-				//G_TYPE_STRING);  /* Package Description */
+			/*	G_TYPE_STRING);  Package Description */
 
-	GtkTreeViewColumn *column;
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
 	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_gfpm_pkg_selection_toggled), store);
@@ -267,7 +268,7 @@ gfpm_interface_init (void)
 	gfpm_optimize_db_dlg_init ();
 
 	gtk_widget_hide (gfpm_splash);
-	gchar *title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
+	title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
 	gtk_window_set_title (GTK_WINDOW(gfpm_mw), title);
 	g_free (title);
 	gtk_widget_show_all (gfpm_mw);
@@ -332,19 +333,19 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 
 		gfpm_progress_show (TRUE);
 		GList *i = NULL;
-		PM_LIST *data, *pkgs;
+		PM_LIST *pdata, *pkgs;
 		for (i = (GList*)remove_list; i; i = i->next)
 		{
 			char *target = i->data;
 			pacman_trans_addtarget (target);
 		}
-		if (gfpm_trans_prepare(data) == -1)
+		if (gfpm_trans_prepare(pdata) == -1)
 			goto down;
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
 
 		/* commit transaction */
-		if (pacman_trans_commit(&data) == -1)
+		if (pacman_trans_commit(&pdata) == -1)
 		{
 			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
@@ -389,19 +390,19 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 
 		gfpm_progress_show (TRUE);
 		GList *i = NULL;
-		PM_LIST *data, *pkgs;
+		PM_LIST *pdata, *pkgs;
 		for (i = (GList*)install_list; i; i = i->next)
 		{
 			char *target = i->data;
 			pacman_trans_addtarget (target);
 		}
-		if (gfpm_trans_prepare(data) == -1)
+		if (gfpm_trans_prepare(pdata) == -1)
 			goto cleanup;
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) gfpm_error (_("Error"), "Error getting transaction info");
 
 		/* commit transaction */
-		if (pacman_trans_commit(&data) == -1)
+		if (pacman_trans_commit(&pdata) == -1)
 		{
 			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
 			errorstr = g_string_append (errorstr, str);
@@ -559,8 +560,6 @@ gfpm_load_pkgs_tvw (const char *group_name)
 		}
 		else if (r == 0)
 		{
-			gboolean up = FALSE;
-			gboolean ln = FALSE;
 			pm_pkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
 			char *v1 = (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION);
@@ -944,7 +943,6 @@ gfpm_trans_prepare (PM_LIST *list)
 						depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_NAME));
 						switch ((long)pacman_dep_getinfo(m, PM_DEP_MOD))
 						{
-							gchar *val = NULL;
 							case PM_DEP_MOD_EQ:
 								val = g_strdup_printf ("=%s", (char*)pacman_dep_getinfo(m,PM_DEP_VERSION));
 								depstring = g_string_append (depstring, val);
@@ -1214,6 +1212,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	PM_LIST		*i = NULL;
 	gchar		*search_str;
 	gint		r = 0;
+	char		*v1 = NULL;
+	char		*v2 = NULL;
 
 	if (event->keyval != GDK_Return)
 		return;
@@ -1258,8 +1258,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		{
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
 			pm_spkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
-			char *v1 = (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION);
-			char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
+			v1 = (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION);
+			v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
 			if (v1!=NULL && v2!=NULL)
 			{
 				gint ret = pacman_pkg_vercmp (v1, v2);
@@ -1306,8 +1306,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			if (pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION)!=NULL)
 			{
 				inst = TRUE;
-				char *v1 = (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION);
-				char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
+				v1 = (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION);
+				v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
 				if (v1!=NULL && v2!=NULL)
 				{
 					gint ret = pacman_pkg_vercmp (v1, v2);
