@@ -262,7 +262,8 @@ gfpm_interface_init (void)
 
 
 	/* initialize modules */
-	gfpm_db_init ();
+	if (gfpm_db_init ())
+		gfpm_error (_("Error"), _("Failed to initialize local package database."));
 	gfpm_messages_init ();
 	gfpm_progress_init ();
 	gfpm_optimize_db_dlg_init ();
