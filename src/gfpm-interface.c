@@ -1021,8 +1021,6 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 				goto cleanup;
 			}
 		}
-		g_free (v1);
-		g_free (v2);
 	}
 	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 	{
