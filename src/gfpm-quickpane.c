@@ -1,5 +1,6 @@
 #include "gfpm-quickpane.h"
 #include "gfpm-packagelist.h"
+#include "gfpm-interface.h"
 #include <glade/glade.h>
 
 gchar *quickpane_pkg = NULL;

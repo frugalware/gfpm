@@ -923,7 +923,7 @@ gfpm_trans_prepare (PM_LIST *list)
 		str = g_strdup_printf (_("Failed to prepare transaction (%s)\n"), pacman_strerror (pm_errno));
 		gfpm_error (_("Error"), str);
 		g_free (str);
-		int t = pacman_trans_getinfo (PM_TRANS_TYPE);
+		int t = (long)pacman_trans_getinfo (PM_TRANS_TYPE);
 		switch ((long)pm_errno)
 		{
 			case PM_ERR_UNSATISFIED_DEPS:
