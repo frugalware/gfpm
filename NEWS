@@ -1,5 +1,26 @@
 VERSION					DESCRIPTION
 ---------------------------------------------------------------------------------------------------------
+1.0.2					- Fix segfault when trying to synchronize a repo 
+					  other than frugalware-current
+					- Fixed a bug where the package list went blank
+					  after an install / remove operation.
+					- Fixed a bug where gfpm crashed if a user tried
+					  to perform an operation on the same package in this
+					  sequence - Install, Remove, Install
+					- The progress dialog now shows details of the
+					  package operation in a scrolled window.
+					- Added the ability to auto-close progress
+					  dialog box when an operation is complete.
+					- Ask the user if he wants to delete the
+					  pacman-g2 lockfile. (#2387)
+					- Added the ability to optimize the pacman-g2
+					  package detabase.
+					- Miscellaneous fixes related to error messages.
+					- Added a new icon to indicate locally newer
+					  packages.
+					- Code cleanup
+					- Fixed some memory leaks
+					- Many minor bug fixes
 1.0.1					- *.po generation fixes
 					- added gfpm.desktop for KDE and GNOME/XFCE
 1.0.0 Triton (2007-09-05)		- Initial Release
