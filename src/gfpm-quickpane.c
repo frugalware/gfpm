@@ -60,6 +60,7 @@ gfpm_quickpane_show (gboolean show, gboolean what, gboolean upgrade)
 		else
 		{
 			gtk_widget_hide (quick_pane_remove_btn);
+			gtk_widget_hide (quick_pane_upgrade_btn);
 			gtk_widget_show (quick_pane_install_btn);
 		}
 	}
