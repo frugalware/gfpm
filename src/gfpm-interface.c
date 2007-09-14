@@ -40,6 +40,7 @@
 #include "gfpm-packagelist.h"
 #include "gfpm-progress.h"
 #include "gfpm-optimizedb.h"
+#include "gfpm-quickpane.h"
 #include "gfpm-util.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
@@ -50,6 +51,7 @@ extern PM_DB	*local_db;
 extern GfpmList *install_list;
 extern GfpmList *remove_list;
 extern char	*repo;
+extern gchar	*quickpane_pkg;
 
 /* current group the user is browsing */
 /* used for refreshing the views after a package update */
@@ -57,10 +59,10 @@ gchar *current_group = NULL;
 
 /* The GFPM main window */
 GtkWidget *gfpm_mw;
+GtkWidget *gfpm_pkgs_tvw;
 
 static GtkWidget *gfpm_statusbar;
 static GtkWidget *gfpm_groups_tvw;
-static GtkWidget *gfpm_pkgs_tvw;
 static GtkWidget *gfpm_info_tvw;
 static GtkWidget *gfpm_files_txtvw;
 static GtkWidget *gfpm_clrall_opt;
@@ -81,7 +83,6 @@ static void cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer dat
 static void cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event);
 static void cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
-static void cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
@@ -267,12 +268,13 @@ gfpm_interface_init (void)
 	gfpm_messages_init ();
 	gfpm_progress_init ();
 	gfpm_optimize_db_dlg_init ();
+	gfpm_quickpane_init ();
 
 	gtk_widget_hide (gfpm_splash);
 	title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
 	gtk_window_set_title (GTK_WINDOW(gfpm_mw), title);
 	g_free (title);
-	gtk_widget_show_all (gfpm_mw);
+	gtk_widget_show (gfpm_mw);
 
 	/* unref the glade xml object */
 	g_object_unref (xml);
@@ -280,7 +282,7 @@ gfpm_interface_init (void)
 	return;
 }
 
-static void
+void
 cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 {
 	static gchar *lck_error = ("Gfpm has detected that another instance of a package manager is already running. "
@@ -874,7 +876,6 @@ gfpm_load_info_tvw (const char *pkg_name)
 					break;
 		}
 		g_free (st);
-
 	}
 
 	return;
@@ -1118,13 +1119,45 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 	GtkTreeModel	*model;
 	GtkTreeIter	iter;
 	gchar		*pkgname = NULL;
-	gboolean	inst;
+	gchar		*v1 = NULL;
+	gchar		*v2 = NULL;
+	gboolean	inst = FALSE;
+	gboolean	up = FALSE;
 
+	/* free the old quickpane package name */
+	if (quickpane_pkg != NULL)
+	{
+		g_free (quickpane_pkg);
+		quickpane_pkg = NULL;
+	}
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
-		gtk_tree_model_get (model, &iter, 0, &inst, 2, &pkgname, -1);
+		gtk_tree_model_get (model, &iter, 2, &pkgname, 3, &v1, 4, &v2, -1);
+		quickpane_pkg = g_strdup (pkgname);
 		gfpm_load_info_tvw (pkgname);
+		if (v1 != NULL)
+			inst = TRUE;
 		gfpm_load_files_txtvw (pkgname, inst);
+		if (v1!=NULL && v2!=NULL)
+		{
+			gint ret = pacman_pkg_vercmp (v1, v2);
+			if (!ret)
+				up = FALSE;
+			else if (ret < 0)
+				up = TRUE;
+			else
+				up = FALSE;
+			if (!strlen((char*)v1))
+				up = FALSE;
+		}
+		else
+		{
+			up = FALSE;
+		}
+		gfpm_quickpane_show (TRUE, inst, up);
+	}
+	else
+	{
 		g_free (pkgname);
 	}
 

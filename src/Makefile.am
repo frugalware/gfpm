@@ -13,6 +13,7 @@ gfpm_SOURCES=				\
 			gfpm-interface.c \
 			gfpm-messages.c \
 			gfpm-optimizedb.c \
+			gfpm-quickpane.c \
 			gfpm-about.c \
 			gfpm.c
 
