@@ -65,6 +65,7 @@ static GtkWidget *gfpm_statusbar;
 static GtkWidget *gfpm_groups_tvw;
 static GtkWidget *gfpm_info_tvw;
 static GtkWidget *gfpm_files_txtvw;
+static GtkWidget *gfpm_clog_txtvw;
 static GtkWidget *gfpm_clrall_opt;
 static GtkWidget *gfpm_clrold_opt;
 static GtkWidget *gfpm_inst_from_file_dlg;
@@ -139,6 +140,7 @@ gfpm_interface_init (void)
 	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
 	gfpm_info_tvw	= glade_xml_get_widget (xml, "infotreeview");
 	gfpm_files_txtvw= glade_xml_get_widget (xml, "filestextview");
+	gfpm_clog_txtvw= glade_xml_get_widget (xml, "changelogtextview");
 	gfpm_clrold_opt = glade_xml_get_widget (xml, "rem_old_opt");
 	gfpm_clrall_opt = glade_xml_get_widget (xml, "rem_all_opt");
 	gfpm_inst_from_file_dlg = glade_xml_get_widget (xml, "inst_from_file_dlg");
@@ -912,6 +914,54 @@ gfpm_load_files_txtvw (const char *pkg_name, gboolean inst)
 	return;
 }
 
+void
+gfpm_load_changelog_txtvw (const char *pkg_name, gboolean inst)
+{
+	GtkTextBuffer	*buffer;
+	GtkTextIter		iter;
+	
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_clog_txtvw));
+	gtk_text_buffer_set_text (buffer, "", 0);
+	gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
+
+	if (inst == TRUE)
+	{
+		PM_PKG *pkg = NULL;
+		gchar *dbpath = NULL;
+		gchar logpath[PATH_MAX];
+		FILE *fp = NULL;
+		gchar line[PATH_MAX+1];
+		pkg = pacman_db_readpkg (local_db, (char*)pkg_name);
+		pacman_get_option (PM_OPT_DBPATH, (long*) &dbpath);
+		snprintf (logpath, PATH_MAX, "/%s/%s/%s-%s/changelog",
+				dbpath,
+				(char*)pacman_db_getinfo (local_db, PM_DB_TREENAME),
+				(char*)pacman_pkg_getinfo (pkg, PM_PKG_NAME),
+				(char*)pacman_pkg_getinfo (pkg, PM_PKG_VERSION));
+		pacman_pkg_free (pkg);
+		if ((fp = fopen(logpath, "r")) == NULL)
+		{
+			gtk_text_buffer_insert (buffer, &iter, _("No changelog available for this package"), -1);
+		}
+		else
+		{
+			while (!feof(fp))
+			{
+				fgets (line, PATH_MAX, fp);
+				gtk_text_buffer_insert (buffer, &iter, line, -1);
+				line[0] = 0;
+			}
+			fclose (fp);
+		}
+	}
+	else
+	{
+		gtk_text_buffer_insert (buffer, &iter, _("Package is not installed"), -1);
+	}
+
+	return;
+}
+
 static gint
 gfpm_trans_prepare (PM_LIST *list)
 {
@@ -1138,6 +1188,7 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 		if (v1 != NULL)
 			inst = TRUE;
 		gfpm_load_files_txtvw (pkgname, inst);
+		gfpm_load_changelog_txtvw (pkgname, inst);
 		if (v1!=NULL && v2!=NULL)
 		{
 			gint ret = pacman_pkg_vercmp (v1, v2);
