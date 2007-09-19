@@ -62,6 +62,7 @@ gfpm_get_icon (const char *icon, int size)
 gint
 gfpm_check_if_package_updatable (const gchar *package)
 {
+	gint ret = 0;
 	PM_PKG *pm_glpkg = NULL;
 	PM_PKG *pm_gspkg = NULL;
 	extern PM_DB *local_db;
@@ -75,12 +76,12 @@ gfpm_check_if_package_updatable (const gchar *package)
 		char *v2 = (char*)pacman_pkg_getinfo (pm_glpkg, PM_PKG_VERSION);
 		if (pacman_pkg_vercmp(v1,v2)==1)
 		{
-			return 1;
+			ret = 1;
 		}
 	}
 	pacman_pkg_free (pm_glpkg);
 	pacman_pkg_free (pm_gspkg);
 
-	return 0;
+	return ret;
 }
 

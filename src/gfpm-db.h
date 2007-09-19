@@ -11,7 +11,7 @@
 #include <gtk/gtk.h>
 
 #define FW_CURRENT	"frugalware-current"
-#define FW_STABLE	"frugalware-stable"
+#define FW_STABLE	"frugalware"
 #define FW_LOCAL	"local"
 
 void gfpm_db_register (const char *);
