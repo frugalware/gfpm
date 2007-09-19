@@ -78,6 +78,8 @@ gfpm_check_if_package_updatable (const gchar *package)
 			return 1;
 		}
 	}
+	pacman_pkg_free (pm_glpkg);
+	pacman_pkg_free (pm_gspkg);
 
 	return 0;
 }
