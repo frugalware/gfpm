@@ -45,6 +45,7 @@ static gchar	*license =
 
 
 extern GtkWidget *gfpm_mw;
+static GtkWidget *about_dlg = NULL;
 static GdkPixbuf *about_pixbuf = NULL;
 static gchar *authors[] = {	"Priyank M. Gosalia <priyankmg@gmail.com>",
 				"Christian Hamar <krics@linuxforum.hu>" ,
@@ -57,27 +58,59 @@ static gchar *artists[] = {	"Viktor Gondor <nadfoka@frugalware.org>",
 				"Priyank Gosalia <priyankmg@gmail.com>",
 				NULL
 			};
+
+static void gfpm_about_dlg_create (void);
+static void gfpm_about_dlg_hide (void);
+
+static void
+gfpm_about_dlg_create (void)
+{
+	gchar *ver = NULL;
+	GList *list;
+
+	if (!about_pixbuf)
+		about_pixbuf = gfpm_get_icon ("gfpm", 128);
+	ver = g_strdup_printf ("%s (%s)", VERSION, GFPM_RELEASE_NAME);
+	about_dlg = gtk_about_dialog_new ();
+	gtk_about_dialog_set_name (GTK_ABOUT_DIALOG(about_dlg), PACKAGE);
+	gtk_about_dialog_set_version (GTK_ABOUT_DIALOG(about_dlg), ver);
+	gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about_dlg), _("(C) 2006-2007 Frugalware Developer Team (GPL)"));
+	gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG(about_dlg), _("A graphical package manager for Frugalware Linux"));
+	gtk_about_dialog_set_license (GTK_ABOUT_DIALOG(about_dlg), license);
+	gtk_about_dialog_set_website (GTK_ABOUT_DIALOG(about_dlg), "http://www.frugalware.org/");
+	gtk_about_dialog_set_website_label (GTK_ABOUT_DIALOG(about_dlg), "http://www.frugalware.org/");
+	gtk_about_dialog_set_logo (GTK_ABOUT_DIALOG(about_dlg), about_pixbuf);
+	gtk_about_dialog_set_wrap_license (GTK_ABOUT_DIALOG(about_dlg), TRUE);
+	gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG(about_dlg), authors);
+	gtk_about_dialog_set_artists (GTK_ABOUT_DIALOG(about_dlg), artists);
+	gtk_about_dialog_set_translator_credits (GTK_ABOUT_DIALOG(about_dlg), _("translator-credits"));
+	g_signal_connect (G_OBJECT(about_dlg), "destroy", G_CALLBACK(gtk_widget_destroyed), &about_dlg);
+
+	list = gtk_container_get_children (GTK_CONTAINER((GTK_DIALOG(about_dlg))->action_area));
+	list = list->next;
+	list = list->next;
+	g_signal_connect (G_OBJECT(list->data), "clicked", G_CALLBACK(gfpm_about_dlg_hide), NULL);
+	g_free (ver);
+
+	return;
+}
+
+static void
+gfpm_about_dlg_hide (void)
+{
+	gtk_widget_hide (about_dlg);
+
+	return;
+}
+
 void
 gfpm_about (void)
 {
-	gchar *ver = g_strdup_printf ("%s (%s)", VERSION, GFPM_RELEASE_NAME);
-	if (!about_pixbuf)
-		about_pixbuf = gfpm_get_icon ("gfpm", 128);
-	gtk_show_about_dialog (GTK_WINDOW(gfpm_mw),
-				"name", PACKAGE,
-				"version", ver,
-				"copyright", _("(C) 2006-2007 Frugalware Developer Team (GPL)"),
-				"comments", _("A graphical package manager for Frugalware Linux."),
-				"license", license,
-				"authors", authors,
-				"artists", artists,
-				"translator-credits", _("translator-name"),
-				"website", "http://www.frugalware.org/",
-				"website-label", "http://www.frugalware.org/",
-				"logo", about_pixbuf,
-				"wrap-license", TRUE,
-				NULL);
-	g_free (ver);
+	if (about_dlg == NULL)
+		gfpm_about_dlg_create ();
+
+	gtk_widget_show (about_dlg);
+
 	return;
 }
 
