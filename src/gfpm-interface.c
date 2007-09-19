@@ -1046,34 +1046,38 @@ static void
 cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 {
 	gint ret;
-	PM_PKG *pm_lpkg, *pm_spkg;
 	PM_LIST *packages;
-	static gchar *updatestr =
-		("Gfpm has detected a newer version of the pacman-g2 package. "
-		 "It is recommended that you allow gfpm to upgrade pacman-g2 first. "
-		 "Do you want to continue upgrading pacman-g2 ?");
+	gchar *updatestr = NULL;
 
 	gfpm_progress_set_main_text (_("Synchronizing package databases"), 1);
 	gfpm_progress_show (TRUE);
 	ret = pacman_db_update (0, sync_db);
 	gfpm_progress_show (FALSE);
 	/* check for a pacman-g2 update */
-	pm_lpkg = pacman_db_readpkg (local_db, "pacman-g2");
-	pm_spkg = pacman_db_readpkg (sync_db, "pacman-g2");
-	if (pm_lpkg && pm_spkg)
+	if (gfpm_check_if_package_updatable ("pacman-g2"))
 	{
-		char *v1 = (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION);
-		char *v2 = (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION);
-		if (pacman_pkg_vercmp(v1,v2)==1)
+		updatestr = g_strdup_printf (_("Gfpm has detected a newer version of the pacman-g2 package. It is recommended that you allow gfpm to update pacman-g2 first. Do you wish to continue upgrading pacman-g2 ?"));
+		if (gfpm_question (_("Update pacman-g2"), updatestr) == GTK_RESPONSE_YES)
 		{
-			if (gfpm_question (_("Update pacman-g2"), updatestr) == GTK_RESPONSE_YES)
-			{
 				gfpm_package_list_add (GFPM_INSTALL_LIST, "pacman-g2");
 				cb_gfpm_apply_btn_clicked (NULL, NULL);
-				goto cleanup;
-			}
+				pacman_trans_release ();
 		}
+		g_free (updatestr);
 	}
+	/* check for a pacman-g2 update */
+	if (gfpm_check_if_package_updatable ("gfpm"))
+	{
+		updatestr = g_strdup_printf (_("Gfpm has detected a newer version of the gfpm package. It is recommended that you allow gfpm to update itself first. Do you wish to continue upgrading gfpm ?"));
+		if (gfpm_question (_("Update Gfpm"), updatestr) == GTK_RESPONSE_YES)
+		{
+				gfpm_package_list_add (GFPM_INSTALL_LIST, "gfpm");
+				cb_gfpm_apply_btn_clicked (NULL, NULL);
+				pacman_trans_release ();
+		}
+		g_free (updatestr);
+	}
+	
 	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, 0, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
 	{
 		gchar *str;
@@ -1118,8 +1122,6 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	}
 
 cleanup:
-	pacman_pkg_free (pm_lpkg);
-	pacman_pkg_free (pm_spkg);
 	pacman_trans_release ();
 
 	return;

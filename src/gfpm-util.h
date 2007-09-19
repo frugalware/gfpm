@@ -18,4 +18,6 @@ GList * gfpm_pmlist_to_glist (PM_LIST *);
 
 GdkPixbuf *gfpm_get_icon (const char *, int);
 
+gint gfpm_check_if_package_updatable (const gchar *);
+
 #endif

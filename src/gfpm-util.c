@@ -59,3 +59,26 @@ gfpm_get_icon (const char *icon, int size)
 	return ret;
 }
 
+gint
+gfpm_check_if_package_updatable (const gchar *package)
+{
+	PM_PKG *pm_glpkg = NULL;
+	PM_PKG *pm_gspkg = NULL;
+	extern PM_DB *local_db;
+	extern PM_DB *sync_db;
+	
+	pm_glpkg = pacman_db_readpkg (local_db, package);
+	pm_gspkg = pacman_db_readpkg (sync_db, package);
+	if (pm_glpkg && pm_gspkg)
+	{
+		char *v1 = (char*)pacman_pkg_getinfo (pm_gspkg, PM_PKG_VERSION);
+		char *v2 = (char*)pacman_pkg_getinfo (pm_glpkg, PM_PKG_VERSION);
+		if (pacman_pkg_vercmp(v1,v2)==1)
+		{
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
