@@ -106,7 +106,7 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 		char *c_repo = (char *)pacman_db_getinfo ((PM_DB *)rlist->data, PM_DB_TREENAME);
 		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter, 0, c_repo, -1);
-		if (!strcmp(c_repo, FW_CURRENT) || !(strcmp(c_repo, FW_STABLE))
+		if (!strcmp(c_repo, FW_CURRENT) || !strcmp(c_repo, FW_STABLE))
 			c_index++;
 	}
 	gtk_list_store_append (store, &iter);
@@ -1431,6 +1431,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					-1);
 			pacman_pkg_free (pm_pkg);
 			pacman_pkg_free (pm_lpkg);
+			while (gtk_events_pending())
+				gtk_main_iteration ();
 		}
 	}
 	pacman_set_option (PM_OPT_NEEDLES, (long)NULL);
