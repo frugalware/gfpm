@@ -139,8 +139,8 @@ gfpm_interface_init (void)
 	gfpm_groups_tvw = glade_xml_get_widget (xml, "grouptreeview");
 	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
 	gfpm_info_tvw	= glade_xml_get_widget (xml, "infotreeview");
-	gfpm_files_txtvw= glade_xml_get_widget (xml, "filestextview");
-	gfpm_clog_txtvw= glade_xml_get_widget (xml, "changelogtextview");
+	gfpm_files_txtvw = glade_xml_get_widget (xml, "filestextview");
+	gfpm_clog_txtvw = glade_xml_get_widget (xml, "changelogtextview");
 	gfpm_clrold_opt = glade_xml_get_widget (xml, "rem_old_opt");
 	gfpm_clrall_opt = glade_xml_get_widget (xml, "rem_all_opt");
 	gfpm_inst_from_file_dlg = glade_xml_get_widget (xml, "inst_from_file_dlg");
@@ -404,7 +404,7 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		if (gfpm_trans_prepare(pdata) == -1)
 			goto cleanup;
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
-		if (pkgs == NULL) gfpm_error (_("Error"), "Error getting transaction info");
+		if (pkgs == NULL) gfpm_error (_("Error"), _("Error getting transaction info"));
 
 		/* commit transaction */
 		if (pacman_trans_commit(&pdata) == -1)

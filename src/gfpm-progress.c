@@ -34,7 +34,7 @@ extern GladeXML		*xml;
 extern GtkWidget	*gfpm_mw;
 
 GtkProgressBar		*progressbar = NULL;
-GtkWidget		*progresswindow = NULL;
+GtkWidget			*progresswindow = NULL;
 static GtkWidget	*main_label = NULL;
 static GtkWidget	*sub_label = NULL;
 static GtkWidget	*rate_label = NULL;
@@ -48,11 +48,11 @@ static GtkWidget	*autoclose_checkbtn = NULL;
 GtkTextIter	t_iter;
 GtkTextBuffer *buffer = NULL;
 
-float			rate;
-int			offset;
-int			xferred1;
-struct timeval		t0, t;
-char 			reponame[PM_DLFNM_LEN+1];
+float	rate;
+int		offset;
+int		xferred1;
+struct 	timeval		t0, t;
+char 	reponame[PM_DLFNM_LEN+1];
 
 static void gfpm_progress_textview_reset (void);
 
@@ -168,13 +168,13 @@ gfpm_progress_show (gboolean show)
 int
 gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 {
-	int		size;
-	int		per;
-	char		text[6];
-	char		rate_text[10];
+	int				size;
+	int				per;
+	char			text[6];
+	char			rate_text[10];
 	struct timeval 	t1;
-	float 		tdiff;
-	gchar		*rx_str = NULL;
+	float 			tdiff;
+	gchar			*rx_str = NULL;
 
 	while (gtk_events_pending())
 		gtk_main_iteration ();
