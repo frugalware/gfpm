@@ -478,6 +478,7 @@ gfpm_load_groups_tvw (const char *repo_name)
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, (char*)pacman_list_getdata(l), -1);
 		g_free (temp);
+		while (gtk_events_pending()) gtk_main_iteration ();
 	}
 
 	gfpm_update_status (_("Loading groups ... DONE"));
