@@ -518,6 +518,7 @@ gfpm_load_pkgs_tvw (const char *group_name)
 	icon_no = gfpm_get_icon (ICON_NINSTALLED, 16);
 	icon_up = gfpm_get_icon (ICON_NEEDUPDATE, 16);
 	icon_ln = gfpm_get_icon (ICON_LOCALNEWER, 16);
+	while (gtk_events_pending()) gtk_main_iteration ();
 	// display status
 	for (i=l;i;i=pacman_list_next(i))
 	{
@@ -596,12 +597,10 @@ gfpm_load_pkgs_tvw (const char *group_name)
 						//5, g_strstrip((char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC)),
 						-1);
 		}
-		while (gtk_events_pending()) gtk_main_iteration ();
 		pacman_pkg_free (pm_pkg);
 		pacman_pkg_free (pm_lpkg);
+		while (gtk_events_pending()) gtk_main_iteration ();
 	}
-	//while (gtk_events_pending())
-	//	gtk_main_iteration_do (TRUE);
 	gfpm_update_status (_("Loading package list ...DONE"));
 
 	g_object_unref (icon_yes);
