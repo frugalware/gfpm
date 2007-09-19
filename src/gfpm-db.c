@@ -36,11 +36,8 @@ static void _db_callback (char *section, PM_DB *db);
 int
 gfpm_db_init (void)
 {
-	//if (NULL == (sync_db=pacman_db_register(FW_CURRENT)))
-	//	return 1;
 	if (NULL == (local_db=pacman_db_register(FW_LOCAL)))
 		return 1;
-	//asprintf (&repo, "%s", FW_CURRENT);
 
 	return 0;
 }

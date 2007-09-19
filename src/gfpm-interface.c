@@ -106,7 +106,7 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 		char *c_repo = (char *)pacman_db_getinfo ((PM_DB *)rlist->data, PM_DB_TREENAME);
 		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter, 0, c_repo, -1);
-		if (!strcmp(c_repo,FW_CURRENT))
+		if (!strcmp(c_repo, FW_CURRENT) || !(strcmp(c_repo, FW_STABLE))
 			c_index++;
 	}
 	gtk_list_store_append (store, &iter);
@@ -262,7 +262,6 @@ gfpm_interface_init (void)
 		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_refresh1")), FALSE);
 		gtk_widget_set_sensitive (GTK_WIDGET(glade_xml_get_widget(xml, "button_file1")), FALSE);
 	}
-
 
 	/* initialize modules */
 	if (gfpm_db_init ())

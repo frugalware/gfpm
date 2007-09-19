@@ -460,10 +460,10 @@ gfpm_input (const char *title, const char *message, int *res)
 						GTK_WINDOW(gfpm_mw),
 						GTK_DIALOG_DESTROY_WITH_PARENT,
 						GTK_STOCK_OK,
-                                         	GTK_RESPONSE_ACCEPT,
-                                         	GTK_STOCK_CANCEL,
-                                         	GTK_RESPONSE_REJECT,
-                                         	NULL);
+                        GTK_RESPONSE_ACCEPT,
+                        GTK_STOCK_CANCEL,
+                        GTK_RESPONSE_REJECT,
+                        NULL);
 	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
 	label = gtk_label_new (message);
 	entry = gtk_entry_new ();
@@ -489,64 +489,64 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 		char *str = NULL;
 
 		case PM_TRANS_CONV_REPLACE_PKG:
-			str = g_strdup_printf ("Do you want to replace %s with %s/%s ?",
+			str = g_strdup_printf (_("Do you want to replace %s with %s/%s ?"),
 						(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 						(char*)data3,
 						(char*)pacman_pkg_getinfo (data2, PM_PKG_NAME));
-			if (gfpm_question(_("Replace package"), _(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Replace package"), str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
 			break;
 		case PM_TRANS_CONV_INSTALL_IGNOREPKG:
-			str = g_strdup_printf ("%s requires %s, but it is IgnorePkg. Install anyway?",
+			str = g_strdup_printf (_("%s requires %s, but it is IgnorePkg. Install anyway?"),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 									(char*)pacman_pkg_getinfo (data2, PM_PKG_NAME));
-			if (gfpm_question("Gfpm", _(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question("Gfpm", str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
 			break;
 		case PM_TRANS_CONV_REMOVE_HOLDPKG:
-			str = g_strdup_printf ("%s is designated as HoldPkg. Remove anyway?",
+			str = g_strdup_printf (_("%s is designated as HoldPkg. Remove anyway?"),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME));
-			if (gfpm_question("Gfpm", _(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question("Gfpm", str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
 			break;
 		case PM_TRANS_CONV_CONFLICT_PKG:
-			str = g_strdup_printf ("%s conflicts with %s. Remove %s?",
+			str = g_strdup_printf (_("%s conflicts with %s. Remove %s?"),
 									(char*)data1,
 									(char*)data2,
 									(char*)data2);
-			if (gfpm_question(_("Conflict"), _(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Conflict"), str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
 			break;
 		case PM_TRANS_CONV_LOCAL_NEWER:
-			str = g_strdup_printf ("%s-%s: local version is newer. Upgrade anyway?",
+			str = g_strdup_printf (_("%s-%s: local version is newer. Upgrade anyway?"),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
-			if (gfpm_question(_("Local version newer"), _(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Local version newer"), str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
 			break;
 		case PM_TRANS_CONV_LOCAL_UPTODATE:
-			str = g_strdup_printf ("%s-%s: local version is up to date. Upgrade anyway?",
+			str = g_strdup_printf (_("%s-%s: local version is up to date. Upgrade anyway?"),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_VERSION));
-			if (gfpm_question(_("Local version up to date"), _(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Local version up to date"), str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
 			break;
 		case PM_TRANS_CONV_CORRUPTED_PKG:
-			str = g_strdup_printf ("Archive %s is corrupted. Do you want to delete it?",
+			str = g_strdup_printf (_("Archive %s is corrupted. Do you want to delete it?"),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME));
-			if (gfpm_question(_("Package corrupted"), _(str)) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Package corrupted"), str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
