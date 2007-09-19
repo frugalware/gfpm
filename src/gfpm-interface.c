@@ -1065,7 +1065,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 		}
 		g_free (updatestr);
 	}
-	/* check for a pacman-g2 update */
+	/* check for a gfpm update */
 	if (gfpm_check_if_package_updatable ("gfpm"))
 	{
 		updatestr = g_strdup_printf (_("Gfpm has detected a newer version of the gfpm package. It is recommended that you allow gfpm to update itself first. Do you wish to continue upgrading gfpm ?"));
@@ -1096,8 +1096,6 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 	}
 	packages = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 
-	/* Drop 'no changes to apply' instead of an empty list, if no need to
-	   upgrade any package */
 	if (packages == NULL)
 	{
 		gfpm_message ("No new updates available", _("No new package updates are available. The system is up to date."));
@@ -1106,17 +1104,6 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 
 	if (gfpm_plist_question(_("Package upgrade"), _("Following packages will be upgraded. Do you want to continue ?"), gfpm_pmlist_to_glist(packages)) == GTK_RESPONSE_YES)
 	{
-	/*
-		PM_LIST *i = NULL;
-		gfpm_package_list_free (GFPM_INSTALL_LIST);
-		gfpm_package_list_free (GFPM_REMOVE_LIST);
-		for (i=pacman_list_first(packages);i;i=pacman_list_next(i))
-		{
-			PM_SYNCPKG *sync = pacman_list_getdata (i);
-			PM_PKG *pk = pacman_sync_getinfo (sync, PM_SYNC_PKG);
-			gfpm_package_list_add (GFPM_INSTALL_LIST, pacman_pkg_getinfo(pk, PM_PKG_NAME));
-		}
-	*/
 		pacman_trans_release ();
 		cb_gfpm_apply_btn_clicked (NULL, NULL);
 	}
