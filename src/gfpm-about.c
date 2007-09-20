@@ -47,17 +47,25 @@ static gchar	*license =
 extern GtkWidget *gfpm_mw;
 static GtkWidget *about_dlg = NULL;
 static GdkPixbuf *about_pixbuf = NULL;
-static gchar *authors[] = {	"Priyank M. Gosalia <priyankmg@gmail.com>",
+static const gchar *authors[] = { \
+				"Priyank M. Gosalia <priyankmg@gmail.com>",
 				"Christian Hamar <krics@linuxforum.hu>" ,
 				"Miklos Nemeth <desco@frugalware.org>",
 				NULL
 			};
 
-static gchar *artists[] = {	"Viktor Gondor <nadfoka@frugalware.org>",
+static const gchar *artists[] = { \
+				"Viktor Gondor <nadfoka@frugalware.org>",
 				"Sekkyumu <charavel.olivier@gmail.com>",
 				"Priyank Gosalia <priyankmg@gmail.com>",
 				NULL
 			};
+
+static const gchar translators[] = \
+				"Carl Andersen <carl@frugalware.dk> (da_DK)\n"
+				"Michel Hermier <michel.hermier@gmail.com> (fr_FR)\n"
+				"Vajna Miklos <vmiklos@frugalware.org> (hu_HU)\n"
+				"Patric Werme <xenonpower@clovermail.net> (sv_SE)\n";
 
 static void gfpm_about_dlg_create (void);
 static void gfpm_about_dlg_hide (void);
@@ -83,7 +91,7 @@ gfpm_about_dlg_create (void)
 	gtk_about_dialog_set_wrap_license (GTK_ABOUT_DIALOG(about_dlg), TRUE);
 	gtk_about_dialog_set_authors (GTK_ABOUT_DIALOG(about_dlg), authors);
 	gtk_about_dialog_set_artists (GTK_ABOUT_DIALOG(about_dlg), artists);
-	gtk_about_dialog_set_translator_credits (GTK_ABOUT_DIALOG(about_dlg), _("translator-credits"));
+	gtk_about_dialog_set_translator_credits (GTK_ABOUT_DIALOG(about_dlg), translators);
 	g_signal_connect (G_OBJECT(about_dlg), "destroy", G_CALLBACK(gtk_widget_destroyed), &about_dlg);
 
 	list = gtk_container_get_children (GTK_CONTAINER((GTK_DIALOG(about_dlg))->action_area));
