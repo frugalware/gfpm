@@ -1121,7 +1121,7 @@ cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data)
 	gchar *text = NULL;
 
 	text = gtk_combo_box_get_active_text (combo);
-	if (!strcmp(text, "Installed Packages"))
+	if (!strcmp(text, _("Installed Packages")))
 	{
 		g_free (text);
 		text = g_strdup ("local");
