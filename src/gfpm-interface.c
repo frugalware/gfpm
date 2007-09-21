@@ -276,6 +276,7 @@ gfpm_interface_init (void)
 	gtk_window_set_title (GTK_WINDOW(gfpm_mw), title);
 	g_free (title);
 	gtk_widget_show (gfpm_mw);
+	gtk_window_present (gfpm_mw);
 
 	/* unref the glade xml object */
 	g_object_unref (xml);
