@@ -276,7 +276,7 @@ gfpm_interface_init (void)
 	gtk_window_set_title (GTK_WINDOW(gfpm_mw), title);
 	g_free (title);
 	gtk_widget_show (gfpm_mw);
-	gtk_window_present (gfpm_mw);
+	gtk_window_present (GTK_WINDOW(gfpm_mw));
 
 	/* unref the glade xml object */
 	g_object_unref (xml);
@@ -518,6 +518,8 @@ gfpm_load_pkgs_tvw (const char *group_name)
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 	icon_yes = gfpm_get_icon (ICON_INSTALLED, 16);
 	icon_no = gfpm_get_icon (ICON_NINSTALLED, 16);
+	//icon_yes = gtk_widget_render_icon (gfpm_pkgs_tvw, GTK_STOCK_YES, GTK_ICON_SIZE_MENU, NULL);
+	//icon_no = gtk_widget_render_icon (gfpm_pkgs_tvw, GTK_STOCK_NO, GTK_ICON_SIZE_MENU, NULL);
 	icon_up = gfpm_get_icon (ICON_NEEDUPDATE, 16);
 	icon_ln = gfpm_get_icon (ICON_LOCALNEWER, 16);
 	while (gtk_events_pending()) gtk_main_iteration ();
@@ -1198,6 +1200,7 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 			inst = TRUE;
 		gfpm_load_files_txtvw (pkgname, inst);
 		gfpm_load_changelog_txtvw (pkgname, inst);
+
 		if (v1!=NULL && v2!=NULL)
 		{
 			gint ret = pacman_pkg_vercmp (v1, v2);
@@ -1215,6 +1218,25 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 			up = FALSE;
 		}
 		gfpm_quickpane_show (TRUE, inst, up);
+		/* show the 'View Readme' button for packages that have a README.Frugalware */
+		if (inst == TRUE)
+		{
+			char *readme_path = NULL;
+			/* strip the pkgrel from version string */
+			char *ver = g_strdup (v1);
+			char *pkgver;
+			pkgver = strrchr (ver, '-');
+			*pkgver = 0;
+			/* generate the path for the README.Frugalware file */
+			readme_path = g_strdup_printf ("/usr/share/doc/%s-%s/README.Frugalware", pkgname, ver);
+			if (g_file_test (readme_path, G_FILE_TEST_EXISTS))
+			{
+				gfpm_quickpane_readme_btn_show ();
+				gfpm_quickpane_readme_dlg_populate (readme_path);
+			}
+			g_free (readme_path);
+			g_free (ver);
+		}
 	}
 	else
 	{

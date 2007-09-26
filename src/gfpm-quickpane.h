@@ -8,7 +8,13 @@
 
 void gfpm_quickpane_init (void);
 
+void gfpm_quickpane_readme_btn_show (void);
+
 void gfpm_quickpane_show (gboolean, gboolean, gboolean);
+
+void gfpm_quickpane_readme_dlg_populate (const char *);
+
+void gfpm_quickpane_readme_dlg_show (void);
 
 #endif
 
