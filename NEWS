@@ -1,5 +1,20 @@
 VERSION					DESCRIPTION
 ---------------------------------------------------------------------------------------------------------
+1.0.3					- Added a quick pane to enable user to quickly install/remove/
+					  upgrade packages quickly
+					- Package info now also displays the Changelog of the packages
+					- Gfpm now also checks for a new version of the gfpm package on
+					  sys upgrade
+					- Bugfix when handling frugalware stable repo
+					- Fixed the problem of accents not being displayed with some languages
+					  like fr_FR, hu_HU etc. This also prevents gfpm to crash randomly.
+					- Fixed a bug that caused the "Installed Packages" list to be empty when
+					  gfpm is run on a locale other than en
+					- Package info now also dispalyes the packages that the selected package
+					  replaces
+					- Gfpm now also displays README.Frugalware (Frugalware specific info about
+					  a package) if it exists
+					- Other minor fixes
 1.0.2					- Fix segfault when trying to synchronize a repo 
 					  other than frugalware-current
 					- Fixed a bug where the package list went blank
