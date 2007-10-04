@@ -1,7 +1,7 @@
 SUBDIRS = icons
 
 gladedir	= $(datadir)/gfpm
-glade_DATA	= gfpm.glade splash.png
+glade_DATA	= gfpm.ui splash.png
 
 gnomedesktopdir = $(datadir)/applications
 gnomedesktop_DATA = gfpm.desktop

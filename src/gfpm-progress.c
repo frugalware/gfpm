@@ -22,7 +22,6 @@
 #define _GNU_SOURCE
 #include <time.h>
 #include <sys/time.h>
-#include <glade/glade.h>
 #include "gfpm.h"
 #include "gfpm-progress.h"
 
@@ -30,11 +29,11 @@
 #include "config.h"
 #endif
 
-extern GladeXML		*xml;
+extern GtkBuilder	*xml;
 extern GtkWidget	*gfpm_mw;
 
 GtkProgressBar		*progressbar = NULL;
-GtkWidget			*progresswindow = NULL;
+GtkWidget		*progresswindow = NULL;
 static GtkWidget	*main_label = NULL;
 static GtkWidget	*sub_label = NULL;
 static GtkWidget	*rate_label = NULL;
@@ -69,18 +68,18 @@ gfpm_progress_init (void)
 	pacman_set_option (PM_OPT_DLRATE, (long)&rate);
 	pacman_set_option (PM_OPT_DLFNM, (long)reponame);
 
-	progressbar = GTK_PROGRESS_BAR(glade_xml_get_widget (xml, "progressbar1"));
-	progresswindow = glade_xml_get_widget (xml, "progresswindow");
-	main_label = glade_xml_get_widget (xml, "main_pr_label");
-	sub_label = glade_xml_get_widget (xml, "sub_pr_label");
-	rate_label = glade_xml_get_widget (xml, "rate_pr_label");
-	rate_box = glade_xml_get_widget (xml, "rate_pr_box");
-	rec_label = glade_xml_get_widget (xml, "rx_pr_label");
-	progress_txtvw = glade_xml_get_widget (xml, "progress_txtvw");
-	button_close = glade_xml_get_widget (xml, "close_progress");
-	details_scroll = glade_xml_get_widget (xml, "details_scrollwindow");
-	autoclose_checkbtn = glade_xml_get_widget (xml, "autoclose_checkbtn");
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml,"show_details")),
+	progressbar = GTK_PROGRESS_BAR(gtk_builder_get_object (xml, "progressbar1"));
+	progresswindow = GTK_WIDGET (gtk_builder_get_object (xml, "progresswindow"));
+	main_label = GTK_WIDGET (gtk_builder_get_object (xml, "main_pr_label"));
+	sub_label = GTK_WIDGET (gtk_builder_get_object (xml, "sub_pr_label"));
+	rate_label = GTK_WIDGET (gtk_builder_get_object (xml, "rate_pr_label"));
+	rate_box = GTK_WIDGET (gtk_builder_get_object (xml, "rate_pr_box"));
+	rec_label = GTK_WIDGET (gtk_builder_get_object (xml, "rx_pr_label"));
+	progress_txtvw = GTK_WIDGET (gtk_builder_get_object (xml, "progress_txtvw"));
+	button_close = GTK_WIDGET (gtk_builder_get_object (xml, "close_progress"));
+	details_scroll = GTK_WIDGET (gtk_builder_get_object (xml, "details_scrollwindow"));
+	autoclose_checkbtn = GTK_WIDGET (gtk_builder_get_object (xml, "autoclose_checkbtn"));
+	g_signal_connect (gtk_builder_get_object(xml,"show_details"),
 					"toggled",
 					G_CALLBACK(cb_gfpm_details_button_toggled),
 					NULL);

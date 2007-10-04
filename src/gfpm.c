@@ -21,7 +21,6 @@
 #define _GNU_SOURCE
 #include <locale.h>
 #include <gtk/gtk.h>
-#include <glade/glade.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -32,14 +31,15 @@
 #include "gfpm-messages.h"
 #include "gfpm-db.h"
 
-#define GLADE_FILE	"/share/gfpm/gfpm.glade"
+#define UI_FILE	"/share/gfpm/gfpm.ui"
 
-GladeXML *xml = NULL;
+GtkBuilder *xml = NULL;
 
 int
 main (int argc, char *argv[])
 {
 	gchar *path;
+	GError *error = NULL;
 
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
@@ -48,17 +48,19 @@ main (int argc, char *argv[])
 
 	gtk_init (&argc, &argv);
 
-	path = g_strdup_printf ("%s%s", PREFIX, GLADE_FILE);
-	xml = glade_xml_new (path, NULL, NULL);
-	g_free (path);
+	path = g_strdup_printf ("%s%s", PREFIX, UI_FILE);
+	xml = gtk_builder_new ();
 
-	if (!xml)
+	if (!gtk_builder_add_from_file(xml, path, &error))
 	{
-		gfpm_error (_("Interface initialization failed"), _("Failed to initialize interface."));
+		gchar *errstr = g_strdup_printf ("%s%s", _("Failed to initialize interface: "), error->message);
+		gfpm_error (_("Interface initialization failed"), errstr);
+		g_free (errstr);
 		return 1;
 	}
+	g_free (path);
 
-	glade_xml_signal_autoconnect (xml);
+	gtk_builder_connect_signals (xml, NULL);
 
 	if (pacman_initialize ("/") == -1)
 	{
