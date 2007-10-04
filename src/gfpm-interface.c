@@ -243,22 +243,22 @@ gfpm_interface_init (void)
 		gfpm_populate_repos_combobox (GTK_COMBO_BOX(widget));
 
 	/* search */
-	g_signal_connect (G_OBJECT(gtk_builder_get_object(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
+	g_signal_connect (gtk_builder_get_object(xml, "search_entry1"), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
 
 	/* about */
-	g_signal_connect (G_OBJECT(gtk_builder_get_object(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
+	g_signal_connect (gtk_builder_get_object(xml, "about_gfpm1"), "activate", G_CALLBACK(gfpm_about), NULL);
 
 	/* aply */
-	g_signal_connect (G_OBJECT(gtk_builder_get_object(xml, "button_apply")), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
+	g_signal_connect (gtk_builder_get_object(xml, "button_apply"), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
 
 	/* refresh db */
-	g_signal_connect (G_OBJECT(gtk_builder_get_object(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_gfpm_refresh_button_clicked), NULL);
+	g_signal_connect (gtk_builder_get_object(xml, "button_refresh1"), "clicked", G_CALLBACK(cb_gfpm_refresh_button_clicked), NULL);
 
 	/* clear cache dialog */
-	g_signal_connect (G_OBJECT(gtk_builder_get_object(xml, "rem_apply")), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
+	g_signal_connect (gtk_builder_get_object(xml, "rem_apply"), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
 
 	/* install from file */
-	g_signal_connect (G_OBJECT(gtk_builder_get_object(xml, "inst_from_file_install")), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), NULL);
+	g_signal_connect (gtk_builder_get_object(xml, "inst_from_file_install"), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), NULL);
 
 	/* Disable Apply, Refresh and File buttons if user is not root */
 	if ( geteuid() != 0 )
