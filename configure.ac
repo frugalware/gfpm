@@ -55,8 +55,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [needed for bindtextdoma
 AM_GLIB_GNU_GETTEXT
 AM_GLIB_DEFINE_LOCALEDIR(LOCALEDIR)
 
-pkg_modules="gtk+-2.0 >= 2.6.0 \
-			 libglade-2.0 >= 2.6.0"
+pkg_modules="gtk+-2.0 >= 2.12.0"
 PKG_CHECK_MODULES([GFPM], [$pkg_modules])
 
 CFLAGS="${CFLAGS}"
