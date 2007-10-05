@@ -954,14 +954,14 @@ gfpm_load_changelog_txtvw (const char *pkg_name, gboolean inst)
 	if (inst == TRUE)
 	{
 		PM_PKG *pkg = NULL;
-		gchar *dbpath = NULL;
+		long dbpath;
 		gchar logpath[PATH_MAX];
 		FILE *fp = NULL;
 		gchar line[PATH_MAX+1];
 		pkg = pacman_db_readpkg (local_db, (char*)pkg_name);
-		pacman_get_option (PM_OPT_DBPATH, (long*) &dbpath);
+		pacman_get_option (PM_OPT_DBPATH, &dbpath);
 		snprintf (logpath, PATH_MAX, "/%s/%s/%s-%s/changelog",
-				dbpath,
+				(char*)dbpath,
 				(char*)pacman_db_getinfo (local_db, PM_DB_TREENAME),
 				(char*)pacman_pkg_getinfo (pkg, PM_PKG_NAME),
 				(char*)pacman_pkg_getinfo (pkg, PM_PKG_VERSION));
