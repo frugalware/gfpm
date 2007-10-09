@@ -1407,8 +1407,6 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					-1);
 			pacman_pkg_free (pm_lpkg);
 			pacman_pkg_free (pm_spkg);
-			g_free (v1);
-			g_free (v2);
 		}
 		while (gtk_events_pending())
 			gtk_main_iteration ();
