@@ -346,6 +346,7 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 
 		gfpm_progress_show (TRUE);
 		GList *i = NULL;
+		gint ret = 0;
 		PM_LIST *pdata, *pkgs;
 		for (i = (GList*)remove_list; i; i = i->next)
 		{
@@ -400,6 +401,7 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		gfpm_progress_show (TRUE);
 		GList *i = NULL;
 		PM_LIST *pdata, *pkgs;
+		pdata = NULL;
 		for (i = (GList*)install_list; i; i = i->next)
 		{
 			char *target = i->data;
@@ -1295,7 +1297,6 @@ cb_gfpm_groups_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 {
 	GtkWidget *menu;
 	GtkWidget *menu_item;
-	GtkWidget *image;
 	GtkTreeModel *model;
 	GtkTreeSelection *selection;
 	GtkTreeIter iter;
@@ -1396,7 +1397,7 @@ cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data)
 static void
 cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data)
 {
-	PM_DB	*group = NULL;
+	PM_GRP	*group = NULL;
 	PM_LIST *list = NULL;
 	PM_LIST *i = NULL;
 	const char	*group_name = (char*) data;
