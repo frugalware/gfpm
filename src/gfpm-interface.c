@@ -1099,6 +1099,15 @@ gfpm_trans_commit (PM_LIST *list)
 									GTK_MESSAGE_WARNING,
 									pkgs);
 			}
+			case PM_ERR_PKG_CORRUPTED:
+			{
+				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
+					pkgs = g_list_append (pkgs, g_strdup (pacman_list_getdata(i)));
+				gfpm_plist_message (_("Corrupted package(s)"),
+									_("The package(s) you're trying to install are corrupted"),
+									GTK_MESSAGE_ERROR,
+									pkgs);
+			}
 		}
 		return -1;
 	}
