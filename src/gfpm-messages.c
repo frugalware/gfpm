@@ -418,6 +418,7 @@ gfpm_plist_message (const char *message_title, const char *main_msg, GtkMessageT
 					main_msg);
 	swindow = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new (NULL, NULL));
 	gtk_scrolled_window_set_policy (swindow, GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_shadow_type (swindow, GTK_SHADOW_OUT);
 	tvw = gtk_tree_view_new ();
 	gtk_tree_view_set_headers_visible (GTK_TREE_VIEW(tvw), FALSE);
 	gtk_container_add (GTK_CONTAINER(swindow), tvw);
@@ -432,11 +433,11 @@ gfpm_plist_message (const char *message_title, const char *main_msg, GtkMessageT
 		g_free (pkgstring);
 	}
 	gtk_tree_view_set_model (GTK_TREE_VIEW(tvw), GTK_TREE_MODEL(store));
-	gtk_widget_set_size_request (tvw, 230, 80);
+	gtk_widget_set_size_request (tvw, 330, 120);
 	gtk_widget_show (tvw);
 	gtk_box_pack_start (GTK_BOX(GTK_DIALOG(dialog)->vbox), GTK_WIDGET(swindow), FALSE, FALSE, 0);
 	gtk_widget_show_all (GTK_DIALOG(dialog)->vbox);
-	gtk_window_set_resizable (GTK_WINDOW(dialog), FALSE);
+	gtk_window_set_resizable (GTK_WINDOW(dialog), TRUE);
 	gtk_window_set_title (GTK_WINDOW(dialog), message_title);
 	gtk_dialog_run (GTK_DIALOG(dialog));
 
