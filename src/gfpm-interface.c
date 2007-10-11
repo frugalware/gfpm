@@ -358,18 +358,7 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
 
 		/* commit transaction */
-		/*
-		if (pacman_trans_commit(&pdata) == -1)
-		{
-			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
-			errorstr = g_string_append (errorstr, str);
-			gfpm_error (_("Error"), errorstr->str);
-			g_free (str);
-			g_string_free (errorstr, FALSE);
-			return;
-		}
-		*/
-		gfpm_trans_commit (&pdata);
+		ret = gfpm_trans_commit (&pdata);
 
 		down:
 		/* release the transaction */
@@ -377,6 +366,9 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 		/* clear list */
 		gfpm_package_list_free (GFPM_REMOVE_LIST);
 		gfpm_apply_dlg_reset ();
+		/* close the progress dialog if commit failed */
+		if (ret == -1)
+			gfpm_progress_show (FALSE);
 	}
 	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
 	{
@@ -419,17 +411,6 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		if (pkgs == NULL) gfpm_error (_("Error"), _("Error getting transaction info"));
 
 		/* commit transaction */
-		/*
-		if (pacman_trans_commit(&pdata) == -1)
-		{
-			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
-			errorstr = g_string_append (errorstr, str);
-			gfpm_error (_("Error"), errorstr->str);
-			g_free (str);
-			g_string_free (errorstr, FALSE);
-			return;
-		}
-		*/
 		ret = gfpm_trans_commit (pdata);
 
 		cleanup:
@@ -438,6 +419,7 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		/* clear list */
 		gfpm_package_list_free (GFPM_INSTALL_LIST);
 		gfpm_apply_dlg_reset ();
+		/* hide the progress dialog if commit fails */
 		if (ret == -1)
 			gfpm_progress_show (FALSE);
 	}
@@ -452,7 +434,6 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 
 	return;
 }
-
 
 void
 gfpm_update_status (const gchar *message)
