@@ -79,9 +79,11 @@ static GtkWidget *gfpm_apply_rem_depcheck;
 static void gfpm_populate_repos_combobox (GtkComboBox *combo);
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
+static void cb_gfpm_groups_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event);
 static void cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event);
 static void cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
+static void cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
@@ -223,6 +225,7 @@ gfpm_interface_init (void)
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	g_signal_connect(selection, "changed", G_CALLBACK(cb_gfpm_pkgs_tvw_selected), NULL);
 	g_signal_connect (gfpm_pkgs_tvw, "button-release-event", G_CALLBACK(cb_gfpm_pkgs_tvw_right_click), NULL);
+	g_signal_connect (gfpm_groups_tvw, "button-release-event", G_CALLBACK(cb_gfpm_groups_tvw_right_click), NULL);
 
 	/* Setup info treeview */
 	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
@@ -1253,6 +1256,42 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 }
 
 static void
+cb_gfpm_groups_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
+{
+	GtkWidget *menu;
+	GtkWidget *menu_item;
+	GtkWidget *image;
+	GtkTreeModel *model;
+	GtkTreeSelection *selection;
+	GtkTreeIter iter;
+	gchar *groupname = NULL;
+	
+	if (event->button != 3)
+		return;
+		
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_groups_tvw));
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_groups_tvw));
+	if (FALSE == gtk_tree_selection_get_selected(selection, &model, &iter))
+		return;
+	gtk_tree_model_get (model, &iter, 0, &groupname, -1);
+	menu = gtk_menu_new ();
+	menu_item = gtk_image_menu_item_new_from_stock ("gtk-remove", NULL);
+	g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_remove_group_clicked), (gpointer)groupname);
+	gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
+	gtk_widget_show (menu_item);
+	gtk_widget_show (menu);
+	gtk_menu_popup (GTK_MENU(menu),
+			NULL,
+			NULL,
+			NULL,
+			NULL,
+			3,
+			gtk_get_current_event_time());
+	
+	return;
+}
+
+static void
 cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 {
 	GtkWidget 		*menu;
@@ -1317,6 +1356,40 @@ cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data)
 	gfpm_package_list_add (GFPM_INSTALL_LIST, pkgname);
 
 	return;
+}
+
+static void
+cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data)
+{
+	PM_DB	*group = NULL;
+	PM_LIST *list = NULL;
+	PM_LIST *i = NULL;
+	const char	*group_name = (char*) data;
+	
+	group = pacman_db_readgrp (sync_db, (char*)group_name);
+	list = pacman_grp_getinfo (group, PM_GRP_PKGNAMES);
+	if (list == NULL)
+	{
+		gfpm_error (_("Error"), _("There was an error while populating packages"));
+		return;
+	}
+	gfpm_package_list_free (GFPM_REMOVE_LIST);
+	for (i = list; i != NULL; i = pacman_list_next(i))
+	{
+		PM_PKG *lpkg = NULL;
+		lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
+		if (lpkg != NULL)
+			gfpm_package_list_add (GFPM_REMOVE_LIST, pacman_list_getdata(i));
+	}
+	if (!gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
+	{
+		gfpm_error (_("Error"), _("There are no installed pacakges in this group"));
+		return;
+	}
+	if (gfpm_question(_("Remove Group"), _("Are you sure you want to remove the entire group ?")) == GTK_RESPONSE_YES)
+		cb_gfpm_apply_btn_clicked (NULL, NULL);
+		
+	gfpm_package_list_free (GFPM_REMOVE_LIST);
 }
 
 static void
