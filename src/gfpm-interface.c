@@ -90,7 +90,7 @@ static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
 static gint gfpm_trans_prepare (PM_LIST *list);
-
+static gint gfpm_trans_commit (PM_LIST *list);
 
 static void
 gfpm_populate_repos_combobox (GtkComboBox *combo)
@@ -358,6 +358,7 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
 
 		/* commit transaction */
+		/*
 		if (pacman_trans_commit(&pdata) == -1)
 		{
 			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
@@ -367,6 +368,8 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 			g_string_free (errorstr, FALSE);
 			return;
 		}
+		*/
+		gfpm_trans_commit (&pdata);
 
 		down:
 		/* release the transaction */
@@ -378,6 +381,7 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 	if (gfpm_package_list_is_empty(GFPM_INSTALL_LIST))
 	{
 		gint flags = 0;
+		gint ret = 0;
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_inst_depcheck)))
 			flags |= PM_TRANS_FLAG_NODEPS;
 		if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_apply_inst_dwocheck)))
@@ -415,6 +419,7 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		if (pkgs == NULL) gfpm_error (_("Error"), _("Error getting transaction info"));
 
 		/* commit transaction */
+		/*
 		if (pacman_trans_commit(&pdata) == -1)
 		{
 			char *str = g_strdup_printf ("Failed to commit transaction (%s)", pacman_strerror(pm_errno));
@@ -424,6 +429,8 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 			g_string_free (errorstr, FALSE);
 			return;
 		}
+		*/
+		ret = gfpm_trans_commit (pdata);
 
 		cleanup:
 		/* release the transaction */
@@ -431,6 +438,8 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		/* clear list */
 		gfpm_package_list_free (GFPM_INSTALL_LIST);
 		gfpm_apply_dlg_reset ();
+		if (ret == -1)
+			gfpm_progress_show (FALSE);
 	}
 	gfpm_db_reset_localdb ();
 	//gfpm_progress_show (FALSE);
@@ -1062,6 +1071,51 @@ gfpm_trans_prepare (PM_LIST *list)
 				pacman_list_free (list);
 				gfpm_plist_message (_("Package conflict"), _("This package conflicts with the following packages"), GTK_MESSAGE_WARNING, pkgs);
 				break;
+		}
+		return -1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+
+static gint
+gfpm_trans_commit (PM_LIST *list)
+{
+	if (pacman_trans_commit(&list) == -1)
+	{
+		PM_LIST *i;
+		GList	*pkgs = NULL;
+		gchar	*str = NULL;
+		str = g_strdup_printf (_("Failed to commit transaction (%s)\n"), pacman_strerror (pm_errno));
+		gfpm_error (_("Error"), str);
+		g_free (str);
+		
+		switch ((long)pm_errno)
+		{
+			case PM_ERR_FILE_CONFLICTS:
+			{
+				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
+				{
+					PM_CONFLICT *cnf = pacman_list_getdata (i);
+					switch ((long)pacman_conflict_getinfo(cnf,PM_CONFLICT_TYPE))
+					{
+						case PM_CONFLICT_TYPE_FILE:
+						{
+							gchar* cstr = g_strdup_printf ("%s: /%s",
+															(char*)pacman_conflict_getinfo (cnf, PM_CONFLICT_TARGET),
+															(char*)pacman_conflict_getinfo (cnf, PM_CONFLICT_FILE));
+							pkgs = g_list_append (pkgs, cstr);
+						}
+					}
+				}
+				gfpm_plist_message (_("Conflicting Files"),
+									_("The file(s) provided by the following package(s) already exist on the system"),
+									GTK_MESSAGE_WARNING,
+									pkgs);
+			}
 		}
 		return -1;
 	}
