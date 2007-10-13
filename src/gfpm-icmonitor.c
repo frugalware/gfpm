@@ -66,7 +66,6 @@ gfpm_icmonitor_monitor (void)
 	{
 		return TRUE;
 	}
-	g_print ("monitoring..\n");
 	event = inotifytools_next_event (0);
 	while (event)
 	{
