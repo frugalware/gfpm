@@ -40,6 +40,7 @@
 #include "gfpm-progress.h"
 #include "gfpm-optimizedb.h"
 #include "gfpm-quickpane.h"
+#include "gfpm-icmonitor.h"
 #include "gfpm-util.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
@@ -278,6 +279,7 @@ gfpm_interface_init (void)
 	gfpm_progress_init ();
 	gfpm_optimize_db_dlg_init ();
 	gfpm_quickpane_init ();
+	gfpm_icmonitor_init ();
 
 	gtk_widget_hide (gfpm_splash);
 	title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
@@ -318,6 +320,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 	}
 
 	gfpm_apply_dlg_hide ();
+
 	/* process remove list first */
 	if (gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
@@ -358,6 +361,8 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
 
+		/* start iconcache montior */
+		gfpm_icmonitor_start_monitor ();
 		/* commit transaction */
 		ret = gfpm_trans_commit (&pdata);
 
@@ -412,8 +417,12 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) gfpm_error (_("Error"), _("Error getting transaction info"));
 
+		/* start iconcache montior if it wasn't already started */
+		if (gfpm_icmonitor_is_running()==FALSE)
+			gfpm_icmonitor_start_monitor ();
 		/* commit transaction */
-		ret = gfpm_trans_commit (pdata);
+		ret = gfpm_trans_commit (&pdata);
+
 
 		cleanup:
 		/* release the transaction */
@@ -426,8 +435,13 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 			gfpm_progress_show (FALSE);
 	}
 	gfpm_db_reset_localdb ();
-	//gfpm_progress_show (FALSE);
 
+	gfpm_icmonitor_stop_monitor ();
+	if (gfpm_icmonitor_is_ic_changed() == TRUE)
+	{
+		gfpm_icmonitor_reset_ic ();
+		gfpm_update_iconcache ();
+	}
 	if (current_group != NULL)
 		gfpm_load_pkgs_tvw ((const char*)current_group);
 

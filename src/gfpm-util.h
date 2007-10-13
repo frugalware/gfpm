@@ -20,4 +20,6 @@ GdkPixbuf *gfpm_get_icon (const char *, int);
 
 gint gfpm_check_if_package_updatable (const gchar *);
 
+void gfpm_update_iconcache (void);
+
 #endif

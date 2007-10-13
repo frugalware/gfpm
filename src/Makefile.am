@@ -15,7 +15,8 @@ gfpm_SOURCES=				\
 			gfpm-optimizedb.c \
 			gfpm-quickpane.c \
 			gfpm-about.c \
+			gfpm-icmonitor.c \
 			gfpm.c
 
-gfpm_LDADD= @GFPM_LIBS@ -lpacman
+gfpm_LDADD= @GFPM_LIBS@ -lpacman -linotifytools
 
