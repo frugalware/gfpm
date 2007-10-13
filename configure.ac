@@ -13,7 +13,7 @@ AM_INIT_AUTOMAKE
 
 AC_PROG_CC(GCC)
 AC_HEADER_STDC
-AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/ioctl.h unistd.h alpm.h])
+AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/ioctl.h unistd.h])
 
 AC_ARG_ENABLE(werror,
     AC_HELP_STRING([  --enable-werror], [Enable -Werror usage]), [werror="yes"])
