@@ -67,7 +67,7 @@ gfpm_icmonitor_monitor (void)
 		return TRUE;
 	}
 	g_print ("monitoring..\n");
-	event = inotifytools_next_event (-1);
+	event = inotifytools_next_event (0);
 	while (event)
 	{
 		switch (event->mask)
@@ -87,7 +87,7 @@ gfpm_icmonitor_monitor (void)
 				break;
 			}
 		}
-		event = inotifytools_next_event (-1);
+		event = inotifytools_next_event (0);
 	}
 
 	return TRUE;
