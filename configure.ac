@@ -55,6 +55,16 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [needed for bindtextdoma
 AM_GLIB_GNU_GETTEXT
 AM_GLIB_DEFINE_LOCALEDIR(LOCALEDIR)
 
+AC_CHECK_HEADERS([pacman.h], [have_pacman=yes], [have_pacman=no])
+if test "x$have_pacman" = "xno"; then
+	AC_MSG_ERROR([libpacman library not found.])
+fi
+
+AC_CHECK_HEADERS([inotifytools/inotifytools.h], [have_inotify=yes], [have_inotify=no])
+if test "x$have_inotify" = "xno"; then
+	AC_MSG_ERROR([inotifytools library not found.])
+fi
+
 pkg_modules="gtk+-2.0 >= 2.12.0"
 PKG_CHECK_MODULES([GFPM], [$pkg_modules])
 
