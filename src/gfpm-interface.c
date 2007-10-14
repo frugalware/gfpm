@@ -1102,25 +1102,25 @@ gfpm_trans_commit (PM_LIST *list)
 						case PM_CONFLICT_TYPE_FILE:
 						{
 							gchar* cstr = g_strdup_printf ("%s: /%s",
-															(char*)pacman_conflict_getinfo (cnf, PM_CONFLICT_TARGET),
-															(char*)pacman_conflict_getinfo (cnf, PM_CONFLICT_FILE));
+											(char*)pacman_conflict_getinfo (cnf, PM_CONFLICT_TARGET),
+											(char*)pacman_conflict_getinfo (cnf, PM_CONFLICT_FILE));
 							pkgs = g_list_append (pkgs, cstr);
 						}
 					}
 				}
 				gfpm_plist_message (_("Conflicting Files"),
-									_("The file(s) provided by the following package(s) already exist on the system"),
-									GTK_MESSAGE_WARNING,
-									pkgs);
+						_("The file(s) provided by the following package(s) already exist on the system"),
+						GTK_MESSAGE_WARNING,
+						pkgs);
 			}
 			case PM_ERR_PKG_CORRUPTED:
 			{
 				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
 					pkgs = g_list_append (pkgs, g_strdup (pacman_list_getdata(i)));
 				gfpm_plist_message (_("Corrupted package(s)"),
-									_("The package(s) you're trying to install are corrupted"),
-									GTK_MESSAGE_ERROR,
-									pkgs);
+							_("The package(s) you're trying to install are corrupted"),
+							GTK_MESSAGE_ERROR,
+							pkgs);
 			}
 		}
 		return -1;
