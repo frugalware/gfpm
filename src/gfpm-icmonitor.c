@@ -78,7 +78,8 @@ gfpm_icmonitor_monitor (void)
 			case IN_MODIFY:
 			{
 				changed = TRUE;
-				return TRUE;
+				stop = TRUE;
+				return FALSE;
 				break;
 			}
 			default:
