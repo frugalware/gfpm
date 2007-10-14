@@ -89,6 +89,9 @@ static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar 
 static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_mark_for_install (GtkButton *button, gpointer data);
+static void cb_gfpm_mark_for_reinstall (GtkButton *button, gpointer data);
+static void cb_gfpm_mark_for_removal (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
 static gint gfpm_trans_prepare (PM_LIST *list);
 static gint gfpm_trans_commit (PM_LIST *list);
@@ -1363,6 +1366,7 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 	char			*lversion = NULL;
 	char			*pkgname = NULL;
 	gboolean		up = FALSE;
+	gboolean		inst = TRUE;
 
 	if (event->button != 3)
 		return;
@@ -1373,12 +1377,12 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 		return;
 	gtk_tree_model_get (model, &iter, 2, &pkgname, 3, &iversion, 4, &lversion, -1);
 	menu = gtk_menu_new ();
+	
 	menu_item = gtk_image_menu_item_new_with_label (_("Mark for upgrade"));
 	image = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
 	g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_mark_for_upgrade), (gpointer)pkgname);
 	gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
-	gtk_widget_show (menu_item);
 	if (lversion!=NULL && iversion!=NULL)
 	{
 		gint ret = pacman_pkg_vercmp (lversion, iversion);
@@ -1388,12 +1392,43 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 			up = TRUE;
 		else
 			up = FALSE;
+			
+		inst = TRUE;
 	}
 	else
 	{
 		up = FALSE;
+		inst = FALSE;
 	}
-	gtk_widget_set_sensitive (menu_item, up);
+	if (up)
+		gtk_widget_show (menu_item);
+	else
+		gtk_widget_hide (menu_item);
+	if (inst == FALSE)
+	{
+		menu_item = gtk_image_menu_item_new_with_label (_("Mark for installation"));
+		image = gtk_image_new_from_stock ("gtk-add", GTK_ICON_SIZE_MENU);
+		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
+		g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_mark_for_install), (gpointer)pkgname);
+		gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
+		gtk_widget_show (menu_item);
+	}
+	else
+	{
+		menu_item = gtk_image_menu_item_new_with_label (_("Reinstall package"));
+		image = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
+		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
+		g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_mark_for_reinstall), (gpointer)pkgname);
+		gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
+		gtk_widget_show (menu_item);
+		
+		menu_item = gtk_image_menu_item_new_with_label (_("Mark for removal"));
+		image = gtk_image_new_from_stock ("gtk-remove", GTK_ICON_SIZE_MENU);
+		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
+		g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_mark_for_removal), (gpointer)pkgname);
+		gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
+		gtk_widget_show (menu_item);
+	}
 	gtk_widget_show (menu);
 	gtk_menu_popup (GTK_MENU(menu),
 			NULL,
@@ -1402,6 +1437,42 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 			NULL,
 			3,
 			gtk_get_current_event_time());
+
+	return;
+}
+
+static void
+cb_gfpm_mark_for_install (GtkButton *button, gpointer data)
+{
+	char *pkgname;
+
+	pkgname = (char*) data;	
+	gfpm_package_list_add (GFPM_INSTALL_LIST, pkgname);
+
+	return;
+}
+
+static void
+cb_gfpm_mark_for_reinstall (GtkButton *button, gpointer data)
+{
+	GfpmList *temp = NULL;
+
+	temp = install_list;
+	install_list = NULL;
+	gfpm_package_list_add (GFPM_INSTALL_LIST, (char*)data);
+	cb_gfpm_apply_btn_clicked (NULL, NULL);
+	install_list = temp;
+
+	return;
+}
+
+static void
+cb_gfpm_mark_for_removal (GtkButton *button, gpointer data)
+{
+	char *pkgname;
+
+	pkgname = (char*) data;	
+	gfpm_package_list_add (GFPM_REMOVE_LIST, pkgname);
 
 	return;
 }
