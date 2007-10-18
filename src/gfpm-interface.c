@@ -245,7 +245,7 @@ gfpm_interface_init (void)
 	g_object_set (gfpm_info_tvw, "hover-selection", TRUE, NULL);
 	
 	/* Setup repository combobox */
-	widget = glade_xml_get_widget (xml, "repobox");
+	widget = glade_xml_get_widget (xml, "combobox_repos");
 	if (gfpm_db_populate_repolist() == 0)
 		gfpm_populate_repos_combobox (GTK_COMBO_BOX(widget));
 
