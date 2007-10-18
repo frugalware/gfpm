@@ -91,6 +91,7 @@ gfpm_update_iconcache (void)
 	if (!g_file_test("/usr/bin/gtk-update-icon-cache", G_FILE_TEST_EXISTS))
 		return;
 
+	g_print ("updating hicoloricon cache\n");
 	while (gtk_events_pending()) gtk_main_iteration ();
 	system ("gtk-update-icon-cache -f -t /usr/share/icons/hicolor > /dev/null 2>&1");
 	while (gtk_events_pending()) gtk_main_iteration ();

@@ -18,13 +18,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include "gfpm.h"
 #include "gfpm-quickpane.h"
 #include "gfpm-packagelist.h"
 #include "gfpm-interface.h"
 
 gchar *quickpane_pkg = NULL;
 
-extern GtkBuilder *xml;
+extern GladeXML *xml;
 extern GfpmList *install_list;
 extern GfpmList *remove_list;
 extern GtkWidget *gfpm_pkgs_tvw;
@@ -47,14 +48,14 @@ static void cb_gfpm_quickpane_readme_clicked (GtkWidget *button, gpointer data);
 void
 gfpm_quickpane_init (void)
 {
-	quick_pane_install_btn = GTK_WIDGET (gtk_builder_get_object (xml, "quick_install"));
-	quick_pane_remove_btn = GTK_WIDGET (gtk_builder_get_object (xml, "quick_remove"));
-	quick_pane_upgrade_btn = GTK_WIDGET (gtk_builder_get_object (xml, "quick_upgrade"));
-	quick_pane_readme_btn = GTK_WIDGET (gtk_builder_get_object (xml, "quick_readme"));
-	quick_pane_readme_dlg = GTK_WIDGET (gtk_builder_get_object (xml, "readme_dlg"));
-	quick_pane_readme_dlg_label = GTK_WIDGET (gtk_builder_get_object (xml, "readme_dlg_label"));
-	quick_pane_readme_dlg_txtvw = GTK_WIDGET (gtk_builder_get_object (xml, "readme_dlg_txtvw"));
-	quick_pane = GTK_WIDGET (gtk_builder_get_object (xml, "quick_pane"));
+	quick_pane_install_btn = glade_xml_get_widget (xml, "quick_install");
+	quick_pane_remove_btn = glade_xml_get_widget (xml, "quick_remove");
+	quick_pane_upgrade_btn = glade_xml_get_widget (xml, "quick_upgrade");
+	quick_pane_readme_btn = glade_xml_get_widget (xml, "quick_readme");
+	quick_pane_readme_dlg = glade_xml_get_widget (xml, "readme_dlg");
+	quick_pane_readme_dlg_label = glade_xml_get_widget (xml, "readme_dlg_label");
+	quick_pane_readme_dlg_txtvw = glade_xml_get_widget (xml, "readme_dlg_txtvw");
+	quick_pane = glade_xml_get_widget (xml, "quick_pane");
 	gfpm_quickpane_show (FALSE, 0, 0);
 	g_signal_connect (G_OBJECT(quick_pane_install_btn),
 					"clicked",

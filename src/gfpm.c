@@ -31,9 +31,9 @@
 #include "gfpm-messages.h"
 #include "gfpm-db.h"
 
-#define UI_FILE	"/share/gfpm/gfpm.ui"
+#define UI_FILE	"/share/gfpm/gfpm.glade"
 
-GtkBuilder *xml = NULL;
+GladeXML *xml = NULL;
 
 int
 main (int argc, char *argv[])
@@ -49,9 +49,8 @@ main (int argc, char *argv[])
 	gtk_init (&argc, &argv);
 
 	path = g_strdup_printf ("%s%s", PREFIX, UI_FILE);
-	xml = gtk_builder_new ();
 
-	if (!gtk_builder_add_from_file(xml, path, &error))
+	if (!(xml=glade_xml_new(path, NULL, "UTF-8")))
 	{
 		gchar *errstr = g_strdup_printf ("%s%s", _("Failed to initialize interface: "), error->message);
 		gfpm_error (_("Interface initialization failed"), errstr);
@@ -59,8 +58,7 @@ main (int argc, char *argv[])
 		return 1;
 	}
 	g_free (path);
-
-	gtk_builder_connect_signals (xml, NULL);
+	glade_xml_signal_autoconnect (xml);
 
 	if (pacman_initialize ("/") == -1)
 	{

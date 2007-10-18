@@ -45,7 +45,7 @@
 #include "gfpm-about.h"
 #include "gfpm-db.h"
 
-extern GtkBuilder *xml;
+extern GladeXML *xml;
 extern PM_DB	*sync_db;
 extern PM_DB	*local_db;
 extern GfpmList *install_list;
@@ -139,29 +139,29 @@ gfpm_interface_init (void)
 	GtkTreeViewColumn	*column;
 	gchar			*title = NULL;
 
-	gfpm_mw		= GTK_WIDGET (gtk_builder_get_object (xml, "mainwindow")); 
-	gfpm_splash	= GTK_WIDGET (gtk_builder_get_object (xml, "splash_window"));
-	gfpm_statusbar	= GTK_WIDGET (gtk_builder_get_object (xml, "statusbar"));
+	gfpm_mw		= glade_xml_get_widget (xml, "mainwindow");
+	gfpm_splash	= glade_xml_get_widget (xml, "splash_window");
+	gfpm_statusbar	= glade_xml_get_widget (xml, "statusbar");
 	gtk_widget_show (gfpm_splash);
 	while (gtk_events_pending())
 		gtk_main_iteration ();
 
 	sleep (1);
-	gfpm_groups_tvw = GTK_WIDGET (gtk_builder_get_object (xml, "grouptreeview"));
-	gfpm_pkgs_tvw	= GTK_WIDGET (gtk_builder_get_object (xml, "pkgstreeview"));
-	gfpm_info_tvw	= GTK_WIDGET (gtk_builder_get_object (xml, "infotreeview"));
-	gfpm_files_txtvw = GTK_WIDGET (gtk_builder_get_object (xml, "filestextview"));
-	gfpm_clog_txtvw = GTK_WIDGET (gtk_builder_get_object (xml, "changelogtextview"));
-	gfpm_clrold_opt = GTK_WIDGET (gtk_builder_get_object (xml, "rem_old_opt"));
-	gfpm_clrall_opt = GTK_WIDGET (gtk_builder_get_object (xml, "rem_all_opt"));
-	gfpm_inst_from_file_dlg = GTK_WIDGET (gtk_builder_get_object (xml, "inst_from_file_dlg"));
-	gfpm_inst_filechooser = GTK_WIDGET (gtk_builder_get_object (xml, "gfpm_inst_filechooser"));
-	gfpm_inst_depcheck = GTK_WIDGET (gtk_builder_get_object (xml, "depcheck"));
-	gfpm_inst_upgcheck = GTK_WIDGET (gtk_builder_get_object (xml, "upgcheck"));
-	gfpm_inst_forcheck = GTK_WIDGET (gtk_builder_get_object (xml, "forcheck"));
-	gfpm_apply_inst_depcheck = GTK_WIDGET (gtk_builder_get_object (xml, "applyinstdepcheck"));
-	gfpm_apply_rem_depcheck = GTK_WIDGET (gtk_builder_get_object (xml, "applyremdepcheck"));
-	gfpm_apply_inst_dwocheck = GTK_WIDGET (gtk_builder_get_object (xml, "applyinstdwcheck"));
+	gfpm_groups_tvw = glade_xml_get_widget (xml, "grouptreeview");
+	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
+	gfpm_info_tvw	= glade_xml_get_widget (xml, "infotreeview");
+	gfpm_files_txtvw = glade_xml_get_widget (xml, "filestextview");
+	gfpm_clog_txtvw = glade_xml_get_widget (xml, "changelogtextview");
+	gfpm_clrold_opt = glade_xml_get_widget (xml, "rem_old_opt");
+	gfpm_clrall_opt = glade_xml_get_widget (xml, "rem_all_opt");
+	gfpm_inst_from_file_dlg = glade_xml_get_widget (xml, "inst_from_file_dlg");
+	gfpm_inst_filechooser = glade_xml_get_widget (xml, "gfpm_inst_filechooser");
+	gfpm_inst_depcheck = glade_xml_get_widget (xml, "depcheck");
+	gfpm_inst_upgcheck = glade_xml_get_widget (xml, "upgcheck");
+	gfpm_inst_forcheck = glade_xml_get_widget (xml, "forcheck");
+	gfpm_apply_inst_depcheck = glade_xml_get_widget (xml, "applyinstdepcheck");
+	gfpm_apply_rem_depcheck = glade_xml_get_widget (xml, "applyremdepcheck");
+	gfpm_apply_inst_dwocheck = glade_xml_get_widget (xml, "applyinstdwcheck");
 
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -245,34 +245,34 @@ gfpm_interface_init (void)
 	g_object_set (gfpm_info_tvw, "hover-selection", TRUE, NULL);
 	
 	/* Setup repository combobox */
-	widget = GTK_WIDGET (gtk_builder_get_object (xml, "repobox"));
+	widget = glade_xml_get_widget (xml, "repobox");
 	if (gfpm_db_populate_repolist() == 0)
 		gfpm_populate_repos_combobox (GTK_COMBO_BOX(widget));
 
 	/* search */
-	g_signal_connect (gtk_builder_get_object(xml, "search_entry1"), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
 
 	/* about */
-	g_signal_connect (gtk_builder_get_object(xml, "about_gfpm1"), "activate", G_CALLBACK(gfpm_about), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
 
 	/* aply */
-	g_signal_connect (gtk_builder_get_object(xml, "button_apply"), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
 
 	/* refresh db */
-	g_signal_connect (gtk_builder_get_object(xml, "button_refresh1"), "clicked", G_CALLBACK(cb_gfpm_refresh_button_clicked), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_gfpm_refresh_button_clicked), NULL);
 
 	/* clear cache dialog */
-	g_signal_connect (gtk_builder_get_object(xml, "rem_apply"), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
 
 	/* install from file */
-	g_signal_connect (gtk_builder_get_object(xml, "inst_from_file_install"), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), NULL);
 
 	/* Disable Apply, Refresh and File buttons if user is not root */
 	if ( geteuid() != 0 )
 	{
-		gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object(xml, "button_apply")), FALSE);
-		gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object(xml, "button_refresh1")), FALSE);
-		gtk_widget_set_sensitive (GTK_WIDGET(gtk_builder_get_object(xml, "button_file1")), FALSE);
+		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_apply"), FALSE);
+		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_refresh1"), FALSE);
+		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_file1"), FALSE);
 	}
 
 	/* initialize modules */

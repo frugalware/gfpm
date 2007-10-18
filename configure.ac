@@ -65,7 +65,8 @@ if test "x$have_inotify" = "xno"; then
 	AC_MSG_ERROR([inotifytools library not found.])
 fi
 
-pkg_modules="gtk+-2.0 >= 2.12.0"
+pkg_modules="gtk+-2.0 >= 2.12.0 \
+			libglade-2.0 >= 2.6.0 "
 PKG_CHECK_MODULES([GFPM], [$pkg_modules])
 
 CFLAGS="${CFLAGS}"
