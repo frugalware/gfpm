@@ -292,7 +292,7 @@ gfpm_interface_init (void)
 	gtk_window_present (GTK_WINDOW(gfpm_mw));
 
 	/* unref the glade xml object */
-//	g_object_unref (xml);
+	g_object_unref (xml);
 
 	return;
 }
