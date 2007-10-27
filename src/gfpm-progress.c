@@ -48,9 +48,9 @@ GtkTextIter	t_iter;
 GtkTextBuffer *buffer = NULL;
 
 float	rate;
-int		offset;
-int		xferred1;
-struct 	timeval		t0, t;
+int	offset;
+int	xferred1;
+struct 	timeval	t0, t;
 char 	reponame[PM_DLFNM_LEN+1];
 
 static void gfpm_progress_textview_reset (void);
