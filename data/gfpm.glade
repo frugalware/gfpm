@@ -72,6 +72,7 @@
                         <property name="tooltip" translatable="yes">optimize your package database to improve performance</property>
                         <property name="label" translatable="yes">_Optimize package database</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="gtk_widget_show" object="optimize_db_dlg"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="menu-item-image4">
                             <property name="stock">gtk-refresh</property>
