@@ -63,10 +63,6 @@ gfpm_optimize_db_dlg_init (void)
 			"clicked",
 			G_CALLBACK(gfpm_optimize_db_dlg_hide),
 			NULL);
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml,"optimize")),
-			"activate",
-			G_CALLBACK(gfpm_optimize_db_dlg_show),
-			NULL);
 
 	return;
 }
