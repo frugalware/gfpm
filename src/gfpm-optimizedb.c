@@ -42,7 +42,7 @@ static GtkWidget *gfpm_optimize_db_closebtn;
 static GtkWidget *gfpm_optimize_db_label;
 static void gfpm_optimize_db_set_progress_status (const char *text);
 static void gfpm_optimize_db_optimize_btn_clicked (GtkWidget *widget, gpointer data);
-static void gfpm_optimize_db_dlg_show (void);
+//static void gfpm_optimize_db_dlg_show (void);
 static void gfpm_optimize_db_dlg_hide (void);
 static void gfpm_optimize_db (void);
 
@@ -82,7 +82,7 @@ gfpm_optimize_db_optimize_btn_clicked (GtkWidget *widget, gpointer data)
 
 	return;
 }
-
+/*
 static void
 gfpm_optimize_db_dlg_show (void)
 {
@@ -92,7 +92,7 @@ gfpm_optimize_db_dlg_show (void)
 
 	return;
 }
-
+*/
 static void
 gfpm_optimize_db_dlg_hide (void)
 {

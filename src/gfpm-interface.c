@@ -94,7 +94,7 @@ static void cb_gfpm_mark_for_reinstall (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_removal (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
 static gint gfpm_trans_prepare (PM_LIST *list);
-static gint gfpm_trans_commit (PM_LIST *list);
+static gint gfpm_trans_commit (PM_LIST **list);
 
 static void
 gfpm_populate_repos_combobox (GtkComboBox *combo)
@@ -1082,9 +1082,9 @@ gfpm_trans_prepare (PM_LIST *list)
 
 
 static gint
-gfpm_trans_commit (PM_LIST *list)
+gfpm_trans_commit (PM_LIST **list)
 {
-	if (pacman_trans_commit(&list) == -1)
+	if (pacman_trans_commit(list) == -1)
 	{
 		PM_LIST *i;
 		GList	*pkgs = NULL;
@@ -1097,7 +1097,7 @@ gfpm_trans_commit (PM_LIST *list)
 		{
 			case PM_ERR_FILE_CONFLICTS:
 			{
-				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
+				for (i=pacman_list_first(*list);i;i=pacman_list_next(i))
 				{
 					PM_CONFLICT *cnf = pacman_list_getdata (i);
 					switch ((long)pacman_conflict_getinfo(cnf,PM_CONFLICT_TYPE))
@@ -1118,7 +1118,7 @@ gfpm_trans_commit (PM_LIST *list)
 			}
 			case PM_ERR_PKG_CORRUPTED:
 			{
-				for (i=pacman_list_first(list);i;i=pacman_list_next(i))
+				for (i=pacman_list_first(*list);i;i=pacman_list_next(i))
 					pkgs = g_list_append (pkgs, g_strdup (pacman_list_getdata(i)));
 				gfpm_plist_message (_("Corrupted package(s)"),
 							_("The package(s) you're trying to install are corrupted"),

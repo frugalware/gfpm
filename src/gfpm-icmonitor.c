@@ -30,7 +30,7 @@ static gboolean inited;
 static gboolean stop = FALSE;
 struct inotify_event *event;
 
-static gboolean gfpm_icmonitor (void);
+//static gboolean gfpm_icmonitor (void);
 
 int
 gfpm_icmonitor_init (void)
