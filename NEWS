@@ -1,5 +1,18 @@
 VERSION					DESCRIPTION
 ---------------------------------------------------------------------------------------------------------
+1.0.4					- New splash screen
+					- Added some operations to a package's right click popup menu like
+						Mark for Removal (for installed packages)
+						Mark for Installation (for packages not installed)
+						Reinstall package (for installed packages)
+					- Implemented hicolor iconcache directory monitor that updates the 
+					  hicolor iconcache automatically when a package installs some icons
+					  in hicolor iconcache directory. This fixes the problem of missing
+					  icons in some apps after installing a package.
+					- If a commit fails due to corrupted file(s), display the list of file(s)
+					- Fixed a crash when searching in installed packages
+					- Reorganized code
+					- Minor UI tweaks
 1.0.3					- Added a quick pane to enable user to quickly install/remove/
 					  upgrade packages quickly
 					- Package info now also displays the Changelog of the packages
