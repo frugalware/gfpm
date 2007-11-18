@@ -51,7 +51,7 @@ main (int argc, char *argv[])
 
 	if (!(xml=glade_xml_new(path, NULL, "UTF-8")))
 	{
-		gfpm_error (_("Failed to initialize interface"));
+		gfpm_error (_("Interface initialization Failed"), _("Failed to initialize interface"));
 		return 1;
 	}
 	g_free (path);
