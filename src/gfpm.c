@@ -39,7 +39,6 @@ int
 main (int argc, char *argv[])
 {
 	gchar *path;
-	GError *error = NULL;
 
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
@@ -52,9 +51,7 @@ main (int argc, char *argv[])
 
 	if (!(xml=glade_xml_new(path, NULL, "UTF-8")))
 	{
-		gchar *errstr = g_strdup_printf ("%s%s", _("Failed to initialize interface: "), error->message);
-		gfpm_error (_("Interface initialization failed"), errstr);
-		g_free (errstr);
+		gfpm_error (_("Failed to initialize interface"));
 		return 1;
 	}
 	g_free (path);
