@@ -19,7 +19,7 @@
  */
 
 #define _GNU_SOURCE
-#define CFG_FILE	"/etc/pacman.conf"
+#define CFG_FILE	"/etc/pacman-g2.conf"
 
 #include <pacman.h>
 #include "gfpm-db.h"
@@ -95,7 +95,7 @@ gfpm_db_populate_repolist (void)
 	/* get the list of usable repositories */
 	if (pacman_parse_config (CFG_FILE, _db_callback, "") == -1)
 	{
-		printf ("error parsing config file");
+		g_error ("error parsing config file");
 		return 1;
 	}
 

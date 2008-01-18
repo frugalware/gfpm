@@ -62,7 +62,7 @@ static void cb_gfpm_details_button_toggled (GtkWidget *button, gpointer data);
 void
 gfpm_progress_init (void)
 {
-	pacman_parse_config ("/etc/pacman.conf", NULL, "");
+	pacman_parse_config ("/etc/pacman-g2.conf", NULL, "");
 	pacman_set_option (PM_OPT_DLCB, (long)gfpm_progress_update);
 	pacman_set_option (PM_OPT_DLOFFSET, (long)&offset);
 	pacman_set_option (PM_OPT_DLRATE, (long)&rate);
