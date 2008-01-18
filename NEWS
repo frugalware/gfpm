@@ -1,5 +1,8 @@
 VERSION					DESCRIPTION
 ---------------------------------------------------------------------------------------------------------
+1.0.5					- Gfpm should now parse /etc/pacman-g2.conf instead of /etc/pacman.conf
+					  This fixes bug #2698
+					- Translation updates
 1.0.4					- New splash screen
 					- Added some operations to a package's right click popup menu like
 						Mark for Removal (for installed packages)
