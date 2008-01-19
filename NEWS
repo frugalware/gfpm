@@ -1,5 +1,7 @@
 VERSION					DESCRIPTION
 ---------------------------------------------------------------------------------------------------------
+1.0.5.1					- Fix a bug where gfpm failed to optimize the package database as the location
+					  of the pacman-g2 database changed to /var/lib/pacman-g2
 1.0.5					- Gfpm should now parse /etc/pacman-g2.conf instead of /etc/pacman.conf
 					  This fixes bug #2698
 					- Translation updates
