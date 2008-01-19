@@ -7,5 +7,6 @@ icon_DATA = 	gfpm.png	\
 		gfpm-search.png	\
 		gfpm-apply.png \
 		gfpm-instfromfile.png
+		gfpm-sync.png
 
 EXTRA_DIST = $(icon_DATA)
