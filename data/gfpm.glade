@@ -136,7 +136,7 @@
                 <property name="tooltip" translatable="yes">Refresh the package lists</property>
                 <property name="label">Synchronize</property>
                 <property name="use_underline">True</property>
-                <property name="stock_id">gtk-refresh</property>
+                <property name="icon_name">gfpm-sync</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -202,46 +202,88 @@
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <child>
-                          <widget class="GtkAlignment" id="alignment1">
+                          <widget class="GtkVBox" id="vbox14">
                             <property name="visible">True</property>
-                            <property name="top_padding">5</property>
-                            <property name="bottom_padding">5</property>
-                            <property name="left_padding">5</property>
-                            <property name="right_padding">5</property>
+                            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                            <property name="border_width">4</property>
                             <child>
-                              <widget class="GtkVBox" id="vbox4">
+                              <widget class="GtkHBox" id="hbox13">
                                 <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                 <child>
-                                  <widget class="GtkComboBox" id="combobox_repos">
+                                  <widget class="GtkImage" id="search_image2">
                                     <property name="visible">True</property>
-                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                    <property name="xalign">0</property>
+                                    <property name="icon_size">3</property>
+                                    <property name="icon_name">gfpm</property>
                                   </widget>
                                   <packing>
                                     <property name="expand">False</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkScrolledWindow" id="scrolledwindow4">
+                                  <widget class="GtkLabel" id="label20">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                                    <property name="shadow_type">GTK_SHADOW_IN</property>
-                                    <child>
-                                      <widget class="GtkTreeView" id="grouptreeview">
-                                        <property name="visible">True</property>
-                                        <property name="border_width">2</property>
-                                        <property name="headers_visible">False</property>
-                                        <property name="rules_hint">True</property>
-                                      </widget>
-                                    </child>
+                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                    <property name="xalign">0.20000000298023224</property>
+                                    <property name="yalign">1</property>
+                                    <property name="xpad">6</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;&lt;span size="larger"&gt;Repositories&lt;/span&gt;&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
                                   </widget>
                                   <packing>
-                                    <property name="padding">2</property>
+                                    <property name="expand">False</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
                               </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkAlignment" id="alignment1">
+                                <property name="visible">True</property>
+                                <property name="top_padding">5</property>
+                                <child>
+                                  <widget class="GtkVBox" id="vbox4">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <widget class="GtkComboBox" id="combobox_repos">
+                                        <property name="visible">True</property>
+                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkScrolledWindow" id="scrolledwindow4">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                                        <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                                        <property name="shadow_type">GTK_SHADOW_IN</property>
+                                        <child>
+                                          <widget class="GtkTreeView" id="grouptreeview">
+                                            <property name="visible">True</property>
+                                            <property name="border_width">2</property>
+                                            <property name="headers_visible">False</property>
+                                            <property name="rules_hint">True</property>
+                                          </widget>
+                                        </child>
+                                      </widget>
+                                      <packing>
+                                        <property name="padding">2</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                  </widget>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
                             </child>
                           </widget>
                         </child>
