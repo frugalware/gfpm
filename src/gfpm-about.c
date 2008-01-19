@@ -1,7 +1,7 @@
 /*
  *  gfpm-about.c for gfpm
  *
- *  Copyright (C) 2006-2007 by Priyank Gosalia <priyankmg@gmail.com>
+ *  Copyright (C) 2006-2008 by Priyank Gosalia <priyankmg@gmail.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ gfpm_about_dlg_create (void)
 	about_dlg = gtk_about_dialog_new ();
 	gtk_about_dialog_set_name (GTK_ABOUT_DIALOG(about_dlg), PACKAGE);
 	gtk_about_dialog_set_version (GTK_ABOUT_DIALOG(about_dlg), ver);
-	gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about_dlg), _("(C) 2006-2007 Frugalware Developer Team (GPL)"));
+	gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about_dlg), _("(C) 2006-2008 Frugalware Developer Team (GPL)"));
 	gtk_about_dialog_set_comments (GTK_ABOUT_DIALOG(about_dlg), _("A graphical package manager for Frugalware Linux"));
 	gtk_about_dialog_set_license (GTK_ABOUT_DIALOG(about_dlg), license);
 	gtk_about_dialog_set_website (GTK_ABOUT_DIALOG(about_dlg), "http://www.frugalware.org/");

@@ -1,7 +1,7 @@
 /*
  *  gfpm-progress.c for gfpm
  *
- *  Copyright (C) 2006-2007 by Priyank Gosalia <priyankmg@gmail.com>
+ *  Copyright (C) 2006-2008 by Priyank Gosalia <priyankmg@gmail.com>
  *  Portions of this code Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux.org>
  *
  *  This program is free software; you can redistribute it and/or modify

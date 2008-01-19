@@ -1,7 +1,7 @@
 /*
  *  gfpm-optimizedb.c for gfpm
  *
- *  Copyright (C) 2006-2007 by Priyank Gosalia <priyankmg@gmail.com>
+ *  Copyright (C) 2006-2008 by Priyank Gosalia <priyankmg@gmail.com>
  *  Based on pacman-optimize written by Judd Vinet
  *  Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux.org>
  *
