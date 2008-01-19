@@ -76,6 +76,7 @@ static GtkWidget *gfpm_inst_forcheck;
 static GtkWidget *gfpm_apply_inst_depcheck;
 static GtkWidget *gfpm_apply_inst_dwocheck;
 static GtkWidget *gfpm_apply_rem_depcheck;
+static GtkWidget *gfpm_search_combo;
 
 static void gfpm_populate_repos_combobox (GtkComboBox *combo);
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
@@ -84,6 +85,7 @@ static void cb_gfpm_groups_tvw_right_click (GtkTreeView *treeview, GdkEventButto
 static void cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event);
 static void cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data);
+static void cb_gfpm_search_buttonpress (GtkButton *button, gpointer data);
 static void cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
@@ -161,6 +163,7 @@ gfpm_interface_init (void)
 	gfpm_apply_inst_depcheck = glade_xml_get_widget (xml, "applyinstdepcheck");
 	gfpm_apply_rem_depcheck = glade_xml_get_widget (xml, "applyremdepcheck");
 	gfpm_apply_inst_dwocheck = glade_xml_get_widget (xml, "applyinstdwcheck");
+	gfpm_search_combo = glade_xml_get_widget (xml, "search_repocombo");
 
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -246,10 +249,20 @@ gfpm_interface_init (void)
 	/* Setup repository combobox */
 	widget = glade_xml_get_widget (xml, "combobox_repos");
 	if (gfpm_db_populate_repolist() == 0)
+	{
 		gfpm_populate_repos_combobox (GTK_COMBO_BOX(widget));
+		g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
+		gtk_combo_box_set_active (GTK_COMBO_BOX(widget), 1);
+		gfpm_populate_repos_combobox (GTK_COMBO_BOX(gfpm_search_combo));
+		gtk_combo_box_set_active (GTK_COMBO_BOX(gfpm_search_combo), 1);
+	}
 
 	/* search */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), 
+				"key-release-event",
+				G_CALLBACK(cb_gfpm_search_keypress),
+				(gpointer)glade_xml_get_widget(xml, "search_entry1"));
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "gfpm_searchbtn")), "clicked", G_CALLBACK(cb_gfpm_search_buttonpress), NULL);
 
 	/* about */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
@@ -1522,6 +1535,14 @@ cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data)
 }
 
 static void
+cb_gfpm_search_buttonpress (GtkButton *button, gpointer data)
+{
+	cb_gfpm_search_keypress (GTK_WIDGET(data), NULL, NULL);
+
+	return;
+}
+
+static void
 cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
 	GtkListStore	*store;
@@ -1538,12 +1559,25 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	gint		r = 0;
 	char		*v1 = NULL;
 	char		*v2 = NULL;
+	gchar		*repo = NULL;
+	PM_DB		*search_db;
 
-	if (event->keyval != GDK_Return)
-		return;
+	if (event!=NULL)
+	{
+		if (event->keyval != GDK_Return)
+			return;
+	}
 	search_str = (gchar*)gtk_entry_get_text (GTK_ENTRY(widget));
 	if (search_str == NULL)
 		return;
+
+	repo = gtk_combo_box_get_active_text (gfpm_search_combo);
+	if (repo == NULL) return;
+	if (!strcmp(repo, _("Installed Packages")))
+	{
+		g_free (repo);
+		repo = g_strdup ("local");
+	}
 
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
@@ -1556,7 +1590,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	}
 	else
 	{
-		l = pacman_db_search (sync_db);
+		search_db = pacman_db_register (repo);
+		l = pacman_db_search (search_db);
 		r = 1;
 	}
 	if (l == NULL)
@@ -1623,7 +1658,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		for (i=l;i;i=pacman_list_next(i))
 		{
 			gboolean	ln = FALSE;
-			pm_pkg = pacman_db_readpkg (sync_db, pacman_list_getdata(i));
+			pm_pkg = pacman_db_readpkg (search_db, pacman_list_getdata(i));
 			pm_lpkg = pacman_db_readpkg (local_db, pacman_list_getdata(i));
 			if (pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION)!=NULL)
 			{
@@ -1674,6 +1709,8 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		}
 	}
 	pacman_set_option (PM_OPT_NEEDLES, (long)NULL);
+	if (search_db!=NULL)
+		pacman_db_unregister (search_db);
 	gfpm_update_status (_("Searching for packages ...DONE"));
 
 	g_object_unref (icon_yes);
