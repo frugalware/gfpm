@@ -1571,7 +1571,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	if (search_str == NULL)
 		return;
 
-	repo = gtk_combo_box_get_active_text (gfpm_search_combo);
+	repo = gtk_combo_box_get_active_text (GTK_COMBO_BOX(gfpm_search_combo));
 	if (repo == NULL) return;
 	if (!strcmp(repo, _("Installed Packages")))
 	{
