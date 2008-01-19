@@ -258,11 +258,11 @@ gfpm_interface_init (void)
 	}
 
 	/* search */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), 
-				"key-release-event",
-				G_CALLBACK(cb_gfpm_search_keypress),
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "gfpm_searchbtn")),
+				"clicked",
+				G_CALLBACK(cb_gfpm_search_buttonpress),
 				(gpointer)glade_xml_get_widget(xml, "search_entry1"));
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "gfpm_searchbtn")), "clicked", G_CALLBACK(cb_gfpm_search_buttonpress), NULL);
 
 	/* about */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
