@@ -27,8 +27,8 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#define DBLOC "/var/lib/pacman"
-#define TMPLOC "/var/lib/pacman.new"
+#define DBLOC "/var/lib/pacman-g2"
+#define TMPLOC "/var/lib/pacman-g2.new"
 #define OLDSUM "/tmp/dbsums.old"
 #define NEWSUM "/tmp/dbsums.new"
 #define LOCKFILE "/tmp/pacman-g2.lck"
