@@ -122,8 +122,7 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 	}
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set (store, &iter, 0, (char*)_("Installed Packages"), -1);
-	g_signal_connect (G_OBJECT(combo), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
-	gtk_combo_box_set_active (GTK_COMBO_BOX(combo), c_index);
+	//gtk_combo_box_set_active (GTK_COMBO_BOX(combo), c_index);
 
 	return;
 }
