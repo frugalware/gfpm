@@ -1560,7 +1560,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	char		*v1 = NULL;
 	char		*v2 = NULL;
 	gchar		*repo = NULL;
-	PM_DB		*search_db;
+	PM_DB		*search_db = NULL;
 
 	if (event!=NULL)
 	{
