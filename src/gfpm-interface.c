@@ -41,6 +41,7 @@
 #include "gfpm-optimizedb.h"
 #include "gfpm-quickpane.h"
 #include "gfpm-icmonitor.h"
+#include "gfpm-repomanager.h"
 #include "gfpm-util.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
@@ -266,6 +267,9 @@ gfpm_interface_init (void)
 
 	/* about */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
+	
+	/* repository manager */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "repos")), "activate", G_CALLBACK(gfpm_repomanager_show), NULL);
 
 	/* aply */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
@@ -295,6 +299,7 @@ gfpm_interface_init (void)
 	gfpm_optimize_db_dlg_init ();
 	gfpm_quickpane_init ();
 	gfpm_icmonitor_init ();
+	gfpm_repomanager_init ();
 
 	gtk_widget_hide (gfpm_splash);
 	title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
