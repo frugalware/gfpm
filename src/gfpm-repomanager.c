@@ -28,6 +28,7 @@ extern GladeXML *xml;
 
 static gfpm_repolist_t *repolist = NULL;
 
+/* Repository manager widgets */
 static GtkWidget *gfpm_repomgr_dlg;
 static GtkWidget *gfpm_repomgr_treeview;
 static GtkWidget *gfpm_repomgr_btnadd;
@@ -35,6 +36,18 @@ static GtkWidget *gfpm_repomgr_btndel;
 static GtkWidget *gfpm_repomgr_btnmup;
 static GtkWidget *gfpm_repomgr_btnmdn;
 static GtkWidget *gfpm_repomgr_btnedit;
+
+/* Server manager widgets */
+static GtkWidget *gfpm_servmgr_dlg;
+static GtkWidget *gfpm_servmgr_treeview;
+static GtkWidget *gfpm_servmgr_btnadd;
+static GtkWidget *gfpm_servmgr_btndel;
+static GtkWidget *gfpm_servmgr_btnmup;
+static GtkWidget *gfpm_servmgr_btnmdn;
+static GtkWidget *gfpm_servmgr_btnedit;
+
+/* signal callbacks */
+static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
 
 void
 gfpm_repomanager_init (void)
@@ -50,6 +63,13 @@ gfpm_repomanager_init (void)
 	gfpm_repomgr_btnedit = glade_xml_get_widget (xml, "repoman_edit");
 	gfpm_repomgr_btnmup = glade_xml_get_widget (xml, "repoman_mup");
 	gfpm_repomgr_btnmdn = glade_xml_get_widget (xml, "repoman_mdn");
+	gfpm_servmgr_dlg = glade_xml_get_widget (xml, "gfpm_repomanager_servermgr");
+	gfpm_servmgr_treeview = glade_xml_get_widget (xml, "servman_listview");
+	gfpm_servmgr_btnadd = glade_xml_get_widget (xml, "servman_add");
+	gfpm_servmgr_btndel = glade_xml_get_widget (xml, "servman_del");
+	gfpm_servmgr_btnedit = glade_xml_get_widget (xml, "servman_edit");
+	gfpm_servmgr_btnmup = glade_xml_get_widget (xml, "servman_mup");
+	gfpm_servmgr_btnmdn = glade_xml_get_widget (xml, "servman_mdn");
 
 	/* setup repo store */
 	store = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
@@ -70,6 +90,30 @@ gfpm_repomanager_init (void)
 	gtk_tree_view_column_set_expand (column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_repomgr_treeview), column);
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_repomgr_treeview), GTK_TREE_MODEL(store));
+	
+	/* setup server store */
+	store = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+	renderer = gtk_cell_renderer_pixbuf_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("S"),
+														renderer,
+														"pixbuf", 0,
+														NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_servmgr_treeview), column);
+
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Server"),
+														renderer,
+														"text", 1,
+														NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_column_set_expand (column, TRUE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_servmgr_treeview), column);
+	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_servmgr_treeview), GTK_TREE_MODEL(store));
+	
+	/* connect important signals */
+	/* repository manager signals */
+	g_signal_connect (G_OBJECT(gfpm_repomgr_btnedit), "clicked", cb_gfpm_repomgr_btnedit_clicked, NULL);
 
 	return;
 }
@@ -77,11 +121,11 @@ gfpm_repomanager_init (void)
 static GList *
 gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 {
-	FILE	*fp = NULL;
-	GList	*ret = NULL;
-	char	line[PATH_MAX+1];
-	char	str[PATH_MAX+1];
-
+	FILE		*fp = NULL;
+	GList		*ret = NULL;
+	char		line[PATH_MAX+1];
+	char		str[PATH_MAX+1];
+	
 	fp = fopen (conf_file, "r");
 	if (fp == NULL)
 	{
@@ -154,7 +198,7 @@ gfpm_repomgr_populate_repolist (void)
 				gfpm_repo_t *repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
 				if (repo_r == NULL)
 				{
-					g_error ("Error allocation memory. Exiting");
+					g_error ("Error allocating memory. Exiting");
 					return;
 				}
 				memset (repo_r, 0, sizeof(gfpm_repo_t));
@@ -190,7 +234,7 @@ gfpm_repomgr_populate_repolist (void)
 					ptr = ln;
 					ptr++;
 					strncpy (rn, ptr, fwutil_min(255, strlen(ptr)-1));
-					rn[fwutil_min(255, strlen(ptr-1))] = '\0';
+					rn[fwutil_min(255, strlen(ptr+1))] = '\0';
 					if (strlen(rn))
 					{
 						strncpy (repo_r->name, rn, REPONAME_MAX_SIZE);
@@ -222,13 +266,16 @@ gfpm_repomgr_populate_repolist (void)
 static void
 gfpm_repomgr_populate_repotvw (void)
 {
-	GtkListStore *store = NULL;
-	GtkTreeIter iter;
-	GList *ret = NULL;
+	GtkListStore 	*store = NULL;
+	GtkTreeIter 	iter;
+	GList 			*ret = NULL;
+	GdkPixbuf		*pixbuf = NULL;
 
 	gfpm_repomgr_populate_repolist ();
+	pixbuf = gfpm_get_icon ("gfpm", 32);
 	
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_repomgr_treeview)));
+	gtk_list_store_clear (store);
 	ret = repolist->list;
 	while (ret != NULL)
 	{
@@ -237,9 +284,48 @@ gfpm_repomgr_populate_repotvw (void)
 
 		repo = ret->data;
 		gtk_list_store_append (GTK_LIST_STORE(store), &iter);
-		gtk_list_store_set (store, &iter, 1, (char*)repo->name, -1);
+		gtk_list_store_set (store, &iter, 0, pixbuf, 1, (char*)repo->name, -1);
 		ret = g_list_next (ret);
 	}
+}
+
+static void
+gfpm_repomgr_populate_servtvw (const char *repo)
+{
+	GtkListStore 	*store = NULL;
+	GtkTreeIter 	iter;
+	GList 			*rlist = NULL;
+	GList			*slist = NULL;
+	GdkPixbuf		*pixbuf = NULL;
+	gfpm_repo_t		*repository = NULL;
+
+	pixbuf = gfpm_get_icon ("gfpm", 32);
+	
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_servmgr_treeview)));
+	gtk_list_store_clear (store);
+	rlist = repolist->list;
+	while (rlist != NULL)
+	{
+		gfpm_repo_t	*repo = NULL;
+		GList		*ser = NULL;
+
+		repo = rlist->data;
+		if (!strcmp(repo->name, repo))
+		{
+			repository = repo;
+			break;
+		}
+		rlist = g_list_next (rlist);
+	}
+	slist = repository->servers;
+	while (slist != NULL)
+	{
+		gtk_list_store_append (GTK_LIST_STORE(store), &iter);
+		gtk_list_store_set (store, &iter, 0, pixbuf, 1, (char*)slist->data, -1);
+		slist = g_list_next (slist);
+	}
+	
+	return;
 }
 
 void
@@ -247,6 +333,35 @@ gfpm_repomanager_show ()
 {
 	gfpm_repomgr_populate_repotvw ();
 	gtk_widget_show (GTK_WIDGET(gfpm_repomgr_dlg));
+
+	return;
+}
+
+void
+gfpm_servmanager_show (const char *repo)
+{
+	gfpm_repomgr_populate_servtvw (repo);
+	gtk_widget_show (GTK_WIDGET(gfpm_servmgr_dlg));
+
+	return;
+}
+
+/* CALLBACKS */
+static void
+cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
+{
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeModel		*model;
+	GtkTreeIter			iter;
+	gchar				*repo = NULL;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_repomgr_treeview));
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 0, &repo, -1);
+		gfpm_servmanager_show (repo);
+		//g_free (repo);
+	}
 
 	return;
 }
