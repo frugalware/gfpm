@@ -306,18 +306,19 @@ gfpm_repomgr_populate_servtvw (const char *repo)
 	rlist = repolist->list;
 	while (rlist != NULL)
 	{
-		gfpm_repo_t	*repo = NULL;
+		gfpm_repo_t	*rp = NULL;
 		GList		*ser = NULL;
 
-		repo = rlist->data;
-		if (!strcmp(repo->name, repo))
+		rp = rlist->data;
+		if (!strcmp(rp->name, repo))
 		{
-			repository = repo;
+			repository = rp;
+			slist = repository->servers;
 			break;
 		}
 		rlist = g_list_next (rlist);
 	}
-	slist = repository->servers;
+	
 	while (slist != NULL)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(store), &iter);
@@ -358,7 +359,7 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_repomgr_treeview));
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
-		gtk_tree_model_get (model, &iter, 0, &repo, -1);
+		gtk_tree_model_get (model, &iter, 1, &repo, -1);
 		gfpm_servmanager_show (repo);
 		//g_free (repo);
 	}
