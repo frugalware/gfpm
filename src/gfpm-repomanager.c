@@ -123,8 +123,8 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 {
 	FILE		*fp = NULL;
 	GList		*ret = NULL;
-	char		line[PATH_MAX+1];
-	char		str[PATH_MAX+1];
+	char		line[PATH_MAX+1] = "";
+	char		server[PATH_MAX+1] = "";
 	
 	fp = fopen (conf_file, "r");
 	if (fp == NULL)
@@ -136,9 +136,11 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 	while (fgets(line, PATH_MAX, fp))
 	{
 		fwutil_trim(line);
-		if (sscanf(line, "Server = %s", str))
+		if (!strlen(line))
+			continue;
+		if (sscanf(line, "Server = %s", server))
 		{
-			ret = g_list_append (ret, (gpointer)g_strdup(fwutil_trim(str)));
+			ret = g_list_append (ret, (gpointer)g_strdup(fwutil_trim(server)));
 		}
 	}
 	fclose (fp);
@@ -151,8 +153,9 @@ gfpm_repomgr_populate_repolist (void)
 {
 	char *ptr = NULL;
 	FILE *fp = NULL;
-	char line[PATH_MAX+1];
 	char str[256];
+	char line[PATH_MAX+1];
+	
 	gint n = 0;
 
 	fp = fopen (CONF_FILE, "r");
@@ -195,6 +198,7 @@ gfpm_repomgr_populate_repolist (void)
 			{
 				// create a new repo record
 				n++;
+				char svr[256];
 				gfpm_repo_t *repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
 				if (repo_r == NULL)
 				{
@@ -205,8 +209,8 @@ gfpm_repomgr_populate_repolist (void)
 				strncpy (repo_r->name, reponame, REPONAME_MAX_SIZE);
 				// get the server url
 				fgets (line, PATH_MAX, fp);
-				sscanf (line, "Server = %s", str);
-				repo_r->servers = g_list_append (repo_r->servers, (gpointer)g_strdup(str));
+				sscanf (line, "Server = %s", svr);
+				repo_r->servers = g_list_append (repo_r->servers, (gpointer)g_strdup(svr));
 				// and then append it to our repo list
 				repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
 			}
@@ -361,7 +365,6 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 	{
 		gtk_tree_model_get (model, &iter, 1, &repo, -1);
 		gfpm_servmanager_show (repo);
-		//g_free (repo);
 	}
 
 	return;

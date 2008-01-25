@@ -1817,6 +1817,9 @@
     <property name="resizable">False</property>
     <property name="default_width">430</property>
     <property name="default_height">350</property>
+    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="deletable">False</property>
+    <property name="transient_for">mainwindow</property>
     <child>
       <widget class="GtkVBox" id="vbox16">
         <property name="visible">True</property>
@@ -1991,6 +1994,9 @@
     <property name="resizable">False</property>
     <property name="default_width">500</property>
     <property name="default_height">350</property>
+    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="deletable">False</property>
+    <property name="transient_for">gfpm_repomanager</property>
     <child>
       <widget class="GtkVBox" id="vbox18">
         <property name="visible">True</property>
