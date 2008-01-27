@@ -2179,7 +2179,12 @@
     </child>
   </widget>
   <widget class="GtkWindow" id="syslog_window">
+    <property name="width_request">500</property>
+    <property name="height_request">350</property>
+    <property name="visible">True</property>
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+    <property name="default_width">500</property>
+    <property name="default_height">350</property>
     <child>
       <widget class="GtkVBox" id="vbox17">
         <property name="visible">True</property>
@@ -2202,50 +2207,71 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkHPaned" id="hpaned2">
+              <widget class="GtkFrame" id="frame2">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                <property name="border_width">6</property>
+                <property name="border_width">5</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">GTK_SHADOW_OUT</property>
                 <child>
-                  <widget class="GtkScrolledWindow" id="scrolledwindow8">
+                  <widget class="GtkAlignment" id="alignment6">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                     <child>
-                      <widget class="GtkTreeView" id="log_tvw">
+                      <widget class="GtkHPaned" id="hpaned2">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <property name="headers_clickable">True</property>
+                        <property name="border_width">6</property>
+                        <child>
+                          <widget class="GtkScrolledWindow" id="scrolledwindow8">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <child>
+                              <widget class="GtkTreeView" id="log_tvw">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="headers_visible">False</property>
+                              </widget>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="resize">False</property>
+                            <property name="shrink">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkScrolledWindow" id="scrolledwindow10">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <child>
+                              <widget class="GtkTextView" id="log_txtvw">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                              </widget>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="resize">True</property>
+                            <property name="shrink">True</property>
+                          </packing>
+                        </child>
                       </widget>
                     </child>
                   </widget>
-                  <packing>
-                    <property name="resize">False</property>
-                    <property name="shrink">True</property>
-                  </packing>
                 </child>
                 <child>
-                  <widget class="GtkScrolledWindow" id="scrolledwindow10">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <child>
-                      <widget class="GtkTextView" id="log_txtvw">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                      </widget>
-                    </child>
-                  </widget>
+                  <placeholder/>
                   <packing>
-                    <property name="resize">True</property>
-                    <property name="shrink">True</property>
+                    <property name="type">label_item</property>
                   </packing>
                 </child>
               </widget>
