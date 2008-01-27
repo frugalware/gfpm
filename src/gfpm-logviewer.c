@@ -26,7 +26,7 @@
 
 typedef struct _LogViewItem
 {
-	gchar		*label;
+	gchar	*label;
 	GList		*children;
 } LogViewItem;
 
@@ -53,10 +53,10 @@ static void cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gp
 void
 gfpm_logviewer_init (void)
 {
-	 gint col_offset;
-	 GtkCellRenderer *renderer;
-	 GtkTreeViewColumn *column;
-	 GtkTreeSelection *sel;
+	 gint 				col_offset;
+	 GtkCellRenderer	*renderer;
+	 GtkTreeViewColumn	*column;
+	 GtkTreeSelection	*sel;
 	 
 	 if (getenv("DATEMSK") == NULL)
 	 {
@@ -97,9 +97,9 @@ _gfpm_logviewer_populate (void)
 {
 	FILE			*fp = NULL;
 	char			line[PATH_MAX+1] = "";
-	int				prev_day = -1;
-	int				prev_month = -1;
-	int				prev_year = -1;
+	int			prev_day = -1;
+	int			prev_month = -1;
+	int			prev_year = -1;
 	GtkTreeStore 	*store;
 	GtkTreeIter		iter;
 	GList			*master = NULL;
@@ -238,9 +238,9 @@ _gfpm_logviewer_populate_txtvw (const char *text)
 static void
 cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gpointer data)
 {
-	GtkTreeIter iter;
-	GtkTreeIter piter;
-	GtkTreeModel *model;
+	GtkTreeIter		iter;
+	GtkTreeIter		piter;
+	GtkTreeModel	*model;
 	
 	if (gtk_tree_selection_get_selected (selection, &model, &iter))
 	{
