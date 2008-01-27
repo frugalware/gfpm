@@ -28,7 +28,11 @@ typedef struct _LogViewItem
 	GList		*children;
 } LogViewItem;
 
+/* location of pacman-g2.log */
 #define LOG_FILE "/var/log/pacman-g2.log"
+
+/* location of datemsk file */
+#define DMK_FILE "/share/gfpm/datemsk"
 
 extern GladeXML *xml;
 
@@ -48,6 +52,12 @@ gfpm_logviewer_init (void)
 	 GtkCellRenderer *renderer;
 	 GtkTreeViewColumn *column;
 	 
+	 if (getenv("DATEMSK") == NULL)
+	 {
+	 	gchar *loc = g_strdup_printf ("%s/%s", PREFIX, DMK_FILE);
+	 	setenv ("DATEMSK", loc, 0);
+	 	g_free (loc);
+	 }
 	 gfpm_logviewer_dlg = glade_xml_get_widget (xml, "syslog_window");
 	 gfpm_logviewer_tvw = glade_xml_get_widget (xml, "log_tvw");
 	 gfpm_logviewer_txtvw = glade_xml_get_widget (xml, "log_txtvw");
@@ -85,7 +95,6 @@ _gfpm_logviewer_populate (void)
 	GtkTreeStore 	*store;
 	GtkTreeIter		iter;
 	GList			*master = NULL;
-	GList			*child = NULL;
 	LogViewItem 	*li = NULL;
 
 	if ((fp=fopen(LOG_FILE,"r"))==NULL)
@@ -102,7 +111,6 @@ _gfpm_logviewer_populate (void)
 			continue;
 		if (line[0] == '[' && line[15] == ']')
 		{
-			int i;
 			struct tm *t;
 
 			ptr = line;
@@ -149,11 +157,14 @@ _gfpm_logviewer_populate (void)
 			}
 			else
 			{
-				printf ("ERROR: getdate() failed with error code: %d\n", getdate_err);
+				if (getdate_err == 1)
+					gfpm_error (_("Error"), _("Missing datemsk file. Make sure that the file exists on your system"));
+				else
+					gfpm_error (_("Unknown Error"), _("Unknown Error."));
+				goto cleanup;
 			}
 		}
 	}
-	fclose (fp);
 
 	/* add the master list */
 	store = gtk_tree_store_new (1, G_TYPE_STRING);
@@ -178,6 +189,7 @@ _gfpm_logviewer_populate (void)
 	}
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_logviewer_tvw), GTK_TREE_MODEL(store));
 	
+	cleanup: fclose (fp);
 	return;
 }
 
