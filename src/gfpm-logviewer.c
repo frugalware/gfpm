@@ -20,7 +20,9 @@
 
 #include "gfpm-logviewer.h"
 #include "gfpm-messages.h"
+#include <libfwutil.h>
 #include <glib.h>
+#include <time.h>
 
 typedef struct _LogViewItem
 {
@@ -204,7 +206,6 @@ _gfpm_logviewer_populate_txtvw (const char *text)
 {
 	struct tm 		*t = NULL;
 	char 			date[10] = "";
-	char			*ptr = NULL;
 	GtkTextBuffer	*buffer;
 	GtkTextIter		iter;
 	
@@ -255,5 +256,3 @@ cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gpointer data)
 	
 	return;
 }
-
-
