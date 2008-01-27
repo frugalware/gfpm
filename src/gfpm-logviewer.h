@@ -8,8 +8,6 @@
 #include <locale.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
-#include <libfwutil.h>
-#include "gfpm.h"
 
 void gfpm_logviewer_init (void);
 

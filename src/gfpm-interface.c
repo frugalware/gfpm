@@ -42,6 +42,7 @@
 #include "gfpm-quickpane.h"
 #include "gfpm-icmonitor.h"
 #include "gfpm-repomanager.h"
+#include "gfpm-logviewer.h"
 #include "gfpm-util.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
@@ -268,6 +269,9 @@ gfpm_interface_init (void)
 	/* about */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
 	
+	/* syslog */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "syslog1")), "activate", G_CALLBACK(gfpm_logviewer_show), NULL);
+	
 	/* repository manager */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "repos")), "activate", G_CALLBACK(gfpm_repomanager_show), NULL);
 
@@ -300,7 +304,8 @@ gfpm_interface_init (void)
 	gfpm_quickpane_init ();
 	gfpm_icmonitor_init ();
 	gfpm_repomanager_init ();
-
+	gfpm_logviewer_init ();
+	
 	gtk_widget_hide (gfpm_splash);
 	title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
 	gtk_window_set_title (GTK_WINDOW(gfpm_mw), title);
