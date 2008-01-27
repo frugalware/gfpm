@@ -2181,10 +2181,10 @@
   <widget class="GtkWindow" id="syslog_window">
     <property name="width_request">500</property>
     <property name="height_request">350</property>
-    <property name="visible">True</property>
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="default_width">500</property>
     <property name="default_height">350</property>
+    <property name="transient_for">mainwindow</property>
     <child>
       <widget class="GtkVBox" id="vbox17">
         <property name="visible">True</property>
@@ -2296,6 +2296,7 @@
                 <property name="label" translatable="yes">gtk-close</property>
                 <property name="use_stock">True</property>
                 <property name="response_id">0</property>
+                <signal name="clicked" handler="gtk_widget_hide" object="syslog_window"/>
               </widget>
             </child>
           </widget>
