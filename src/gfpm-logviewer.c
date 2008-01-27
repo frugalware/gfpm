@@ -44,6 +44,9 @@ static GtkWidget *gfpm_logviewer_tvw;
 static GtkWidget *gfpm_logviewer_txtvw;
 
 static void _gfpm_logviewer_populate (void);
+static void _gfpm_logviewer_populate_txtvw (const char *text);
+
+static void cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gpointer data);
 
 void
 gfpm_logviewer_init (void)
@@ -51,6 +54,7 @@ gfpm_logviewer_init (void)
 	 gint col_offset;
 	 GtkCellRenderer *renderer;
 	 GtkTreeViewColumn *column;
+	 GtkTreeSelection *sel;
 	 
 	 if (getenv("DATEMSK") == NULL)
 	 {
@@ -71,6 +75,8 @@ gfpm_logviewer_init (void)
 							    NULL);
 	column = gtk_tree_view_get_column (GTK_TREE_VIEW (gfpm_logviewer_tvw), col_offset - 1);
 	gtk_tree_view_column_set_clickable (GTK_TREE_VIEW_COLUMN (column), TRUE);
+	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_logviewer_tvw));
+	g_signal_connect (G_OBJECT(sel), "changed", G_CALLBACK(cb_gfpm_logviewer_tvw_row_activated), NULL);
 
 	return;
 }
@@ -192,4 +198,62 @@ _gfpm_logviewer_populate (void)
 	cleanup: fclose (fp);
 	return;
 }
+
+static void
+_gfpm_logviewer_populate_txtvw (const char *text)
+{
+	struct tm 		*t = NULL;
+	char 			date[10] = "";
+	char			*ptr = NULL;
+	GtkTextBuffer	*buffer;
+	GtkTextIter		iter;
+	
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_logviewer_txtvw));
+	gtk_text_buffer_set_text (buffer, "", 0);
+	gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
+	t = getdate (text);
+	if (t != NULL)
+	{
+		FILE *fp = fopen (LOG_FILE, "r");
+		char line[PATH_MAX+1] = "";
+		if (!fp)
+		{
+			gfpm_error (_("Error"), _("Error opening log file"));
+			return;
+		}
+		strftime (date, 10, "[%m/%d/%y", t);
+		//printf ("Searching for: %s\n", date);
+		while (fgets(line, PATH_MAX, fp))
+		{
+			gchar *pot = g_strstr_len (line, 10, date);
+			if (pot != NULL)
+				gtk_text_buffer_insert (buffer, &iter, pot, -1);
+		}
+		gtk_text_view_set_buffer (GTK_TEXT_VIEW(gfpm_logviewer_txtvw), buffer);
+		fclose (fp);
+	}
+}
+
+static void
+cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gpointer data)
+{
+	GtkTreeIter iter;
+	GtkTreeIter piter;
+	GtkTreeModel *model;
+	
+	if (gtk_tree_selection_get_selected (selection, &model, &iter))
+	{
+		gchar *text = NULL;
+		
+		if (gtk_tree_model_iter_parent (model, &piter, &iter))
+		{
+			gtk_tree_model_get (model, &iter, 0, &text, -1);
+			_gfpm_logviewer_populate_txtvw (text);
+			g_free (text);
+		}
+	}
+	
+	return;
+}
+
 
