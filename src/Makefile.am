@@ -17,6 +17,7 @@ gfpm_SOURCES=				\
 			gfpm-about.c \
 			gfpm-icmonitor.c \
 			gfpm-repomanager.c \
+			gfpm-logviewer.c \
 			gfpm.c
 
 gfpm_LDADD= @GFPM_LIBS@ -lpacman -linotifytools -lfwutil
