@@ -103,11 +103,11 @@ static gint gfpm_trans_commit (PM_LIST **list);
 static void
 gfpm_populate_repos_combobox (GtkComboBox *combo)
 {
-	GList		*rlist = NULL;
-	GtkListStore	*store = NULL;
-	GtkCellRenderer *renderer = NULL;
-	GtkTreeIter	iter;
-	gint		c_index = -1;
+	GList			*rlist = NULL;
+	GtkListStore		*store = NULL;
+	GtkCellRenderer 	*renderer = NULL;
+	GtkTreeIter		iter;
+	gint			c_index = -1;
 	
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 	gtk_combo_box_set_model (GTK_COMBO_BOX(combo), GTK_TREE_MODEL(store));
@@ -979,7 +979,7 @@ void
 gfpm_load_changelog_txtvw (const char *pkg_name, gboolean inst)
 {
 	GtkTextBuffer	*buffer;
-	GtkTextIter		iter;
+	GtkTextIter	iter;
 	
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_clog_txtvw));
 	gtk_text_buffer_set_text (buffer, "", 0);
@@ -1161,9 +1161,9 @@ gfpm_trans_commit (PM_LIST **list)
 static void
 cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 {
-	gint ret;
+	gint 	ret;
 	PM_LIST *packages;
-	gchar *updatestr = NULL;
+	gchar 	*updatestr = NULL;
 
 	gfpm_progress_set_main_text (_("Synchronizing package databases"), 1);
 	gfpm_progress_show (TRUE);
@@ -1343,12 +1343,12 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 static void
 cb_gfpm_groups_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 {
-	GtkWidget *menu;
-	GtkWidget *menu_item;
-	GtkTreeModel *model;
-	GtkTreeSelection *selection;
-	GtkTreeIter iter;
-	gchar *groupname = NULL;
+	GtkWidget 		*menu;
+	GtkWidget 		*menu_item;
+	GtkTreeModel 		*model;
+	GtkTreeSelection 	*selection;
+	GtkTreeIter 		iter;
+	gchar 			*groupname = NULL;
 	
 	if (event->button != 3)
 		return;
@@ -1513,9 +1513,9 @@ cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data)
 static void
 cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data)
 {
-	PM_GRP	*group = NULL;
-	PM_LIST *list = NULL;
-	PM_LIST *i = NULL;
+	PM_GRP		*group = NULL;
+	PM_LIST 	*list = NULL;
+	PM_LIST 	*i = NULL;
 	const char	*group_name = (char*) data;
 	
 	group = pacman_db_readgrp (sync_db, (char*)group_name);
@@ -1571,7 +1571,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	char		*v2 = NULL;
 	gchar		*srepo = NULL;
 	PM_DB		*search_db = NULL;
-	gint		nounreg = 0;
+	guint		nounreg = 0;
 
 	if (event!=NULL)
 	{
