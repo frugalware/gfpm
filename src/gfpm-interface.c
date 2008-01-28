@@ -1569,8 +1569,9 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	gint		r = 0;
 	char		*v1 = NULL;
 	char		*v2 = NULL;
-	gchar		*repo = NULL;
+	gchar		*srepo = NULL;
 	PM_DB		*search_db = NULL;
+	gint		nounreg = 0;
 
 	if (event!=NULL)
 	{
@@ -1581,26 +1582,34 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	if (search_str == NULL)
 		return;
 
-	repo = gtk_combo_box_get_active_text (GTK_COMBO_BOX(gfpm_search_combo));
-	if (repo == NULL) return;
-	if (!strcmp(repo, _("Installed Packages")))
+	srepo = gtk_combo_box_get_active_text (GTK_COMBO_BOX(gfpm_search_combo));
+	if (srepo == NULL) return;
+	if (!strcmp(srepo, _("Installed Packages")))
 	{
-		g_free (repo);
-		repo = g_strdup ("local");
+		g_free (srepo);
+		srepo = g_strdup ("local");
 	}
 
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 	store = (GtkListStore*) model;
 	pacman_set_option (PM_OPT_NEEDLES, (long)search_str);
-	if (!strcmp("local", repo))
+	if (!strcmp("local", srepo))
 	{
 		l = pacman_db_search (local_db);
 		r = 0;
 	}
 	else
 	{
-		search_db = pacman_db_register (repo);
+		if (!strcmp(repo, srepo))
+		{
+			search_db = sync_db;
+			nounreg = 1;
+		}
+		else
+		{
+			search_db = pacman_db_register (srepo);
+		}	
 		l = pacman_db_search (search_db);
 		r = 1;
 	}
@@ -1719,8 +1728,10 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 		}
 	}
 	pacman_set_option (PM_OPT_NEEDLES, (long)NULL);
-	if (search_db!=NULL)
+	if (search_db!=NULL && !nounreg)
+	{
 		pacman_db_unregister (search_db);
+	}
 	gfpm_update_status (_("Searching for packages ...DONE"));
 
 	g_object_unref (icon_yes);
