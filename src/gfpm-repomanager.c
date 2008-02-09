@@ -378,12 +378,12 @@ gfpm_servmgr_delete_server (const char *server)
 	if ((fp=fopen(path,"r"))==NULL)
 	{
 		gfpm_error (_("Error"), _("Error opening repository file"));
-		return;
+		goto cleanup;
 	}
 	if ((tp=tmpfile())==NULL)
 	{
 		gfpm_error (_("Error"), _("Unable to create a temporary file"));
-		return;
+		goto cleanup;
 	}
 	
 	while (fgets(line, PATH_MAX, fp))
