@@ -23,10 +23,12 @@
 #include <glib.h>
 
 #define CONF_FILE "/etc/pacman-g2.conf"
+#define REPO_PATH "/etc/pacman-g2/repos"
 
 extern GladeXML *xml;
 
-static gfpm_repolist_t *repolist = NULL;
+static gfpm_repolist_t 	*repolist = NULL;
+static gchar			*curr_repo = NULL;
 
 /* Repository manager widgets */
 static GtkWidget *gfpm_repomgr_dlg;
@@ -48,6 +50,7 @@ static GtkWidget *gfpm_servmgr_btnedit;
 
 /* signal callbacks */
 static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data);
 
 void
 gfpm_repomanager_init (void)
@@ -114,6 +117,7 @@ gfpm_repomanager_init (void)
 	/* connect important signals */
 	/* repository manager signals */
 	g_signal_connect (G_OBJECT(gfpm_repomgr_btnedit), "clicked", cb_gfpm_repomgr_btnedit_clicked, NULL);
+	g_signal_connect (G_OBJECT(gfpm_servmgr_btndel), "clicked", cb_gfpm_servmgr_btndel_clicked, NULL);
 
 	return;
 }
@@ -351,6 +355,96 @@ gfpm_servmanager_show (const char *repo)
 	return;
 }
 
+static void
+gfpm_repomgr_set_current_repo (const char *reponame)
+{
+	if (curr_repo)
+		g_free (curr_repo);
+	curr_repo = g_strdup_printf (reponame);
+	
+	return;
+}
+
+static void
+gfpm_servmgr_delete_server (const char *server)
+{
+	gchar	*path = NULL;
+	gchar	line[256] = "";
+	FILE	*fp = NULL;
+	FILE	*tp = NULL;
+	GList	*rlist = NULL;
+
+	path = g_strdup_printf ("%s/%s", REPO_PATH, curr_repo);
+	if ((fp=fopen(path,"r"))==NULL)
+	{
+		gfpm_error (_("Error"), _("Error opening repository file"));
+		return;
+	}
+	if ((tp=tmpfile())==NULL)
+	{
+		gfpm_error (_("Error"), _("Unable to create a temporary file"));
+		return;
+	}
+	
+	while (fgets(line, PATH_MAX, fp))
+	{
+		char svr[256] = "";
+		fwutil_trim (line);
+		if (!strlen(line) || line[0] == '#' || (line[0] == '[' && line[strlen(line)-1] == ']'))
+		{	
+			fputs (line, tp);
+			fputc ('\n', tp);
+			continue;
+		}
+		else if (sscanf (line, "Server = %s", svr))
+		{
+			if (!strcmp(svr,server))
+			{
+				fputs ("#Server = ", tp);
+				fputs (svr, tp);
+				fputc ('\n', tp);
+				continue;
+			}
+			else
+			{
+				fputs (line, tp);
+				fputc ('\n', tp);
+			}
+		}
+	}
+	fclose (fp);
+	
+	fp = fopen (path, "w");
+	rewind (tp);
+	while (fgets(line, PATH_MAX, tp))
+		fputs (line, fp);
+	fclose (tp);
+	fclose (fp);
+	//g_list_free (repolist);
+	
+	/* free the server list for the current repo */
+	rlist = repolist->list;
+	while (rlist != NULL)
+	{
+		gfpm_repo_t	*rp = NULL;
+
+		rp = rlist->data;
+		if (!strcmp(rp->name, curr_repo))
+		{
+			if (rp->servers)
+			g_list_free (rp->servers);
+			rp->servers = gfpm_repomgr_get_servers_from_repofile (path);
+			break;
+		}
+	}
+	
+	/* repopulate the server list and display */
+	gfpm_repomgr_populate_servtvw (curr_repo);
+	
+	cleanup: g_free (path);
+	return;
+}
+
 /* CALLBACKS */
 static void
 cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
@@ -365,8 +459,25 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 	{
 		gtk_tree_model_get (model, &iter, 1, &repo, -1);
 		gfpm_servmanager_show (repo);
+		gfpm_repomgr_set_current_repo (repo);
 	}
 
 	return;
 }
 
+static void
+cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data)
+{
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeModel		*model;
+	GtkTreeIter			iter;
+	gchar				*server = NULL;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_servmgr_treeview));
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 1, &server, -1);
+		gfpm_servmgr_delete_server (server);
+		//gfpm_repomanager_set_current_repo (repo);
+	}
+}
