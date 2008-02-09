@@ -420,7 +420,6 @@ gfpm_servmgr_delete_server (const char *server)
 		fputs (line, fp);
 	fclose (tp);
 	fclose (fp);
-	//g_list_free (repolist);
 	
 	/* free the server list for the current repo */
 	rlist = repolist->list;

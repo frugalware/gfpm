@@ -80,7 +80,7 @@ static GtkWidget *gfpm_apply_inst_dwocheck;
 static GtkWidget *gfpm_apply_rem_depcheck;
 static GtkWidget *gfpm_search_combo;
 
-static void gfpm_populate_repos_combobox (GtkComboBox *combo);
+static guint gfpm_populate_repos_combobox (GtkComboBox *combo);
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
 static void cb_gfpm_groups_tvw_selected (GtkTreeSelection *selection, gpointer data);
 static void cb_gfpm_groups_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event);
@@ -100,14 +100,15 @@ static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
 static gint gfpm_trans_prepare (PM_LIST *list);
 static gint gfpm_trans_commit (PM_LIST **list);
 
-static void
+static guint
 gfpm_populate_repos_combobox (GtkComboBox *combo)
 {
 	GList			*rlist = NULL;
 	GtkListStore		*store = NULL;
 	GtkCellRenderer 	*renderer = NULL;
 	GtkTreeIter		iter;
-	gint			c_index = -1;
+	gint			c_index = 0;
+	gboolean		found = FALSE;
 	
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 	gtk_combo_box_set_model (GTK_COMBO_BOX(combo), GTK_TREE_MODEL(store));
@@ -121,14 +122,22 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 		char *c_repo = (char *)pacman_db_getinfo ((PM_DB *)rlist->data, PM_DB_TREENAME);
 		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter, 0, c_repo, -1);
-		if (!strcmp(c_repo, FW_CURRENT) || !strcmp(c_repo, FW_STABLE))
-			c_index++;
+		if (found == FALSE)
+		{
+			if (!strcmp(c_repo, FW_CURRENT) || !strcmp(c_repo, FW_STABLE))
+			{
+				found = TRUE;
+			}
+			else
+			{
+				c_index++;
+			}
+		}
 	}
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set (store, &iter, 0, (char*)_("Installed Packages"), -1);
-	//gtk_combo_box_set_active (GTK_COMBO_BOX(combo), c_index);
 
-	return;
+	return c_index;
 }
 
 void
@@ -252,11 +261,12 @@ gfpm_interface_init (void)
 	widget = glade_xml_get_widget (xml, "combobox_repos");
 	if (gfpm_db_populate_repolist() == 0)
 	{
-		gfpm_populate_repos_combobox (GTK_COMBO_BOX(widget));
+		guint active;
+		active = gfpm_populate_repos_combobox (GTK_COMBO_BOX(widget));
 		g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
-		gtk_combo_box_set_active (GTK_COMBO_BOX(widget), 1);
+		gtk_combo_box_set_active (GTK_COMBO_BOX(widget), active);
 		gfpm_populate_repos_combobox (GTK_COMBO_BOX(gfpm_search_combo));
-		gtk_combo_box_set_active (GTK_COMBO_BOX(gfpm_search_combo), 1);
+		gtk_combo_box_set_active (GTK_COMBO_BOX(gfpm_search_combo), active);
 	}
 
 	/* search */
