@@ -283,7 +283,13 @@ gfpm_repomgr_populate_repotvw (void)
 	
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_repomgr_treeview)));
 	gtk_list_store_clear (store);
-	ret = repolist->list;
+	if (repolist != NULL)
+		ret = repolist->list;
+	else
+	{
+		gfpm_message (_("Warning"), "No usable package repositories configured");
+		return;
+	}
 	while (ret != NULL)
 	{
 		gfpm_repo_t	*repo = NULL;
@@ -294,6 +300,8 @@ gfpm_repomgr_populate_repotvw (void)
 		gtk_list_store_set (store, &iter, 0, pixbuf, 1, (char*)repo->name, -1);
 		ret = g_list_next (ret);
 	}
+	
+	return;
 }
 
 static void
@@ -476,6 +484,5 @@ cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data)
 	{
 		gtk_tree_model_get (model, &iter, 1, &server, -1);
 		gfpm_servmgr_delete_server (server);
-		//gfpm_repomanager_set_current_repo (repo);
 	}
 }
