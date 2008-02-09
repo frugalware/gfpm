@@ -12,9 +12,11 @@
 #include "gfpm.h"
 
 #define REPONAME_MAX_SIZE 32
+#define SERVER_MAX_SIZE 255
 
 typedef struct __gfpm_repo_t {
 	char	name[REPONAME_MAX_SIZE+1];
+	GList	*header;
 	GList	*servers;
 } gfpm_repo_t;
 
@@ -22,6 +24,11 @@ typedef struct __gfpm_repolist_t {
 	gint	n;
 	GList	*list;
 } gfpm_repolist_t;
+
+typedef struct __gfpm_server_entry_t {
+	GList *comments;
+	gchar url[SERVER_MAX_SIZE+1];
+} gfpm_server_entry_t;
 
 void gfpm_repomanager_init (void);
 

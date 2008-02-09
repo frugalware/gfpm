@@ -47,6 +47,8 @@ static GtkWidget *gfpm_servmgr_btnmup;
 static GtkWidget *gfpm_servmgr_btnmdn;
 static GtkWidget *gfpm_servmgr_btnedit;
 
+static void gfpm_write_servers_to_file (const gchar *reponame);
+
 /* signal callbacks */
 static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data);
@@ -132,6 +134,7 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 	GList		*ret = NULL;
 	char		line[PATH_MAX+1] = "";
 	char		server[PATH_MAX+1] = "";
+	gfpm_server_entry_t *entry = NULL;
 	
 	fp = fopen (conf_file, "r");
 	if (fp == NULL)
@@ -139,16 +142,33 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 		g_error ("No configuration file found");
 		return NULL;
 	}
-
+	entry = (gfpm_server_entry_t*) malloc (sizeof(gfpm_server_entry_t));
+	memset (entry, 0, sizeof(gfpm_server_entry_t));
 	while (fgets(line, PATH_MAX, fp))
 	{
-		fwutil_trim(line);
+		if (line[0] == '#')
+			continue;
+		else if (line[0]=='[')
+			break;
+	}
+	while (fgets(line, PATH_MAX, fp))
+	{
+		fwutil_trim (line);
 		if (!strlen(line))
 			continue;
+		if (line[0] == '#')
+		{
+			entry->comments = g_list_append (entry->comments, line);
+			continue;
+		}
 		if (sscanf(line, "Server = %s", server))
 		{
-			ret = g_list_append (ret, (gpointer)g_strdup(fwutil_trim(server)));
+			sprintf (entry->url, "%s", fwutil_trim(server));
+			ret = g_list_append (ret, entry);
+			entry = (gfpm_server_entry_t*) malloc (sizeof(gfpm_server_entry_t));
+			memset (entry, 0, sizeof(gfpm_server_entry_t));
 		}
+		
 	}
 	fclose (fp);
 
@@ -207,6 +227,7 @@ gfpm_repomgr_populate_repolist (void)
 				n++;
 				char svr[256];
 				gfpm_repo_t *repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
+				memset (repo_r, 0, sizeof(gfpm_repo_t));
 				if (repo_r == NULL)
 				{
 					g_error ("Error allocating memory. Exiting");
@@ -228,6 +249,7 @@ gfpm_repomgr_populate_repolist (void)
 			char ln[PATH_MAX+1];
 			char rn[PATH_MAX+1];
 			gfpm_repo_t *repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
+			memset (repo_r, 0, sizeof(gfpm_repo_t));
 			
 			if ((tmp = fopen (str, "r")) == NULL)
 			{
@@ -237,8 +259,14 @@ gfpm_repomgr_populate_repolist (void)
 			while (fgets(ln, PATH_MAX, tmp))
 			{
 				fwutil_trim (ln);
-				if (!strlen(ln) || ln[0] == '#')
+				if (!strlen(ln))
 					continue;
+				if (ln[0] == '#')
+				{
+					repo_r->header = g_list_append (repo_r->header, ln);
+					continue;
+				}
+				else
 				if (ln[0] == '[' && ln[strlen(ln)-1] == ']')
 				{
 					// could be a repo entry
@@ -254,6 +282,7 @@ gfpm_repomgr_populate_repolist (void)
 					{
 						g_error ("error parsing");
 					}
+					break;
 				}
 			}
 			fclose (tmp);
@@ -326,7 +355,6 @@ gfpm_repomgr_populate_servtvw (const char *repo)
 	while (rlist != NULL)
 	{
 		gfpm_repo_t	*rp = NULL;
-		GList		*ser = NULL;
 
 		rp = rlist->data;
 		if (!strcmp(rp->name, repo))
@@ -340,8 +368,9 @@ gfpm_repomgr_populate_servtvw (const char *repo)
 	
 	while (slist != NULL)
 	{
+		gfpm_server_entry_t *entry = slist->data;
 		gtk_list_store_append (GTK_LIST_STORE(store), &iter);
-		gtk_list_store_set (store, &iter, 0, pixbuf, 1, (char*)slist->data, -1);
+		gtk_list_store_set (store, &iter, 0, pixbuf, 1, (char*)entry->url, -1);
 		slist = g_list_next (slist);
 	}
 	
@@ -379,79 +408,103 @@ gfpm_repomgr_set_current_repo (const char *reponame)
 static void
 gfpm_servmgr_delete_server (const char *server)
 {
-	gchar	*path = NULL;
-	gchar	line[256] = "";
-	FILE	*fp = NULL;
-	FILE	*tp = NULL;
-	GList	*rlist = NULL;
+	GList		*rlist = NULL;
+	GList		*slist = NULL;
+	gfpm_repo_t *r = NULL;
 
-	path = g_strdup_printf ("%s/%s", REPO_PATH, curr_repo);
-	if ((fp=fopen(path,"r"))==NULL)
-	{
-		gfpm_error (_("Error"), _("Error opening repository file"));
-		goto cleanup;
-	}
-	if ((tp=tmpfile())==NULL)
-	{
-		gfpm_error (_("Error"), _("Unable to create a temporary file"));
-		goto cleanup;
-	}
-	
-	while (fgets(line, PATH_MAX, fp))
-	{
-		char svr[256] = "";
-		fwutil_trim (line);
-		if (!strlen(line) || line[0] == '#' || (line[0] == '[' && line[strlen(line)-1] == ']'))
-		{	
-			fputs (line, tp);
-			fputc ('\n', tp);
-			continue;
-		}
-		else if (sscanf (line, "Server = %s", svr))
-		{
-			if (!strcmp(svr,server))
-			{
-				fputs ("#Server = ", tp);
-				fputs (svr, tp);
-				fputc ('\n', tp);
-				continue;
-			}
-			else
-			{
-				fputs (line, tp);
-				fputc ('\n', tp);
-			}
-		}
-	}
-	fclose (fp);
-	
-	fp = fopen (path, "w");
-	rewind (tp);
-	while (fgets(line, PATH_MAX, tp))
-		fputs (line, fp);
-	fclose (tp);
-	fclose (fp);
-	
-	/* free the server list for the current repo */
 	rlist = repolist->list;
 	while (rlist != NULL)
 	{
-		gfpm_repo_t	*rp = NULL;
-
-		rp = rlist->data;
-		if (!strcmp(rp->name, curr_repo))
+		r = rlist->data;
+		if (!strcmp(r->name,curr_repo))
 		{
-			if (rp->servers)
-			g_list_free (rp->servers);
-			rp->servers = gfpm_repomgr_get_servers_from_repofile (path);
+			slist = r->servers;
 			break;
 		}
+		rlist = g_list_next (rlist);
+	}
+	while (slist != NULL)
+	{
+		gfpm_server_entry_t *s = slist->data;
+		if (!strcmp(s->url,server))
+		{
+			r->servers = g_list_delete_link (r->servers, slist);
+			break;
+		}
+		slist = g_list_next (slist);
 	}
 	
+	/* update repository file */
+	gfpm_write_servers_to_file (curr_repo);
+
 	/* repopulate the server list and display */
 	gfpm_repomgr_populate_servtvw (curr_repo);
+
+	return;
+}
+
+static void
+gfpm_write_servers_to_file (const gchar *reponame)
+{
+	FILE	*fp = NULL;
+	gchar 	*path = NULL;
 	
-	cleanup: g_free (path);
+	path = g_strdup_printf ("%s/%s", REPO_PATH, curr_repo);
+	if ((fp=fopen(path,"w"))!=NULL)
+	{
+		GList *rlist = NULL;
+		GList *slist = NULL;
+		GList *header = NULL;
+		gfpm_repo_t *r = NULL;
+		
+		rlist = repolist->list;
+		while (rlist != NULL)
+		{
+			r = rlist->data;
+			
+			if (!strcmp(r->name,curr_repo))
+			{
+				g_print ("COMPARING: %s and %s\n", r->name, curr_repo);
+				slist = r->servers;
+				header = r->header;
+				break;
+			}
+			rlist = g_list_next (rlist);
+		}
+		
+		/* write the header */
+		while (header != NULL)
+		{
+			printf ("writing : %s\n", header->data);
+			fprintf (fp, "%s\n", (char*)header->data);
+			header = g_list_next (header);
+		}
+		/* write the repository name */
+		fprintf (fp, "[%s]\n", r->name);
+		/* and finally, the servers */
+		while (slist != NULL)
+		{
+			gfpm_server_entry_t *s = NULL;
+			GList *comment = NULL;
+			s = slist->data;
+			comment = s->comments;
+			while (comment != NULL)
+			{
+				printf ("COMMENT : %s\n", comment->data);
+				fprintf (fp, "%s", (char*)comment->data);
+				comment = g_list_next (comment);
+			}
+			fprintf (fp, "Server = %s", s->url);
+			slist = g_list_next (slist);
+		}
+		fclose (fp);
+	}
+	else
+	{
+		gfpm_error (_("Error"), _("Error opening repository file"));
+	}
+	g_free (path);
+	
 	return;
 }
 
