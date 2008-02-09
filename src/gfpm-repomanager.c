@@ -50,6 +50,7 @@ static GtkWidget *gfpm_servmgr_btnedit;
 /* signal callbacks */
 static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data);
 
 void
 gfpm_repomanager_init (void)
@@ -116,7 +117,10 @@ gfpm_repomanager_init (void)
 	/* connect important signals */
 	/* repository manager signals */
 	g_signal_connect (G_OBJECT(gfpm_repomgr_btnedit), "clicked", cb_gfpm_repomgr_btnedit_clicked, NULL);
+	
+	/* server manager signals */
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btndel), "clicked", cb_gfpm_servmgr_btndel_clicked, NULL);
+	g_signal_connect (G_OBJECT(gfpm_servmgr_btnadd), "clicked", cb_gfpm_servmgr_btnadd_clicked, NULL);
 
 	return;
 }
@@ -468,6 +472,61 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 		gfpm_repomgr_set_current_repo (repo);
 	}
 
+	return;
+}
+
+static void
+cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
+{
+	FILE 		*fp = NULL;
+	gint		msgres = NULL;
+	gchar		*path = NULL;
+	gchar		*server = NULL;
+	GList		*rlist = NULL;
+	GList		*slist = NULL;
+	gfpm_repo_t	*rp = NULL;
+	
+	server = gfpm_input (_("Add new server"), _("Enter the URL of the server: "), &msgres);
+	if (msgres != GTK_RESPONSE_ACCEPT)
+		return;
+	if (!strlen(server))
+		return;
+	/* check if the server already exists */
+	rlist = repolist->list;
+	while (rlist != NULL)
+	{
+		rp = rlist->data;
+		if (!strcmp(rp->name, curr_repo))
+		{
+			slist = rp->servers;
+			break;
+		}
+	}
+	while (slist != NULL)
+	{
+		if (!strcmp(slist->data,server))
+		{
+			gfpm_error (_("Server already exists"), _("The server you're trying to add already exists"));
+			return;
+		}
+		slist = g_list_next (slist);
+	}
+	path = g_strdup_printf ("%s/%s", REPO_PATH, curr_repo);
+	if ((fp=fopen (path,"a")) != NULL)
+	{
+		fprintf (fp, "\nServer = %s\n", server);
+		fclose (fp);
+		g_list_free (rp->servers);
+		rp->servers = gfpm_repomgr_get_servers_from_repofile (path);
+		gfpm_repomgr_populate_servtvw (curr_repo);
+		
+	}
+	else
+	{
+		gfpm_error (_("Error"), _("Error opening repository file for editing"));
+	}
+	g_free (path);
+	
 	return;
 }
 
