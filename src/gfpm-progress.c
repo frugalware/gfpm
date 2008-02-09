@@ -24,16 +24,16 @@
 #include <sys/time.h>
 #include "gfpm.h"
 #include "gfpm-progress.h"
+#include "gfpm-interface.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
 extern GtkWidget	*gfpm_mw;
-extern GladeXML		*xml;
 
 GtkProgressBar		*progressbar = NULL;
-GtkWidget		*progresswindow = NULL;
+GtkWidget			*progresswindow = NULL;
 static GtkWidget	*main_label = NULL;
 static GtkWidget	*sub_label = NULL;
 static GtkWidget	*rate_label = NULL;
@@ -68,18 +68,18 @@ gfpm_progress_init (void)
 	pacman_set_option (PM_OPT_DLRATE, (long)&rate);
 	pacman_set_option (PM_OPT_DLFNM, (long)reponame);
 
-	progressbar = GTK_PROGRESS_BAR(glade_xml_get_widget (xml, "progressbar1"));
-	progresswindow = glade_xml_get_widget (xml, "progresswindow");
-	main_label = glade_xml_get_widget (xml, "main_pr_label");
-	sub_label = glade_xml_get_widget (xml, "sub_pr_label");
-	rate_label = glade_xml_get_widget (xml, "rate_pr_label");
-	rate_box = glade_xml_get_widget (xml, "rate_pr_box");
-	rec_label = glade_xml_get_widget (xml, "rx_pr_label");
-	progress_txtvw = glade_xml_get_widget (xml, "progress_txtvw");
-	button_close = glade_xml_get_widget (xml, "close_progress");
-	details_scroll = glade_xml_get_widget (xml, "details_scrollwindow");
-	autoclose_checkbtn = glade_xml_get_widget (xml, "autoclose_checkbtn");
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml,"show_details")),
+	progressbar = GTK_PROGRESS_BAR(gfpm_get_widget ("progressbar1"));
+	progresswindow = gfpm_get_widget ("progresswindow");
+	main_label = gfpm_get_widget ("main_pr_label");
+	sub_label = gfpm_get_widget ("sub_pr_label");
+	rate_label = gfpm_get_widget ("rate_pr_label");
+	rate_box = gfpm_get_widget ("rate_pr_box");
+	rec_label = gfpm_get_widget ("rx_pr_label");
+	progress_txtvw = gfpm_get_widget ("progress_txtvw");
+	button_close = gfpm_get_widget ("close_progress");
+	details_scroll = gfpm_get_widget ("details_scrollwindow");
+	autoclose_checkbtn = gfpm_get_widget ("autoclose_checkbtn");
+	g_signal_connect (G_OBJECT(gfpm_get_widget("show_details")),
 					"toggled",
 					G_CALLBACK(cb_gfpm_details_button_toggled),
 					NULL);

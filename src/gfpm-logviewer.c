@@ -20,6 +20,7 @@
 
 #include "gfpm-logviewer.h"
 #include "gfpm-messages.h"
+#include "gfpm-interface.h"
 #include <libfwutil.h>
 #include <glib.h>
 #include <time.h>
@@ -35,8 +36,6 @@ typedef struct _LogViewItem
 
 /* location of datemsk file */
 #define DMK_FILE "/share/gfpm/datemsk"
-
-extern GladeXML *xml;
 
 int getdate_err;
 
@@ -64,9 +63,9 @@ gfpm_logviewer_init (void)
 	 	setenv ("DATEMSK", loc, 0);
 	 	g_free (loc);
 	 }
-	 gfpm_logviewer_dlg = glade_xml_get_widget (xml, "syslog_window");
-	 gfpm_logviewer_tvw = glade_xml_get_widget (xml, "log_tvw");
-	 gfpm_logviewer_txtvw = glade_xml_get_widget (xml, "log_txtvw");
+	 gfpm_logviewer_dlg = gfpm_get_widget ("syslog_window");
+	 gfpm_logviewer_tvw = gfpm_get_widget ("log_tvw");
+	 gfpm_logviewer_txtvw = gfpm_get_widget ("log_txtvw");
 	 
 	 renderer = gtk_cell_renderer_text_new ();
 	 g_object_set (renderer, "xalign", 0.0, NULL);

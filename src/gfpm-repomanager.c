@@ -20,12 +20,11 @@
 
 #include "gfpm-repomanager.h"
 #include "gfpm-messages.h"
+#include "gfpm-interface.h"
 #include <glib.h>
 
 #define CONF_FILE "/etc/pacman-g2.conf"
 #define REPO_PATH "/etc/pacman-g2/repos"
-
-extern GladeXML *xml;
 
 static gfpm_repolist_t 	*repolist = NULL;
 static gchar			*curr_repo = NULL;
@@ -59,20 +58,20 @@ gfpm_repomanager_init (void)
 	GtkCellRenderer		*renderer = NULL;
 	GtkTreeViewColumn	*column = NULL;
 
-	gfpm_repomgr_dlg = glade_xml_get_widget (xml, "gfpm_repomanager");
-	gfpm_repomgr_treeview = glade_xml_get_widget (xml, "repoman_listview");
-	gfpm_repomgr_btnadd = glade_xml_get_widget (xml, "repoman_add");
-	gfpm_repomgr_btndel = glade_xml_get_widget (xml, "repoman_del");
-	gfpm_repomgr_btnedit = glade_xml_get_widget (xml, "repoman_edit");
-	gfpm_repomgr_btnmup = glade_xml_get_widget (xml, "repoman_mup");
-	gfpm_repomgr_btnmdn = glade_xml_get_widget (xml, "repoman_mdn");
-	gfpm_servmgr_dlg = glade_xml_get_widget (xml, "gfpm_repomanager_servermgr");
-	gfpm_servmgr_treeview = glade_xml_get_widget (xml, "servman_listview");
-	gfpm_servmgr_btnadd = glade_xml_get_widget (xml, "servman_add");
-	gfpm_servmgr_btndel = glade_xml_get_widget (xml, "servman_del");
-	gfpm_servmgr_btnedit = glade_xml_get_widget (xml, "servman_edit");
-	gfpm_servmgr_btnmup = glade_xml_get_widget (xml, "servman_mup");
-	gfpm_servmgr_btnmdn = glade_xml_get_widget (xml, "servman_mdn");
+	gfpm_repomgr_dlg = gfpm_get_widget ("gfpm_repomanager");
+	gfpm_repomgr_treeview = gfpm_get_widget ("repoman_listview");
+	gfpm_repomgr_btnadd = gfpm_get_widget ("repoman_add");
+	gfpm_repomgr_btndel = gfpm_get_widget ("repoman_del");
+	gfpm_repomgr_btnedit = gfpm_get_widget ("repoman_edit");
+	gfpm_repomgr_btnmup = gfpm_get_widget ("repoman_mup");
+	gfpm_repomgr_btnmdn = gfpm_get_widget ("repoman_mdn");
+	gfpm_servmgr_dlg = gfpm_get_widget ("gfpm_repomanager_servermgr");
+	gfpm_servmgr_treeview = gfpm_get_widget ("servman_listview");
+	gfpm_servmgr_btnadd = gfpm_get_widget ("servman_add");
+	gfpm_servmgr_btndel = gfpm_get_widget ("servman_del");
+	gfpm_servmgr_btnedit = gfpm_get_widget ("servman_edit");
+	gfpm_servmgr_btnmup = gfpm_get_widget ("servman_mup");
+	gfpm_servmgr_btnmdn = gfpm_get_widget ("servman_mdn");
 
 	/* setup repo store */
 	store = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
@@ -166,7 +165,7 @@ gfpm_repomgr_populate_repolist (void)
 	if (fp == NULL)
 	{
 		g_error ("No configuration file found");
-		return NULL;
+		return;
 	}
 	if (repolist!=NULL)
 		g_free (repolist);
@@ -175,7 +174,7 @@ gfpm_repomgr_populate_repolist (void)
 	if (repolist == NULL)
 	{
 		g_error ("Error allocating memory\n");
-		return NULL;
+		return;
 	}
 	memset (repolist, 0, sizeof(gfpm_repolist_t));
 	while (fgets(line, PATH_MAX, fp))

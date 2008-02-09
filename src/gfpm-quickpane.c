@@ -48,14 +48,14 @@ static void cb_gfpm_quickpane_readme_clicked (GtkWidget *button, gpointer data);
 void
 gfpm_quickpane_init (void)
 {
-	quick_pane_install_btn = glade_xml_get_widget (xml, "quick_install");
-	quick_pane_remove_btn = glade_xml_get_widget (xml, "quick_remove");
-	quick_pane_upgrade_btn = glade_xml_get_widget (xml, "quick_upgrade");
-	quick_pane_readme_btn = glade_xml_get_widget (xml, "quick_readme");
-	quick_pane_readme_dlg = glade_xml_get_widget (xml, "readme_dlg");
-	quick_pane_readme_dlg_label = glade_xml_get_widget (xml, "readme_dlg_label");
-	quick_pane_readme_dlg_txtvw = glade_xml_get_widget (xml, "readme_dlg_txtvw");
-	quick_pane = glade_xml_get_widget (xml, "quick_pane");
+	quick_pane_install_btn = gfpm_get_widget ("quick_install");
+	quick_pane_remove_btn = gfpm_get_widget ("quick_remove");
+	quick_pane_upgrade_btn = gfpm_get_widget ("quick_upgrade");
+	quick_pane_readme_btn = gfpm_get_widget ("quick_readme");
+	quick_pane_readme_dlg = gfpm_get_widget ("readme_dlg");
+	quick_pane_readme_dlg_label = gfpm_get_widget ("readme_dlg_label");
+	quick_pane_readme_dlg_txtvw = gfpm_get_widget ("readme_dlg_txtvw");
+	quick_pane = gfpm_get_widget ("quick_pane");
 	gfpm_quickpane_show (FALSE, 0, 0);
 	g_signal_connect (G_OBJECT(quick_pane_install_btn),
 					"clicked",

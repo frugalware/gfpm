@@ -140,6 +140,12 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 	return c_index;
 }
 
+GtkWidget *
+gfpm_get_widget (const char *wname)
+{
+	return (glade_xml_get_widget(xml,wname));	
+}
+
 void
 gfpm_interface_init (void)
 {
@@ -151,30 +157,30 @@ gfpm_interface_init (void)
 	GtkTreeViewColumn	*column;
 	gchar			*title = NULL;
 
-	gfpm_mw		= glade_xml_get_widget (xml, "mainwindow");
-	gfpm_splash	= glade_xml_get_widget (xml, "splash_window");
-	gfpm_statusbar	= glade_xml_get_widget (xml, "statusbar");
+	gfpm_mw		= gfpm_get_widget ("mainwindow");
+	gfpm_splash	= gfpm_get_widget ("splash_window");
+	gfpm_statusbar	= gfpm_get_widget ("statusbar");
 	gtk_widget_show (gfpm_splash);
 	while (gtk_events_pending())
 		gtk_main_iteration ();
 
 	sleep (1);
-	gfpm_groups_tvw = glade_xml_get_widget (xml, "grouptreeview");
-	gfpm_pkgs_tvw	= glade_xml_get_widget (xml, "pkgstreeview");
-	gfpm_info_tvw	= glade_xml_get_widget (xml, "infotreeview");
-	gfpm_files_txtvw = glade_xml_get_widget (xml, "filestextview");
-	gfpm_clog_txtvw = glade_xml_get_widget (xml, "changelogtextview");
-	gfpm_clrold_opt = glade_xml_get_widget (xml, "rem_old_opt");
-	gfpm_clrall_opt = glade_xml_get_widget (xml, "rem_all_opt");
-	gfpm_inst_from_file_dlg = glade_xml_get_widget (xml, "inst_from_file_dlg");
-	gfpm_inst_filechooser = glade_xml_get_widget (xml, "gfpm_inst_filechooser");
-	gfpm_inst_depcheck = glade_xml_get_widget (xml, "depcheck");
-	gfpm_inst_upgcheck = glade_xml_get_widget (xml, "upgcheck");
-	gfpm_inst_forcheck = glade_xml_get_widget (xml, "forcheck");
-	gfpm_apply_inst_depcheck = glade_xml_get_widget (xml, "applyinstdepcheck");
-	gfpm_apply_rem_depcheck = glade_xml_get_widget (xml, "applyremdepcheck");
-	gfpm_apply_inst_dwocheck = glade_xml_get_widget (xml, "applyinstdwcheck");
-	gfpm_search_combo = glade_xml_get_widget (xml, "search_repocombo");
+	gfpm_groups_tvw = gfpm_get_widget ("grouptreeview");
+	gfpm_pkgs_tvw	= gfpm_get_widget ("pkgstreeview");
+	gfpm_info_tvw	= gfpm_get_widget ("infotreeview");
+	gfpm_files_txtvw = gfpm_get_widget ("filestextview");
+	gfpm_clog_txtvw = gfpm_get_widget ("changelogtextview");
+	gfpm_clrold_opt = gfpm_get_widget ("rem_old_opt");
+	gfpm_clrall_opt = gfpm_get_widget ("rem_all_opt");
+	gfpm_inst_from_file_dlg = gfpm_get_widget ("inst_from_file_dlg");
+	gfpm_inst_filechooser = gfpm_get_widget ("gfpm_inst_filechooser");
+	gfpm_inst_depcheck = gfpm_get_widget ("depcheck");
+	gfpm_inst_upgcheck = gfpm_get_widget ("upgcheck");
+	gfpm_inst_forcheck = gfpm_get_widget ("forcheck");
+	gfpm_apply_inst_depcheck = gfpm_get_widget ("applyinstdepcheck");
+	gfpm_apply_rem_depcheck = gfpm_get_widget ("applyremdepcheck");
+	gfpm_apply_inst_dwocheck = gfpm_get_widget ("applyinstdwcheck");
+	gfpm_search_combo = gfpm_get_widget ("search_repocombo");
 
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -258,7 +264,7 @@ gfpm_interface_init (void)
 	g_object_set (gfpm_info_tvw, "hover-selection", TRUE, NULL);
 	
 	/* Setup repository combobox */
-	widget = glade_xml_get_widget (xml, "combobox_repos");
+	widget = gfpm_get_widget ("combobox_repos");
 	if (gfpm_db_populate_repolist() == 0)
 	{
 		guint active;

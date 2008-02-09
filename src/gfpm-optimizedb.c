@@ -33,8 +33,6 @@
 #define NEWSUM "/tmp/dbsums.new"
 #define LOCKFILE "/tmp/pacman-g2.lck"
 
-extern GladeXML *xml;
-
 static GtkWidget *gfpm_optimize_db_dlg;
 static GtkWidget *gfpm_optimize_db_progressbar;
 static GtkWidget *gfpm_optimize_db_startbtn;
@@ -49,11 +47,11 @@ static void gfpm_optimize_db (void);
 void
 gfpm_optimize_db_dlg_init (void)
 {
-	gfpm_optimize_db_dlg = glade_xml_get_widget (xml, "optimize_db_dlg");
-	gfpm_optimize_db_progressbar = glade_xml_get_widget (xml, "optimize_db_progress");
-	gfpm_optimize_db_startbtn = glade_xml_get_widget (xml, "optimize_db_start");
-	gfpm_optimize_db_closebtn = glade_xml_get_widget (xml, "optimize_db_close");
-	gfpm_optimize_db_label = glade_xml_get_widget (xml, "optimize_db_label");
+	gfpm_optimize_db_dlg = gfpm_get_widget ("optimize_db_dlg");
+	gfpm_optimize_db_progressbar = gfpm_get_widget ("optimize_db_progress");
+	gfpm_optimize_db_startbtn = gfpm_get_widget ("optimize_db_start");
+	gfpm_optimize_db_closebtn = gfpm_get_widget ("optimize_db_close");
+	gfpm_optimize_db_label = gfpm_get_widget ("optimize_db_label");
 
 	g_signal_connect (G_OBJECT(gfpm_optimize_db_startbtn),
 			"clicked",
