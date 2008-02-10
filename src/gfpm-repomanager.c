@@ -147,7 +147,9 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 	while (fgets(line, PATH_MAX, fp))
 	{
 		if (line[0] == '#')
+		{
 			continue;
+		}
 		else if (line[0]=='[')
 			break;
 	}
@@ -264,7 +266,7 @@ gfpm_repomgr_populate_repolist (void)
 					continue;
 				if (ln[0] == '#')
 				{
-					repo_r->header = g_list_append (repo_r->header, ln);
+					repo_r->header = g_list_append (repo_r->header, g_strdup(ln));
 					continue;
 				}
 				else
@@ -290,7 +292,7 @@ gfpm_repomgr_populate_repolist (void)
 			n++;
 			if (repo_r == NULL)
 				return;
-			memset (repo_r, 0, sizeof(gfpm_repo_t));
+			//memset (repo_r, 0, sizeof(gfpm_repo_t));
 			strncpy (repo_r->name, rn, REPONAME_MAX_SIZE);
 			// populate the repo list here
 			repo_r->servers = gfpm_repomgr_get_servers_from_repofile (str);
@@ -481,7 +483,7 @@ gfpm_write_servers_to_file (const gchar *reponame)
 			header = g_list_next (header);
 		}
 		/* write the repository name */
-		fprintf (fp, "[%s]\n", r->name);
+		fprintf (fp, "\n[%s]\n\n", r->name);
 		/* and finally, the servers */
 		while (slist != NULL)
 		{
@@ -495,7 +497,7 @@ gfpm_write_servers_to_file (const gchar *reponame)
 				fprintf (fp, "%s\n", (char*)comment->data);
 				comment = g_list_next (comment);
 			}
-			fprintf (fp, "Server = %s\n", s->url);
+			fprintf (fp, "Server = %s\n\n", s->url);
 			slist = g_list_next (slist);
 		}
 		fclose (fp);
