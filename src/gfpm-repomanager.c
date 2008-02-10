@@ -467,7 +467,6 @@ gfpm_write_servers_to_file (const gchar *reponame)
 			
 			if (!strcmp(r->name,curr_repo))
 			{
-				g_print ("COMPARING: %s and %s\n", r->name, curr_repo);
 				slist = r->servers;
 				header = r->header;
 				break;
@@ -478,7 +477,6 @@ gfpm_write_servers_to_file (const gchar *reponame)
 		/* write the header */
 		while (header != NULL)
 		{
-			printf ("writing : %s\n", header->data);
 			fprintf (fp, "%s\n", (char*)header->data);
 			header = g_list_next (header);
 		}
@@ -493,7 +491,6 @@ gfpm_write_servers_to_file (const gchar *reponame)
 			comment = s->comments;
 			while (comment != NULL)
 			{
-				printf ("COMMENT : %s\n", comment->data);
 				fprintf (fp, "%s\n", (char*)comment->data);
 				comment = g_list_next (comment);
 			}
@@ -534,13 +531,14 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 static void
 cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
 {
-	FILE 		*fp = NULL;
-	gint		msgres = NULL;
-	gchar		*path = NULL;
-	gchar		*server = NULL;
-	GList		*rlist = NULL;
-	GList		*slist = NULL;
-	gfpm_repo_t	*rp = NULL;
+	FILE 				*fp = NULL;
+	gint				msgres = NULL;
+	gchar				*path = NULL;
+	gchar				*server = NULL;
+	GList				*rlist = NULL;
+	GList				*slist = NULL;
+	gfpm_repo_t			*rp = NULL;
+	gfpm_server_entry_t *s = NULL;
 	
 	server = gfpm_input (_("Add new server"), _("Enter the URL of the server: "), &msgres);
 	if (msgres != GTK_RESPONSE_ACCEPT)
@@ -567,20 +565,14 @@ cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
 		}
 		slist = g_list_next (slist);
 	}
-	path = g_strdup_printf ("%s/%s", REPO_PATH, curr_repo);
-	if ((fp=fopen (path,"a")) != NULL)
-	{
-		fprintf (fp, "\nServer = %s\n", server);
-		fclose (fp);
-		g_list_free (rp->servers);
-		rp->servers = gfpm_repomgr_get_servers_from_repofile (path);
-		gfpm_repomgr_populate_servtvw (curr_repo);
-		
-	}
-	else
-	{
-		gfpm_error (_("Error"), _("Error opening repository file for editing"));
-	}
+	s = (gfpm_server_entry_t*) malloc (sizeof(gfpm_server_entry_t));
+	memset (s, 0, sizeof(gfpm_server_entry_t));
+	sprintf (s->url, "%s", server);
+	rp->servers = g_list_append (rp->servers, s);
+
+	gfpm_write_servers_to_file (curr_repo);
+	gfpm_repomgr_populate_servtvw (curr_repo);
+
 	g_free (path);
 	
 	return;
