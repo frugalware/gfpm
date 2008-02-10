@@ -8,7 +8,6 @@
 #include <locale.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
-#include "gfpm.h"
 
 void gfpm_messages_init (void);
 gint gfpm_apply_dlg_show (void);

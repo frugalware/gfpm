@@ -20,6 +20,7 @@
  */
 
 #define _GNU_SOURCE
+#include "gfpm.h"
 #include "gfpm-messages.h"
 #include "gfpm-packagelist.h"
 

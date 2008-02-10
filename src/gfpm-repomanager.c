@@ -21,6 +21,7 @@
 #include "gfpm-repomanager.h"
 #include "gfpm-messages.h"
 #include "gfpm-interface.h"
+#include "gfpm-util.h"
 #include <glib.h>
 
 #define CONF_FILE "/etc/pacman-g2.conf"
@@ -118,11 +119,11 @@ gfpm_repomanager_init (void)
 	
 	/* connect important signals */
 	/* repository manager signals */
-	g_signal_connect (G_OBJECT(gfpm_repomgr_btnedit), "clicked", cb_gfpm_repomgr_btnedit_clicked, NULL);
+	g_signal_connect (G_OBJECT(gfpm_repomgr_btnedit), "clicked", G_CALLBACK(cb_gfpm_repomgr_btnedit_clicked), NULL);
 	
 	/* server manager signals */
-	g_signal_connect (G_OBJECT(gfpm_servmgr_btndel), "clicked", cb_gfpm_servmgr_btndel_clicked, NULL);
-	g_signal_connect (G_OBJECT(gfpm_servmgr_btnadd), "clicked", cb_gfpm_servmgr_btnadd_clicked, NULL);
+	g_signal_connect (G_OBJECT(gfpm_servmgr_btndel), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndel_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_servmgr_btnadd), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnadd_clicked), NULL);
 
 	return;
 }
@@ -329,7 +330,6 @@ gfpm_repomgr_populate_repotvw (void)
 	while (ret != NULL)
 	{
 		gfpm_repo_t	*repo = NULL;
-		GList		*ser = NULL;
 
 		repo = ret->data;
 		gtk_list_store_append (GTK_LIST_STORE(store), &iter);
@@ -531,7 +531,6 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 static void
 cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
 {
-	FILE 				*fp = NULL;
 	gint				msgres = NULL;
 	gchar				*path = NULL;
 	gchar				*server = NULL;

@@ -9,7 +9,6 @@
 #include <libintl.h>
 #include <gtk/gtk.h>
 #include <libfwutil.h>
-#include "gfpm.h"
 
 #define REPONAME_MAX_SIZE 32
 #define SERVER_MAX_SIZE 255
