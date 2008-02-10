@@ -158,7 +158,8 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 			continue;
 		if (line[0] == '#')
 		{
-			entry->comments = g_list_append (entry->comments, line);
+			entry->comments = g_list_append (entry->comments, g_strdup(line));
+			//g_print ("COMMENT: %s\n", entry->comments);
 			continue;
 		}
 		if (sscanf(line, "Server = %s", server))
@@ -491,10 +492,10 @@ gfpm_write_servers_to_file (const gchar *reponame)
 			while (comment != NULL)
 			{
 				printf ("COMMENT : %s\n", comment->data);
-				fprintf (fp, "%s", (char*)comment->data);
+				fprintf (fp, "%s\n", (char*)comment->data);
 				comment = g_list_next (comment);
 			}
-			fprintf (fp, "Server = %s", s->url);
+			fprintf (fp, "Server = %s\n", s->url);
 			slist = g_list_next (slist);
 		}
 		fclose (fp);
