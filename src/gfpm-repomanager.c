@@ -54,6 +54,7 @@ static void gfpm_write_servers_to_file (const gchar *reponame);
 static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_servmgr_btnup_clicked (GtkButton *button, gpointer data);
 
 void
 gfpm_repomanager_init (void)
@@ -124,6 +125,7 @@ gfpm_repomanager_init (void)
 	/* server manager signals */
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btndel), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndel_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnadd), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnadd_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_servmgr_btnmup), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnup_clicked), NULL);
 
 	return;
 }
@@ -447,6 +449,52 @@ gfpm_servmgr_delete_server (const char *server)
 }
 
 static void
+gfpm_servmgr_move_up_server (const char *server)
+{
+	GList		*rlist = NULL;
+	GList		*slist = NULL;
+	GList		*prev = NULL;
+	gfpm_repo_t *r = NULL;
+
+	rlist = repolist->list;
+	while (rlist != NULL)
+	{
+		r = rlist->data;
+		if (!strcmp(r->name,curr_repo))
+		{
+			slist = r->servers;
+			break;
+		}
+		rlist = g_list_next (rlist);
+	}
+	while (slist != NULL)
+	{
+		gfpm_server_entry_t *s = slist->data;
+		if (!strcmp(s->url,server))
+		{
+			//r->servers = g_list_delete_link (r->servers, slist);
+			GList *new = prev->next;
+			new->prev = slist;
+			slist->prev = prev;
+			prev->next = slist;
+			slist->next = new;
+			new->next = NULL;
+			break;
+		}
+		prev = slist->prev;
+		slist = g_list_next (slist);
+	}
+	
+	/* update repository file */
+	gfpm_write_servers_to_file (curr_repo);
+
+	/* repopulate the server list and display */
+	gfpm_repomgr_populate_servtvw (curr_repo);
+
+	return;
+}
+
+static void
 gfpm_write_servers_to_file (const gchar *reponame)
 {
 	FILE	*fp = NULL;
@@ -590,5 +638,21 @@ cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data)
 	{
 		gtk_tree_model_get (model, &iter, 1, &server, -1);
 		gfpm_servmgr_delete_server (server);
+	}
+}
+
+static void
+cb_gfpm_servmgr_btnup_clicked (GtkButton *button, gpointer data)
+{
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeModel		*model;
+	GtkTreeIter			iter;
+	gchar				*server = NULL;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_servmgr_treeview));
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 1, &server, -1);
+		gfpm_servmgr_move_up_server (server);
 	}
 }
