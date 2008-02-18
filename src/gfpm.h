@@ -11,6 +11,9 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 
+#ifdef _
+#undef _
+#endif
 #define _(string) gettext (string)
 
 #endif
