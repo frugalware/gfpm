@@ -453,7 +453,6 @@ gfpm_servmgr_move_up_server (const char *server)
 {
 	GList		*rlist = NULL;
 	GList		*slist = NULL;
-	GList		*prev = NULL;
 	gfpm_repo_t *r = NULL;
 
 	rlist = repolist->list;
@@ -472,16 +471,11 @@ gfpm_servmgr_move_up_server (const char *server)
 		gfpm_server_entry_t *s = slist->data;
 		if (!strcmp(s->url,server))
 		{
-			//r->servers = g_list_delete_link (r->servers, slist);
-			GList *new = prev->next;
-			new->prev = slist;
-			slist->prev = prev;
-			prev->next = slist;
-			slist->next = new;
-			new->next = NULL;
+			gint pos = g_list_position (r->servers, slist);
+			r->servers = g_list_delete_link (r->servers, slist);
+			r->servers = g_list_insert (r->servers, s, pos-1);
 			break;
 		}
-		prev = slist->prev;
 		slist = g_list_next (slist);
 	}
 	
