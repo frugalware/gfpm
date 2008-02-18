@@ -573,7 +573,7 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 static void
 cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
 {
-	gint				msgres = NULL;
+	gint				msgres = 0;
 	gchar				*path = NULL;
 	gchar				*server = NULL;
 	GList				*rlist = NULL;
