@@ -1482,7 +1482,7 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 static void
 cb_gfpm_mark_for_install (GtkButton *button, gpointer data)
 {
-	char *pkgname;
+	char *pkgname = NULL;
 
 	pkgname = (char*) data;	
 	gfpm_package_list_add (GFPM_INSTALL_LIST, pkgname);

@@ -62,8 +62,14 @@ gfpm_package_list_add (GfpmListType type, const gchar *item)
 		}
 	}
 
-	while (temp->next != NULL)
+	do {
+		if (!strcmp(temp->data, item))
+		{
+			g_free (new);
+			return;
+		}
 		temp = temp->next;
+	} while (temp->next != NULL);
 
 	temp->next = new;
 
