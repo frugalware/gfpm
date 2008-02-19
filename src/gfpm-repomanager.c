@@ -24,8 +24,11 @@
 #include "gfpm-util.h"
 #include <glib.h>
 
-#define CONF_FILE "/etc/pacman-g2.conf"
-#define REPO_PATH "/etc/pacman-g2/repos"
+#define CONF_FILE	"/etc/pacman-g2.conf"
+#define REPO_PATH	"/etc/pacman-g2/repos"
+
+#define	MOVE_UP		1
+#define MOVE_DN		0
 
 static gfpm_repolist_t 	*repolist = NULL;
 static gchar			*curr_repo = NULL;
@@ -55,6 +58,7 @@ static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnup_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_servmgr_btndown_clicked (GtkButton *button, gpointer data);
 
 void
 gfpm_repomanager_init (void)
@@ -82,17 +86,17 @@ gfpm_repomanager_init (void)
 	store = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
 	renderer = gtk_cell_renderer_pixbuf_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("S"),
-														renderer,
-														"pixbuf", 0,
-														NULL);
+								renderer,
+								"pixbuf", 0,
+								NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_repomgr_treeview), column);
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Repository"),
-														renderer,
-														"text", 1,
-														NULL);
+								renderer,
+								"text", 1,
+								NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_column_set_expand (column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_repomgr_treeview), column);
@@ -102,17 +106,17 @@ gfpm_repomanager_init (void)
 	store = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
 	renderer = gtk_cell_renderer_pixbuf_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("S"),
-														renderer,
-														"pixbuf", 0,
-														NULL);
+								renderer,
+								"pixbuf", 0,
+								NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_servmgr_treeview), column);
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Server"),
-														renderer,
-														"text", 1,
-														NULL);
+								renderer,
+								"text", 1,
+								NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_column_set_expand (column, TRUE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_servmgr_treeview), column);
@@ -126,6 +130,7 @@ gfpm_repomanager_init (void)
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btndel), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndel_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnadd), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnadd_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnmup), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnup_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_servmgr_btnmdn), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndown_clicked), NULL);
 
 	return;
 }
@@ -449,7 +454,7 @@ gfpm_servmgr_delete_server (const char *server)
 }
 
 static void
-gfpm_servmgr_move_up_server (const char *server)
+gfpm_servmgr_move_server (const char *server, const int move_direction)
 {
 	GList		*rlist = NULL;
 	GList		*slist = NULL;
@@ -471,9 +476,18 @@ gfpm_servmgr_move_up_server (const char *server)
 		gfpm_server_entry_t *s = slist->data;
 		if (!strcmp(s->url,server))
 		{
-			gint pos = g_list_position (r->servers, slist);
-			r->servers = g_list_delete_link (r->servers, slist);
-			r->servers = g_list_insert (r->servers, s, pos-1);
+			if (move_direction == MOVE_UP)
+			{
+				gint pos = g_list_position (r->servers, slist);
+				r->servers = g_list_delete_link (r->servers, slist);
+				r->servers = g_list_insert (r->servers, s, pos-1);
+			}
+			else
+			{
+				gint pos = g_list_position (r->servers, slist);
+				r->servers = g_list_delete_link (r->servers, slist);
+				r->servers = g_list_insert (r->servers, s, pos+1);
+			}
 			break;
 		}
 		slist = g_list_next (slist);
@@ -647,6 +661,23 @@ cb_gfpm_servmgr_btnup_clicked (GtkButton *button, gpointer data)
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
 		gtk_tree_model_get (model, &iter, 1, &server, -1);
-		gfpm_servmgr_move_up_server (server);
+		gfpm_servmgr_move_server (server, MOVE_UP);
 	}
 }
+
+static void
+cb_gfpm_servmgr_btndown_clicked (GtkButton *button, gpointer data)
+{
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeModel		*model;
+	GtkTreeIter			iter;
+	gchar				*server = NULL;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_servmgr_treeview));
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 1, &server, -1);
+		gfpm_servmgr_move_server (server, MOVE_DN);
+	}
+}
+
