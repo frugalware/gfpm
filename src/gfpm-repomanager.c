@@ -30,6 +30,8 @@
 #define	MOVE_UP		1
 #define MOVE_DN		0
 
+extern GtkWidget *gfpm_mw;
+
 static gfpm_repolist_t 	*repolist = NULL;
 static gchar			*curr_repo = NULL;
 
@@ -44,6 +46,9 @@ static GtkWidget *gfpm_repomgr_btnedit;
 
 /* Server manager widgets */
 static GtkWidget *gfpm_servmgr_dlg;
+static GtkWidget *gfpm_servmgr_server_input_dlg;
+static GtkWidget *gfpm_servmgr_server_input_dlg_entry1;
+static GtkWidget *gfpm_servmgr_server_input_dlg_entry2;
 static GtkWidget *gfpm_servmgr_treeview;
 static GtkWidget *gfpm_servmgr_btnadd;
 static GtkWidget *gfpm_servmgr_btndel;
@@ -52,6 +57,8 @@ static GtkWidget *gfpm_servmgr_btnmdn;
 static GtkWidget *gfpm_servmgr_btnedit;
 
 static void gfpm_write_servers_to_file (const gchar *reponame);
+
+static gfpm_server_entry_t * gfpm_servmgr_get_server_input (void);
 
 /* signal callbacks */
 static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
@@ -81,6 +88,9 @@ gfpm_repomanager_init (void)
 	gfpm_servmgr_btnedit = gfpm_get_widget ("servman_edit");
 	gfpm_servmgr_btnmup = gfpm_get_widget ("servman_mup");
 	gfpm_servmgr_btnmdn = gfpm_get_widget ("servman_mdn");
+	gfpm_servmgr_server_input_dlg = gfpm_get_widget ("gfpm_servmgr_input_dlg");
+	gfpm_servmgr_server_input_dlg_entry1 = gfpm_get_widget ("entry1");
+	gfpm_servmgr_server_input_dlg_entry2 = gfpm_get_widget ("commentview");
 
 	/* setup repo store */
 	store = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
@@ -111,7 +121,7 @@ gfpm_repomanager_init (void)
 								NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_servmgr_treeview), column);
-
+ 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Server"),
 								renderer,
@@ -133,6 +143,71 @@ gfpm_repomanager_init (void)
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnmdn), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndown_clicked), NULL);
 
 	return;
+}
+
+static gfpm_server_entry_t *
+gfpm_servmgr_get_server_input (void)
+{
+	gint				response;
+	gchar				*url = NULL;
+	GtkTextBuffer		*buffer = NULL;
+	gfpm_server_entry_t *ret = NULL;
+
+	ret = (gfpm_server_entry_t *) malloc (sizeof(gfpm_server_entry_t));
+	memset (ret, 0, sizeof(gfpm_server_entry_t));
+	run: response = gtk_dialog_run (GTK_DIALOG(gfpm_servmgr_server_input_dlg));
+	url = gtk_entry_get_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1));
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_servmgr_server_input_dlg_entry2));
+	
+	switch (response)
+	{
+		gchar *comments = NULL;
+		GtkTextIter siter;
+		GtkTextIter eiter;
+		
+		case 32: /* OK Button */
+		{
+			if (url == NULL || !strlen (url))
+			{
+				gfpm_error (_("Error"), _("The Repository URL field cannot be left blank"));
+				gtk_widget_hide (gfpm_servmgr_server_input_dlg);
+				goto run;
+			}
+			strncpy (ret->url, url, strlen(url));
+			gtk_text_buffer_get_start_iter (buffer, &siter);
+			gtk_text_buffer_get_end_iter (buffer, &eiter);
+			comments = gtk_text_buffer_get_text (buffer, &siter, &eiter, FALSE);
+			if (comments != NULL)
+			{
+				gchar *cslice = NULL;
+				cslice = strtok (comments, "\n");
+				if (cslice != NULL)
+				{
+					do {
+						gchar *text = g_strdup_printf ("# %s", cslice);
+						ret->comments = g_list_append (ret->comments, (gpointer) text);
+					} while ((cslice=strtok(NULL,"\n"))!=NULL);
+				}
+			}
+			gtk_entry_set_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1), "");
+			gtk_text_buffer_set_text (buffer, "", 0);
+			gtk_text_view_set_buffer (GTK_TEXT_VIEW(gfpm_servmgr_server_input_dlg_entry2), buffer);
+			gtk_widget_hide (gfpm_servmgr_server_input_dlg);
+			break;
+		}
+		
+		case 64: /* CANCEL Button */
+			gtk_entry_set_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1), "");
+			gtk_text_buffer_set_text (buffer, "", 0);
+			gtk_text_view_set_buffer (GTK_TEXT_VIEW(gfpm_servmgr_server_input_dlg_entry2), buffer);
+			gtk_widget_hide (gfpm_servmgr_server_input_dlg);
+			g_free (ret);
+			return NULL;
+
+			break;
+	}	
+
+	return ret;
 }
 
 static GList *
@@ -587,20 +662,14 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 static void
 cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
 {
-	gint				msgres = 0;
-	gchar				*path = NULL;
-	gchar				*server = NULL;
-	GList				*rlist = NULL;
-	GList				*slist = NULL;
-	gfpm_repo_t			*rp = NULL;
 	gfpm_server_entry_t *s = NULL;
+	GList				*rlist = NULL;
+	gfpm_repo_t			*rp = NULL;
+	GList				*slist = NULL;
 	
-	server = gfpm_input (_("Add new server"), _("Enter the URL of the server: "), &msgres);
-	if (msgres != GTK_RESPONSE_ACCEPT)
+	s = gfpm_servmgr_get_server_input ();
+	if (s == NULL)
 		return;
-	if (!strlen(server))
-		return;
-	/* check if the server already exists */
 	rlist = repolist->list;
 	while (rlist != NULL)
 	{
@@ -613,22 +682,21 @@ cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
 	}
 	while (slist != NULL)
 	{
-		if (!strcmp(slist->data,server))
+		if (!strcmp(slist->data,s->url))
 		{
 			gfpm_error (_("Server already exists"), _("The server you're trying to add already exists"));
+			g_free (s);
 			return;
 		}
 		slist = g_list_next (slist);
 	}
-	s = (gfpm_server_entry_t*) malloc (sizeof(gfpm_server_entry_t));
-	memset (s, 0, sizeof(gfpm_server_entry_t));
-	sprintf (s->url, "%s", server);
 	rp->servers = g_list_append (rp->servers, s);
-
+	
+	/* update repository file */
 	gfpm_write_servers_to_file (curr_repo);
-	gfpm_repomgr_populate_servtvw (curr_repo);
 
-	g_free (path);
+	/* repopulate the server list and display */
+	gfpm_repomgr_populate_servtvw (curr_repo);
 	
 	return;
 }
