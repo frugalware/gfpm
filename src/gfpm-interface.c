@@ -1551,7 +1551,7 @@ cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data)
 	}
 	if (!gfpm_package_list_is_empty(GFPM_REMOVE_LIST))
 	{
-		gfpm_error (_("Error"), _("There are no installed pacakges in this group"));
+		gfpm_error (_("Error"), _("There are no installed packages in this group"));
 		return;
 	}
 	if (gfpm_question(_("Remove Group"), _("Are you sure you want to remove the entire group ?")) == GTK_RESPONSE_YES)
