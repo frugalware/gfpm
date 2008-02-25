@@ -63,6 +63,7 @@ static gfpm_server_entry_t * gfpm_servmgr_get_server_input (void);
 /* signal callbacks */
 static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_servmgr_btnedit_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnup_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btndown_clicked (GtkButton *button, gpointer data);
@@ -139,6 +140,7 @@ gfpm_repomanager_init (void)
 	/* server manager signals */
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btndel), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndel_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnadd), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnadd_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_servmgr_btnedit), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnedit_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnmup), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnup_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnmdn), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndown_clicked), NULL);
 
@@ -578,6 +580,14 @@ gfpm_servmgr_move_server (const char *server, const int move_direction)
 }
 
 static void
+gfpm_servmgr_edit_server (gfpm_server_entry_t *s)
+{
+	gtk_entry_set_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1), s->url);
+	gtk_dialog_run (gfpm_servmgr_server_input_dlg);
+	return;
+}
+
+static void
 gfpm_write_servers_to_file (const gchar *reponame)
 {
 	FILE	*fp = NULL;
@@ -699,6 +709,45 @@ cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
 	gfpm_repomgr_populate_servtvw (curr_repo);
 	
 	return;
+}
+
+static void
+cb_gfpm_servmgr_btnedit_clicked (GtkButton *button, gpointer data)
+{
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeModel		*model;
+	GtkTreeIter			iter;
+	gchar				*server = NULL;
+	GList				*rlist;
+	gfpm_repo_t			*rp = NULL;
+	gfpm_server_entry_t *sp = NULL;
+	GList				*slist = NULL;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_servmgr_treeview));
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 1, &server, -1);
+		rlist = repolist->list;
+		while (rlist != NULL)
+		{
+			rp = rlist->data;
+			if (!strcmp(rp->name, curr_repo))
+			{
+				slist = rp->servers;
+				break;
+			}
+		}
+		while (slist != NULL)
+		{
+			sp = slist->data;
+			if (!strcmp(sp->url,server))
+				break;
+			slist = g_list_next (slist);
+		}
+		
+		g_list_free (sp->comments);
+		gfpm_servmgr_edit_server (sp);
+	}
 }
 
 static void
