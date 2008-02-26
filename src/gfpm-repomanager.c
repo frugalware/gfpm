@@ -56,6 +56,7 @@ static GtkWidget *gfpm_servmgr_btnmup;
 static GtkWidget *gfpm_servmgr_btnmdn;
 static GtkWidget *gfpm_servmgr_btnedit;
 
+static void convert_server_to_repofile (void);
 static void gfpm_write_servers_to_file (const gchar *reponame);
 static void gfpm_servmgr_edit_server (gfpm_server_entry_t *s);
 static gfpm_server_entry_t * gfpm_servmgr_get_server_input (void);
@@ -143,6 +144,86 @@ gfpm_repomanager_init (void)
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnedit), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnedit_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnmup), "clicked", G_CALLBACK(cb_gfpm_servmgr_btnup_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btnmdn), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndown_clicked), NULL);
+
+	convert_server_to_repofile ();
+	
+	return;
+}
+
+/* This function replaces every occurence of
+ * [foo]
+ * Server = http://foo.com/
+ * with
+ * Include = /etc/pacman-g2/repos/foo
+ * and creates a new file /etc/pacman-g2/repos/foo with
+ * that server URL. This makes parsing and editing with
+ * gfpm-repomanager much easier */
+static void
+convert_server_to_repofile (void)
+{
+	char line[PATH_MAX+1] = "";
+	char *ptr = NULL;
+	FILE *fp = fopen (CONF_FILE, "r");
+	FILE *bkp = tmpfile ();
+
+	if (fp == NULL)
+	{
+		return;
+	}
+	while (fgets(line, PATH_MAX, fp))
+	{
+		char reponame[256] = "";
+		fwutil_trim (line);
+		if (line[0] == '#')
+		{
+			fprintf (bkp, "%s\n", line);
+			continue;
+		}
+		else
+		if (line[0] == '[' && line[strlen(line)-1] == ']')
+		{
+			ptr = line;
+			ptr++;
+			strncpy (reponame, ptr, fwutil_min(255, strlen(ptr)-1));
+			reponame[fwutil_min(255,strlen(ptr-1))] = '\0';
+			if (!strlen(reponame))
+				continue;
+			if (!strcmp(reponame,"options"))
+			{
+				fprintf (bkp, "%s\n", line);
+				continue;
+			}
+			else
+			{
+				char *path = g_strdup_printf ("%s/%s", REPO_PATH, reponame);
+				FILE *newp = fopen (path, "w");
+				char server[256] = "";
+
+				if (newp == NULL) return;
+				fprintf (newp, "# \n# %s repository\n# \n\n", reponame);
+				fprintf (newp, "[%s]\n\n", reponame);
+				do {
+					fgets (line, PATH_MAX, fp);
+				} while (line[0] != 'S');
+				sscanf (line, "Server = %s", server);
+				fprintf (newp, "Server = %s\n", server);
+				fprintf (bkp, "Include = %s\n", path);
+				g_free (path);
+				fclose (newp);
+			}
+		}
+		else
+		{
+			fprintf (bkp, "%s\n", line);
+		}
+	}
+	fclose (fp);
+	rewind (bkp);
+	fp = fopen (CONF_FILE, "w");
+	while (fgets(line, PATH_MAX, bkp))
+		fprintf (fp, "%s", line);
+	fclose (fp);
+	fclose (bkp);
 
 	return;
 }
