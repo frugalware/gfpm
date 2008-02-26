@@ -22,6 +22,7 @@
 
 #include "gfpm-optimizedb.h"
 #include "gfpm-messages.h"
+#include "gfpm-interface.h"
 
 #include <fcntl.h>
 #include <glib.h>
