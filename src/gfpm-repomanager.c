@@ -582,8 +582,86 @@ gfpm_servmgr_move_server (const char *server, const int move_direction)
 static void
 gfpm_servmgr_edit_server (gfpm_server_entry_t *s)
 {
+	gint 			response;
+	GtkTextBuffer 	*buffer = NULL;
+	GtkTextIter		iter;
+	GList			*list = NULL;
+	gchar			*line = NULL;
+	
+	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_servmgr_server_input_dlg_entry2));
+	gtk_text_buffer_set_text (buffer, "", 0);
+	gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
+	list = s->comments;
+	while (list != NULL)
+	{
+		line = g_strdup(list->data);
+		if (line[0]=='#') line[0] = ' ';
+		fwutil_trim (line);
+		gtk_text_buffer_insert (buffer, &iter, (char*)line, -1);
+		gtk_text_buffer_insert (buffer, &iter, "\n", -1);
+		g_free (line);
+		list = g_list_next (list);
+	}
+	
 	gtk_entry_set_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1), s->url);
-	gtk_dialog_run (gfpm_servmgr_server_input_dlg);
+	gtk_window_set_title (GTK_WINDOW(gfpm_servmgr_server_input_dlg), _("Edit Server"));
+	run:response = gtk_dialog_run (GTK_DIALOG(gfpm_servmgr_server_input_dlg));
+	
+	switch (response)
+	{
+		gchar 		*comments = NULL;
+		gchar		*url = NULL;
+		GtkTextIter siter;
+		GtkTextIter eiter;
+		
+		case 32: /* OK Button */
+		{
+			url = gtk_entry_get_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1));
+			if (url == NULL || !strlen (url))
+			{
+				gfpm_error (_("Error"), _("The Repository URL field cannot be left blank"));
+				gtk_widget_hide (gfpm_servmgr_server_input_dlg);
+				goto run;
+			}
+			strncpy (s->url, url, strlen(url));
+			gtk_text_buffer_get_start_iter (buffer, &siter);
+			gtk_text_buffer_get_end_iter (buffer, &eiter);
+			comments = gtk_text_buffer_get_text (buffer, &siter, &eiter, FALSE);
+			if (comments != NULL)
+			{
+				gchar *cslice = NULL;
+				g_list_free (s->comments);
+				s->comments = NULL;
+				cslice = strtok (comments, "\n");
+				if (cslice != NULL)
+				{
+					do {
+						gchar *text = g_strdup_printf ("# %s", cslice);
+						s->comments = g_list_append (s->comments, (gpointer) text);
+					} while ((cslice=strtok(NULL,"\n"))!=NULL);
+				}
+			}
+			gtk_entry_set_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1), "");
+			gtk_text_buffer_set_text (buffer, "", 0);
+			gtk_text_view_set_buffer (GTK_TEXT_VIEW(gfpm_servmgr_server_input_dlg_entry2), buffer);
+			/* update repository file */
+			gfpm_write_servers_to_file (curr_repo);
+			/* repopulate the server list and display */
+			gfpm_repomgr_populate_servtvw (curr_repo);
+			gtk_widget_hide (gfpm_servmgr_server_input_dlg);
+			break;
+		}
+		
+		case 64: /* CANCEL Button */
+			gtk_entry_set_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1), "");
+			gtk_text_buffer_set_text (buffer, "", 0);
+			gtk_text_view_set_buffer (GTK_TEXT_VIEW(gfpm_servmgr_server_input_dlg_entry2), buffer);
+			gtk_widget_hide (gfpm_servmgr_server_input_dlg);
+			break;
+	}
+	/* set the original title back */
+	gtk_window_set_title (GTK_WINDOW(gfpm_servmgr_server_input_dlg), _("New Server"));
+	
 	return;
 }
 
@@ -744,10 +822,10 @@ cb_gfpm_servmgr_btnedit_clicked (GtkButton *button, gpointer data)
 				break;
 			slist = g_list_next (slist);
 		}
-		
-		g_list_free (sp->comments);
 		gfpm_servmgr_edit_server (sp);
 	}
+	
+	return;
 }
 
 static void
