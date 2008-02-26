@@ -1056,6 +1056,7 @@ cb_gfpm_servmgr_btnedit_clicked (GtkButton *button, gpointer data)
 				slist = rp->servers;
 				break;
 			}
+			rlist = g_list_next (rlist);
 		}
 		while (slist != NULL)
 		{
