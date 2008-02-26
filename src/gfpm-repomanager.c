@@ -231,10 +231,10 @@ convert_server_to_repofile (void)
 static gfpm_server_entry_t *
 gfpm_servmgr_get_server_input (void)
 {
-	gint				response;
-	gchar				*url = NULL;
+	gint			response;
+	gchar			*url = NULL;
 	GtkTextBuffer		*buffer = NULL;
-	gfpm_server_entry_t *ret = NULL;
+	gfpm_server_entry_t	*ret = NULL;
 
 	ret = (gfpm_server_entry_t *) malloc (sizeof(gfpm_server_entry_t));
 	memset (ret, 0, sizeof(gfpm_server_entry_t));
@@ -244,9 +244,9 @@ gfpm_servmgr_get_server_input (void)
 	
 	switch (response)
 	{
-		gchar *comments = NULL;
-		GtkTextIter siter;
-		GtkTextIter eiter;
+		gchar 		*comments = NULL;
+		GtkTextIter 	siter;
+		GtkTextIter 	eiter;
 		
 		case 32: /* OK Button */
 		{
@@ -327,7 +327,6 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 		if (line[0] == '#')
 		{
 			entry->comments = g_list_append (entry->comments, g_strdup(line));
-			//g_print ("COMMENT: %s\n", entry->comments);
 			continue;
 		}
 		if (sscanf(line, "Server = %s", server))
@@ -458,7 +457,6 @@ gfpm_repomgr_populate_repolist (void)
 			n++;
 			if (repo_r == NULL)
 				return;
-			//memset (repo_r, 0, sizeof(gfpm_repo_t));
 			strncpy (repo_r->name, rn, REPONAME_MAX_SIZE);
 			// populate the repo list here
 			repo_r->servers = gfpm_repomgr_get_servers_from_repofile (str);
@@ -477,8 +475,8 @@ gfpm_repomgr_populate_repotvw (void)
 {
 	GtkListStore 	*store = NULL;
 	GtkTreeIter 	iter;
-	GList 			*ret = NULL;
-	GdkPixbuf		*pixbuf = NULL;
+	GList 		*ret = NULL;
+	GdkPixbuf	*pixbuf = NULL;
 
 	gfpm_repomgr_populate_repolist ();
 	pixbuf = gfpm_get_icon ("gfpm", 32);
@@ -510,10 +508,10 @@ gfpm_repomgr_populate_servtvw (const char *repo)
 {
 	GtkListStore 	*store = NULL;
 	GtkTreeIter 	iter;
-	GList 			*rlist = NULL;
-	GList			*slist = NULL;
-	GdkPixbuf		*pixbuf = NULL;
-	gfpm_repo_t		*repository = NULL;
+	GList 		*rlist = NULL;
+	GList		*slist = NULL;
+	GdkPixbuf	*pixbuf = NULL;
+	gfpm_repo_t	*repository = NULL;
 
 	pixbuf = gfpm_get_icon ("gfpm", 32);
 	
@@ -578,7 +576,7 @@ gfpm_servmgr_delete_server (const char *server)
 {
 	GList		*rlist = NULL;
 	GList		*slist = NULL;
-	gfpm_repo_t *r = NULL;
+	gfpm_repo_t 	*r = NULL;
 
 	rlist = repolist->list;
 	while (rlist != NULL)
@@ -616,7 +614,7 @@ gfpm_servmgr_move_server (const char *server, const int move_direction)
 {
 	GList		*rlist = NULL;
 	GList		*slist = NULL;
-	gfpm_repo_t *r = NULL;
+	gfpm_repo_t 	*r = NULL;
 
 	rlist = repolist->list;
 	while (rlist != NULL)
@@ -663,11 +661,11 @@ gfpm_servmgr_move_server (const char *server, const int move_direction)
 static void
 gfpm_servmgr_edit_server (gfpm_server_entry_t *s)
 {
-	gint 			response;
+	gint 		response;
 	GtkTextBuffer 	*buffer = NULL;
-	GtkTextIter		iter;
-	GList			*list = NULL;
-	gchar			*line = NULL;
+	GtkTextIter	iter;
+	GList		*list = NULL;
+	gchar		*line = NULL;
 	
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_servmgr_server_input_dlg_entry2));
 	gtk_text_buffer_set_text (buffer, "", 0);
@@ -692,8 +690,8 @@ gfpm_servmgr_edit_server (gfpm_server_entry_t *s)
 	{
 		gchar 		*comments = NULL;
 		gchar		*url = NULL;
-		GtkTextIter siter;
-		GtkTextIter eiter;
+		GtkTextIter 	siter;
+		GtkTextIter 	eiter;
 		
 		case 32: /* OK Button */
 		{
@@ -814,8 +812,8 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 {
 	GtkTreeSelection	*selection = NULL;
 	GtkTreeModel		*model;
-	GtkTreeIter			iter;
-	gchar				*repo = NULL;
+	GtkTreeIter		iter;
+	gchar			*repo = NULL;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_repomgr_treeview));
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
@@ -831,10 +829,10 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 static void
 cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data)
 {
-	gfpm_server_entry_t *s = NULL;
-	GList				*rlist = NULL;
-	gfpm_repo_t			*rp = NULL;
-	GList				*slist = NULL;
+	gfpm_server_entry_t 	*s = NULL;
+	GList			*rlist = NULL;
+	gfpm_repo_t		*rp = NULL;
+	GList			*slist = NULL;
 	
 	s = gfpm_servmgr_get_server_input ();
 	if (s == NULL)
@@ -875,12 +873,12 @@ cb_gfpm_servmgr_btnedit_clicked (GtkButton *button, gpointer data)
 {
 	GtkTreeSelection	*selection = NULL;
 	GtkTreeModel		*model;
-	GtkTreeIter			iter;
-	gchar				*server = NULL;
-	GList				*rlist;
-	gfpm_repo_t			*rp = NULL;
-	gfpm_server_entry_t *sp = NULL;
-	GList				*slist = NULL;
+	GtkTreeIter		iter;
+	gchar			*server = NULL;
+	GList			*rlist;
+	gfpm_repo_t		*rp = NULL;
+	gfpm_server_entry_t 	*sp = NULL;
+	GList			*slist = NULL;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_servmgr_treeview));
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
@@ -914,8 +912,8 @@ cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data)
 {
 	GtkTreeSelection	*selection = NULL;
 	GtkTreeModel		*model;
-	GtkTreeIter			iter;
-	gchar				*server = NULL;
+	GtkTreeIter		iter;
+	gchar			*server = NULL;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_servmgr_treeview));
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
@@ -930,8 +928,8 @@ cb_gfpm_servmgr_btnup_clicked (GtkButton *button, gpointer data)
 {
 	GtkTreeSelection	*selection = NULL;
 	GtkTreeModel		*model;
-	GtkTreeIter			iter;
-	gchar				*server = NULL;
+	GtkTreeIter		iter;
+	gchar			*server = NULL;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_servmgr_treeview));
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
@@ -946,8 +944,8 @@ cb_gfpm_servmgr_btndown_clicked (GtkButton *button, gpointer data)
 {
 	GtkTreeSelection	*selection = NULL;
 	GtkTreeModel		*model;
-	GtkTreeIter			iter;
-	gchar				*server = NULL;
+	GtkTreeIter		iter;
+	gchar			*server = NULL;
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_servmgr_treeview));
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
