@@ -246,6 +246,7 @@ gfpm_write_config_file (void)
 	FILE		*fp = NULL;
 	GList		*rlist = NULL;
 	gfpm_repo_t	*repo = NULL;
+	GList		*header = NULL;
 	
 	fp = fopen (CONF_FILE, "w");
 	if (fp == NULL)
@@ -254,21 +255,32 @@ gfpm_write_config_file (void)
 		return;
 	}
 	
+	/* write the header first */
+	header = repolist->header;
+	while (header != NULL)
+	{
+		fprintf (fp, "%s\n", (char*)header->data);
+		header = g_list_next (header);
+	}
+	/* now the body and footer */
 	rlist = repolist->list;
 	while (rlist != NULL)
 	{
-		GList *header = NULL;
-		
+		GList *footer = NULL;	
 		repo = rlist->data;
-		header = repo->header;
-		/* write the header first */
-		while (header != NULL)
-		{
-			fprintf (fp, "%s\n", (char*)header->data);
-			header = g_list_next (header);
-		}
 		/* write the repository entry */
 		fprintf (fp, "Include = %s/%s\n", REPO_PATH, repo->name);
+		
+		gfpm_write_servers_to_file (repo->name);
+		/* write the footer */
+		footer = repo->footer;
+		if (footer == NULL)
+		fprintf (fp, "\n");
+		while (footer != NULL)
+		{
+			fprintf (fp, "%s\n", (char*)footer->data);
+			footer = g_list_next (footer);
+		}
 		
 		rlist = g_list_next (rlist);
 	}
@@ -399,6 +411,7 @@ gfpm_repomgr_get_repo_input (void)
 			server = (gfpm_server_entry_t *) malloc (sizeof(gfpm_server_entry_t));
 			memset (server, 0, sizeof(gfpm_server_entry_t));
 			strncpy (server->url, url, strlen(url));
+			ret->header = g_list_append (ret->header, g_strdup_printf ("#\n# %s repository\n#\n", name));
 			ret->servers = g_list_append (ret->servers, (gpointer)server);
 			gtk_text_buffer_get_start_iter (buffer, &siter);
 			gtk_text_buffer_get_end_iter (buffer, &eiter);
@@ -494,6 +507,8 @@ gfpm_repomgr_populate_repolist (void)
 	FILE *fp = NULL;
 	char str[256];
 	char line[PATH_MAX+1];
+	gboolean flag = FALSE;
+	gfpm_repo_t *repo_r = NULL;
 	
 	gint n = 0;
 
@@ -517,15 +532,28 @@ gfpm_repomgr_populate_repolist (void)
 	{
 		char reponame[256] = "";
 		fwutil_trim (line);
-		if (!strlen(line) || line[0] == '#')
+		if (!strlen(line))
 			continue;
+		else if (line[0] == '#')
+		{
+			if (flag == FALSE)
+			{
+				repolist->header = g_list_append (repolist->header, (gpointer) g_strdup(line));
+			}
+			else
+			{
+				repo_r->footer = g_list_append (repo_r->footer, (gpointer) g_strdup(line));
+			}
+			continue;
+		}
 		else if (sscanf(line, "Include = %s", str))
 		{
 			FILE *tmp = NULL;
 			char ln[PATH_MAX+1];
 			char rn[PATH_MAX+1];
-			gfpm_repo_t *repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
+			repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
 			memset (repo_r, 0, sizeof(gfpm_repo_t));
+			flag = TRUE;
 			
 			if ((tmp = fopen (str, "r")) == NULL)
 			{
@@ -539,7 +567,7 @@ gfpm_repomgr_populate_repolist (void)
 					continue;
 				if (ln[0] == '#')
 				{
-					repo_r->header = g_list_append (repo_r->header, g_strdup(ln));
+					repo_r->header = g_list_append (repo_r->header, (gpointer)g_strdup(ln));
 					continue;
 				}
 				else
@@ -570,7 +598,8 @@ gfpm_repomgr_populate_repolist (void)
 			repo_r->servers = gfpm_repomgr_get_servers_from_repofile (str);
 			
 			// and then append it to our repo list
-			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);gtk_widget_hide (gfpm_repomgr_repo_input_dlg);
+			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
+
 		}
 	}
 	repolist->n = n;
@@ -858,7 +887,8 @@ gfpm_write_servers_to_file (const gchar *reponame)
 	FILE	*fp = NULL;
 	gchar 	*path = NULL;
 	
-	path = g_strdup_printf ("%s/%s", REPO_PATH, curr_repo);
+	path = g_strdup_printf ("%s/%s", REPO_PATH, reponame);
+	curr_repo = g_strdup_printf (reponame);
 	if ((fp=fopen(path,"w"))!=NULL)
 	{
 		GList *rlist = NULL;
@@ -871,11 +901,14 @@ gfpm_write_servers_to_file (const gchar *reponame)
 		{
 			r = rlist->data;
 			
-			if (!strcmp(r->name,curr_repo))
+			if (curr_repo!=NULL)
 			{
-				slist = r->servers;
-				header = r->header;
-				break;
+				if (!strcmp(r->name,curr_repo))
+				{
+					slist = r->servers;
+					header = r->header;
+					break;
+				}
 			}
 			rlist = g_list_next (rlist);
 		}
@@ -931,6 +964,8 @@ cb_gfpm_repomgr_btnadd_clicked (GtkButton *button, gpointer data)
 	rlist = g_list_append (rlist, (gpointer)rp);
 	/* save the configuration file */
 	gfpm_write_config_file ();
+	/* re-populate repository list */
+	gfpm_repomgr_populate_repotvw ();
 	
 	return;
 }
