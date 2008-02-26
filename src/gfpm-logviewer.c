@@ -22,13 +22,16 @@
 #include "gfpm-messages.h"
 #include "gfpm-interface.h"
 #include <libfwutil.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <glib.h>
 #include <time.h>
 
 typedef struct _LogViewItem
 {
 	gchar	*label;
-	GList		*children;
+	GList	*children;
 } LogViewItem;
 
 /* location of pacman-g2.log */
@@ -43,6 +46,7 @@ int getdate_err;
 static GtkWidget *gfpm_logviewer_dlg;
 static GtkWidget *gfpm_logviewer_tvw;
 static GtkWidget *gfpm_logviewer_txtvw;
+static GtkWidget *gfpm_logviewer_sizelabel;
 
 static void _gfpm_logviewer_populate (void);
 static void _gfpm_logviewer_populate_txtvw (const char *text);
@@ -52,10 +56,10 @@ static void cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gp
 void
 gfpm_logviewer_init (void)
 {
-	 gint 				col_offset;
-	 GtkCellRenderer	*renderer;
-	 GtkTreeViewColumn	*column;
-	 GtkTreeSelection	*sel;
+	 gint 			col_offset;
+	 GtkCellRenderer	*renderer = NULL;
+	 GtkTreeViewColumn	*column = NULL;
+	 GtkTreeSelection	*sel = NULL;
 	 
 	 if (getenv("DATEMSK") == NULL)
 	 {
@@ -66,6 +70,7 @@ gfpm_logviewer_init (void)
 	 gfpm_logviewer_dlg = gfpm_get_widget ("syslog_window");
 	 gfpm_logviewer_tvw = gfpm_get_widget ("log_tvw");
 	 gfpm_logviewer_txtvw = gfpm_get_widget ("log_txtvw");
+	 gfpm_logviewer_sizelabel = gfpm_get_widget ("log_size_label");
 	 
 	 renderer = gtk_cell_renderer_text_new ();
 	 g_object_set (renderer, "xalign", 0.0, NULL);
@@ -94,20 +99,31 @@ gfpm_logviewer_show ()
 static void
 _gfpm_logviewer_populate (void)
 {
-	FILE			*fp = NULL;
-	char			line[PATH_MAX+1] = "";
-	int			prev_day = -1;
-	int			prev_month = -1;
-	int			prev_year = -1;
+	FILE		*fp = NULL;
+	char		line[PATH_MAX+1] = "";
+	int		prev_day = -1;
+	int		prev_month = -1;
+	int		prev_year = -1;
 	GtkTreeStore 	*store;
-	GtkTreeIter		iter;
-	GList			*master = NULL;
+	GtkTreeIter	iter;
+	GList		*master = NULL;
 	LogViewItem 	*li = NULL;
+	struct stat	fstat;
 
 	if ((fp=fopen(LOG_FILE,"r"))==NULL)
 	{
 		gfpm_error (_("Error"), _("Error opening log file."));
 		return;
+	}
+	/* calculate the size of the log file in KB */
+	if (!g_stat(LOG_FILE,&fstat))
+	{
+		gint size = 0;
+		gchar *sizetxt = NULL;
+		size = fstat.st_size / 1024;
+		sizetxt = g_strdup_printf ("%d KB", size);
+		gtk_label_set_text (GTK_LABEL(gfpm_logviewer_sizelabel), sizetxt);
+		g_free (sizetxt);
 	}
 	while (fgets(line,PATH_MAX,fp))
 	{
@@ -179,7 +195,6 @@ _gfpm_logviewer_populate (void)
 	while (master != NULL)
 	{
 		LogViewItem *m = master->data;
-		//printf ("SECTION : %s\n", m->label);
 		gtk_tree_store_append (store, &iter, NULL);
 		gtk_tree_store_set (store, &iter, 0, m->label, -1);
 		/* add children */
@@ -187,7 +202,6 @@ _gfpm_logviewer_populate (void)
 		while (child != NULL)
 		{
 			GtkTreeIter 	child_iter;
-			//printf ("\tSUB: %s\n", child->data);
 			gtk_tree_store_append (store, &child_iter, &iter);
 			gtk_tree_store_set (store, &child_iter, 0, child->data, -1);
 			child = g_list_next (child);
@@ -203,10 +217,10 @@ _gfpm_logviewer_populate (void)
 static void
 _gfpm_logviewer_populate_txtvw (const char *text)
 {
-	struct tm 		*t = NULL;
-	char 			date[10] = "";
+	struct tm 	*t = NULL;
+	char 		date[10] = "";
 	GtkTextBuffer	*buffer;
-	GtkTextIter		iter;
+	GtkTextIter	iter;
 	
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_logviewer_txtvw));
 	gtk_text_buffer_set_text (buffer, "", 0);
@@ -232,13 +246,15 @@ _gfpm_logviewer_populate_txtvw (const char *text)
 		gtk_text_view_set_buffer (GTK_TEXT_VIEW(gfpm_logviewer_txtvw), buffer);
 		fclose (fp);
 	}
+	
+	return;
 }
 
 static void
 cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gpointer data)
 {
-	GtkTreeIter		iter;
-	GtkTreeIter		piter;
+	GtkTreeIter	iter;
+	GtkTreeIter	piter;
 	GtkTreeModel	*model;
 	
 	if (gtk_tree_selection_get_selected (selection, &model, &iter))
@@ -252,6 +268,7 @@ cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gpointer data)
 			g_free (text);
 		}
 	}
-	
+
 	return;
 }
+
