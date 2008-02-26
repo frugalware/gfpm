@@ -519,42 +519,6 @@ gfpm_repomgr_populate_repolist (void)
 		fwutil_trim (line);
 		if (!strlen(line) || line[0] == '#')
 			continue;
-		if (line[0] == '[' && line[strlen(line)-1] == ']')
-		{
-			// could be a repo entry
-			ptr = line;
-			ptr++;
-			strncpy (reponame, ptr, fwutil_min(255, strlen(ptr)-1));
-			reponame[fwutil_min(255, strlen(ptr-1))] = '\0';
-			if (!strlen(reponame))
-			{
-				g_error ("Bad repository name. Skipping.");
-				continue;
-			}
-			if (!strcmp(reponame, "options"))
-				continue;
-			else
-			{
-				// create a new repo record
-				n++;
-				char svr[256];
-				gfpm_repo_t *repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
-				memset (repo_r, 0, sizeof(gfpm_repo_t));
-				if (repo_r == NULL)
-				{
-					g_error ("Error allocating memory. Exiting");
-					return;
-				}
-				memset (repo_r, 0, sizeof(gfpm_repo_t));
-				strncpy (repo_r->name, reponame, REPONAME_MAX_SIZE);
-				// get the server url
-				fgets (line, PATH_MAX, fp);
-				sscanf (line, "Server = %s", svr);
-				repo_r->servers = g_list_append (repo_r->servers, (gpointer)g_strdup(svr));
-				// and then append it to our repo list
-				repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
-			}
-		}
 		else if (sscanf(line, "Include = %s", str))
 		{
 			FILE *tmp = NULL;
