@@ -9,4 +9,5 @@ src/gfpm-packagelist.c
 src/gfpm-optimizedb.c
 src/gfpm-messages.c
 src/gfpm-logviewer.c
+src/gfpm-repomanager.c
 data/gfpm.glade
