@@ -300,7 +300,7 @@ gfpm_servmgr_get_server_input (void)
 	ret = (gfpm_server_entry_t *) malloc (sizeof(gfpm_server_entry_t));
 	memset (ret, 0, sizeof(gfpm_server_entry_t));
 	run: response = gtk_dialog_run (GTK_DIALOG(gfpm_servmgr_server_input_dlg));
-	url = gtk_entry_get_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1));
+	url = (char*) gtk_entry_get_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1));
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_servmgr_server_input_dlg_entry2));
 	
 	switch (response)
@@ -367,8 +367,8 @@ gfpm_repomgr_get_repo_input (void)
 	ret = (gfpm_repo_t *) malloc (sizeof(gfpm_repo_t));
 	memset (ret, 0, sizeof(gfpm_repo_t));
 	run: response = gtk_dialog_run (GTK_DIALOG(gfpm_repomgr_repo_input_dlg));
-	name = gtk_entry_get_text (GTK_ENTRY(gfpm_repomgr_repo_input_dlg_entry1));
-	url = gtk_entry_get_text (GTK_ENTRY(gfpm_repomgr_repo_input_dlg_entry2));
+	name = (char*) gtk_entry_get_text (GTK_ENTRY(gfpm_repomgr_repo_input_dlg_entry1));
+	url = (char*) gtk_entry_get_text (GTK_ENTRY(gfpm_repomgr_repo_input_dlg_entry2));
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_repomgr_repo_input_dlg_entry3));
 	
 	switch (response)
@@ -530,7 +530,6 @@ gfpm_repomgr_populate_repolist (void)
 	memset (repolist, 0, sizeof(gfpm_repolist_t));
 	while (fgets(line, PATH_MAX, fp))
 	{
-		char reponame[256] = "";
 		fwutil_trim (line);
 		if (!strlen(line))
 			continue;
@@ -832,7 +831,7 @@ gfpm_servmgr_edit_server (gfpm_server_entry_t *s)
 		
 		case 32: /* OK Button */
 		{
-			url = gtk_entry_get_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1));
+			url = (char*) gtk_entry_get_text (GTK_ENTRY(gfpm_servmgr_server_input_dlg_entry1));
 			if (url == NULL || !strlen (url))
 			{
 				gfpm_error (_("Error"), _("The Repository URL field cannot be left blank"));
