@@ -2444,13 +2444,13 @@
   </widget>
   <widget class="GtkDialog" id="gfpm_repomgr_input_dlg">
     <property name="width_request">400</property>
-    <property name="height_request">250</property>
+    <property name="height_request">280</property>
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">New Repository</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
     <property name="default_width">400</property>
-    <property name="default_height">250</property>
+    <property name="default_height">280</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="transient_for">gfpm_repomanager_servermgr</property>
     <property name="has_separator">False</property>
@@ -2491,6 +2491,7 @@
             <property name="label" translatable="yes">Repository Name</property>
           </widget>
           <packing>
+            <property name="expand">False</property>
             <property name="position">3</property>
           </packing>
         </child>
@@ -2501,6 +2502,7 @@
             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
           </widget>
           <packing>
+            <property name="expand">False</property>
             <property name="position">4</property>
           </packing>
         </child>
