@@ -57,7 +57,7 @@ static GtkWidget *gfpm_servmgr_btnmdn;
 static GtkWidget *gfpm_servmgr_btnedit;
 
 static void gfpm_write_servers_to_file (const gchar *reponame);
-
+static void gfpm_servmgr_edit_server (gfpm_server_entry_t *s);
 static gfpm_server_entry_t * gfpm_servmgr_get_server_input (void);
 
 /* signal callbacks */
