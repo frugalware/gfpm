@@ -501,6 +501,59 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 }
 
 static void
+gfpm_repomgr_populate_repo_info (const char *path, gfpm_repo_t *repo_r)
+{
+	FILE *tmp = NULL;
+	char ln[PATH_MAX+1];
+	char rn[PATH_MAX+1];
+	
+	if ((tmp = fopen (path, "r")) == NULL)
+	{
+		gchar *errorstr = g_strdup_printf ("%s for %s %s", _("Error opening repository servers file"), path, _("repository"));
+		gfpm_error (_("Error opening repository file"), errorstr);
+		g_free (errorstr);
+		return;
+	}
+	while (fgets(ln, PATH_MAX, tmp))
+	{
+		fwutil_trim (ln);
+		if (!strlen(ln))
+			continue;
+		if (ln[0] == '#')
+		{
+			repo_r->header = g_list_append (repo_r->header, (gpointer)g_strdup(ln));
+			continue;
+		}
+		else
+		if (ln[0] == '[' && ln[strlen(ln)-1] == ']')
+		{
+			// could be a repo entry
+			char *ptr = ln;
+			ptr++;
+			strncpy (rn, ptr, fwutil_min(255, strlen(ptr)-1));
+			rn[fwutil_min(255, strlen(ptr+1))] = '\0';
+			if (strlen(rn))
+			{
+				strncpy (repo_r->name, rn, REPONAME_MAX_SIZE);
+			}
+			else
+			{
+				g_error ("error parsing");
+			}
+			break;
+		}
+	}
+	fclose (tmp);
+	if (repo_r == NULL)
+		return;
+	strncpy (repo_r->name, rn, REPONAME_MAX_SIZE);
+	// populate the server list
+	repo_r->servers = gfpm_repomgr_get_servers_from_repofile (path);
+	
+	return;
+}
+
+static void
 gfpm_repomgr_populate_repolist (void)
 {
 	char *ptr = NULL;
@@ -533,7 +586,7 @@ gfpm_repomgr_populate_repolist (void)
 		fwutil_trim (line);
 		if (!strlen(line))
 			continue;
-		else if (line[0] == '#')
+		else if (line[0] == '#' && line[1] != 'I')
 		{
 			if (flag == FALSE)
 			{
@@ -547,58 +600,27 @@ gfpm_repomgr_populate_repolist (void)
 		}
 		else if (sscanf(line, "Include = %s", str))
 		{
-			FILE *tmp = NULL;
-			char ln[PATH_MAX+1];
-			char rn[PATH_MAX+1];
+			if (flag == FALSE)
+				flag = TRUE;
 			repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
 			memset (repo_r, 0, sizeof(gfpm_repo_t));
-			flag = TRUE;
-			
-			if ((tmp = fopen (str, "r")) == NULL)
-			{
-				g_error ("Error opening repository servers file.");
-				break;
-			}
-			while (fgets(ln, PATH_MAX, tmp))
-			{
-				fwutil_trim (ln);
-				if (!strlen(ln))
-					continue;
-				if (ln[0] == '#')
-				{
-					repo_r->header = g_list_append (repo_r->header, (gpointer)g_strdup(ln));
-					continue;
-				}
-				else
-				if (ln[0] == '[' && ln[strlen(ln)-1] == ']')
-				{
-					// could be a repo entry
-					ptr = ln;
-					ptr++;
-					strncpy (rn, ptr, fwutil_min(255, strlen(ptr)-1));
-					rn[fwutil_min(255, strlen(ptr+1))] = '\0';
-					if (strlen(rn))
-					{
-						strncpy (repo_r->name, rn, REPONAME_MAX_SIZE);
-					}
-					else
-					{
-						g_error ("error parsing");
-					}
-					break;
-				}
-			}
-			fclose (tmp);
-			n++;
-			if (repo_r == NULL)
-				return;
-			strncpy (repo_r->name, rn, REPONAME_MAX_SIZE);
-			// populate the repo list here
-			repo_r->servers = gfpm_repomgr_get_servers_from_repofile (str);
-			
+			gfpm_repomgr_populate_repo_info (str, repo_r);
+			repo_r->enabled = TRUE;
 			// and then append it to our repo list
 			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
-
+			n++;
+		}
+		else if (sscanf(line, "#Include = %s", str))
+		{
+			if (flag == FALSE)
+				flag = TRUE;
+			repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
+			memset (repo_r, 0, sizeof(gfpm_repo_t));
+			gfpm_repomgr_populate_repo_info (str, repo_r);
+			repo_r->enabled = FALSE;
+			// and then append it to our repo list
+			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
+			n++;
 		}
 	}
 	repolist->n = n;

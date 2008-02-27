@@ -14,10 +14,11 @@
 #define SERVER_MAX_SIZE 255
 
 typedef struct __gfpm_repo_t {
-	GList	*header;
-	char	name[REPONAME_MAX_SIZE+1];
-	GList	*servers;
-	GList	*footer;
+	gboolean 	enabled;
+	GList		*header;
+	char		name[REPONAME_MAX_SIZE+1];
+	GList		*servers;
+	GList		*footer;
 } gfpm_repo_t;
 
 typedef struct __gfpm_repolist_t {
