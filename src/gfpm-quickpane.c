@@ -169,6 +169,8 @@ cb_gfpm_quickpane_install_clicked (GtkWidget *button, gpointer data)
 {
 	GfpmList *temp = NULL;
 	
+	if (quickpane_pkg == NULL)
+		return;
 	temp = install_list;
 	install_list = NULL;
 	gfpm_package_list_add (GFPM_INSTALL_LIST, quickpane_pkg);
