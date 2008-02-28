@@ -189,7 +189,7 @@
             <child>
               <widget class="GtkToolButton" id="button_file1">
                 <property name="visible">True</property>
-                <property name="tooltip" translatable="yes">Refresh the package lists</property>
+                <property name="tooltip" translatable="yes">Install a package from file</property>
                 <property name="label">Install from file</property>
                 <property name="use_underline">True</property>
                 <property name="icon_name">gfpm-instfromfile</property>
