@@ -106,7 +106,8 @@ gfpm_repomanager_init (void)
 	gfpm_repomgr_repo_input_dlg_entry3 = gfpm_get_widget ("commentview2");
 
 	/* setup repo store */
-	store = gtk_list_store_new (2, GDK_TYPE_PIXBUF, G_TYPE_STRING);
+	store = gtk_list_store_new (3, GDK_TYPE_PIXBUF, G_TYPE_BOOLEAN, G_TYPE_STRING);
+	
 	renderer = gtk_cell_renderer_pixbuf_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("S"),
 								renderer,
@@ -114,11 +115,21 @@ gfpm_repomanager_init (void)
 								NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_repomgr_treeview), column);
+	
+	renderer = gtk_cell_renderer_toggle_new ();
+	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
+	//g_signal_connect (renderer, "toggled", G_CALLBACK(_selection_toggled), store);
+	column = gtk_tree_view_column_new_with_attributes (_("Enabled"),
+							renderer,
+							"active", 1,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_repomgr_treeview), column);
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Repository"),
 								renderer,
-								"text", 1,
+								"text", 2,
 								NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_column_set_expand (column, TRUE);
@@ -650,11 +661,11 @@ gfpm_repomgr_populate_repotvw (void)
 	}
 	while (ret != NULL)
 	{
-		gfpm_repo_t	*repo = NULL;
+		gfpm_repo_t *repo = NULL;
 
 		repo = ret->data;
 		gtk_list_store_append (GTK_LIST_STORE(store), &iter);
-		gtk_list_store_set (store, &iter, 0, pixbuf, 1, (char*)repo->name, -1);
+		gtk_list_store_set (store, &iter, 0, pixbuf, 1, repo->enabled ? TRUE:FALSE, 2, (char*)repo->name, -1);
 		ret = g_list_next (ret);
 	}
 	
@@ -1002,7 +1013,7 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_repomgr_treeview));
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
-		gtk_tree_model_get (model, &iter, 1, &repo, -1);
+		gtk_tree_model_get (model, &iter, 2, &repo, -1);
 		gfpm_servmanager_show (repo);
 		gfpm_repomgr_set_current_repo (repo);
 	}
