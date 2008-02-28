@@ -182,7 +182,9 @@ static void
 cb_gfpm_quickpane_remove_clicked (GtkWidget *button, gpointer data)
 {
 	GfpmList *temp = NULL;
-	
+
+	if (quickpane_pkg == NULL)
+		return;
 	temp = remove_list;
 	remove_list = NULL;
 	gfpm_package_list_add (GFPM_REMOVE_LIST, quickpane_pkg);
