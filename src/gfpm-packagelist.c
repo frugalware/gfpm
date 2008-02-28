@@ -68,8 +68,11 @@ gfpm_package_list_add (GfpmListType type, const gchar *item)
 			g_free (new);
 			return;
 		}
-		temp = temp->next;
-	} while (temp->next != NULL);
+		if (temp->next != NULL)
+			temp = temp->next;
+		else
+			break;
+	} while (temp != NULL);
 
 	temp->next = new;
 
