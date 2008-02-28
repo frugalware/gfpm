@@ -567,7 +567,6 @@ gfpm_repomgr_populate_repo_info (const char *path, gfpm_repo_t *repo_r)
 static void
 gfpm_repomgr_populate_repolist (void)
 {
-	char *ptr = NULL;
 	FILE *fp = NULL;
 	char str[256];
 	char line[PATH_MAX+1];
