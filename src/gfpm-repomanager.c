@@ -647,7 +647,7 @@ gfpm_repomgr_populate_repotvw (void)
 	GdkPixbuf	*pixbuf = NULL;
 
 	gfpm_repomgr_populate_repolist ();
-	pixbuf = gfpm_get_icon ("gfpm", 32);
+	pixbuf = gfpm_get_icon ("gfpm", 24);
 	
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_repomgr_treeview)));
 	gtk_list_store_clear (store);
@@ -681,7 +681,7 @@ gfpm_repomgr_populate_servtvw (const char *repo)
 	GdkPixbuf	*pixbuf = NULL;
 	gfpm_repo_t	*repository = NULL;
 
-	pixbuf = gfpm_get_icon ("gfpm", 32);
+	pixbuf = gfpm_get_icon ("gfpm", 24);
 	
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(gfpm_servmgr_treeview)));
 	gtk_list_store_clear (store);
