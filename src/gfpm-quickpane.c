@@ -31,14 +31,14 @@ extern GfpmList *remove_list;
 extern GtkWidget *gfpm_pkgs_tvw;
 extern GtkWidget *gfpm_mw;
 
-static GtkWidget *quick_pane;
-static GtkWidget *quick_pane_install_btn;
-static GtkWidget *quick_pane_remove_btn;
-static GtkWidget *quick_pane_upgrade_btn;
-static GtkWidget *quick_pane_readme_btn;
-static GtkWidget *quick_pane_readme_dlg;
-static GtkWidget *quick_pane_readme_dlg_txtvw;
-static GtkWidget *quick_pane_readme_dlg_label;
+static GtkWidget *quick_pane = NULL;
+static GtkWidget *quick_pane_install_btn = NULL;
+static GtkWidget *quick_pane_remove_btn = NULL;
+static GtkWidget *quick_pane_upgrade_btn = NULL;
+static GtkWidget *quick_pane_readme_btn = NULL;
+static GtkWidget *quick_pane_readme_dlg = NULL;
+static GtkWidget *quick_pane_readme_dlg_txtvw = NULL;
+static GtkWidget *quick_pane_readme_dlg_label = NULL;
 
 static void cb_gfpm_quickpane_install_clicked (GtkWidget *button, gpointer data);
 static void cb_gfpm_quickpane_remove_clicked (GtkWidget *button, gpointer data);
