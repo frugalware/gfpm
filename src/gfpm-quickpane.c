@@ -120,7 +120,7 @@ void
 gfpm_quickpane_readme_dlg_populate (const char *pathname)
 {
 	GtkTextBuffer	*buffer;
-	GtkTextIter		iter;
+	GtkTextIter	iter;
 	
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(quick_pane_readme_dlg_txtvw));
 	gtk_text_buffer_set_text (buffer, "", 0);
@@ -158,7 +158,7 @@ gfpm_quickpane_readme_dlg_show (void)
 {
 	gtk_window_set_transient_for (GTK_WINDOW(quick_pane_readme_dlg), GTK_WINDOW(gfpm_mw));
 	gtk_widget_show (quick_pane_readme_dlg);
-	
+
 	return;
 }
 
@@ -168,7 +168,7 @@ static void
 cb_gfpm_quickpane_install_clicked (GtkWidget *button, gpointer data)
 {
 	GfpmList *temp = NULL;
-	
+
 	if (quickpane_pkg == NULL)
 		return;
 	temp = install_list;
