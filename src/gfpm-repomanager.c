@@ -75,6 +75,7 @@ static void cb_gfpm_servmgr_btnedit_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnup_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btndown_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_repo_enable_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 
 void
 gfpm_repomanager_init (void)
@@ -118,7 +119,7 @@ gfpm_repomanager_init (void)
 	
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
-	//g_signal_connect (renderer, "toggled", G_CALLBACK(_selection_toggled), store);
+	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_gfpm_repo_enable_toggled), store);
 	column = gtk_tree_view_column_new_with_attributes (_("Enabled"),
 							renderer,
 							"active", 1,
@@ -170,6 +171,47 @@ gfpm_repomanager_init (void)
 
 	convert_server_to_repofile ();
 	
+	return;
+}
+
+static void
+cb_gfpm_repo_enable_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data)
+{
+	GtkTreeModel	*model;
+	GtkTreeIter	iter;
+	GtkTreePath	*path;
+	gchar		*sel = NULL;
+	gboolean	check;
+	GList		*repos = NULL;
+	gfpm_repo_t	*repo_r = NULL;
+
+	model = (GtkTreeModel *)data;
+	path = gtk_tree_path_new_from_string (path_str);
+	gtk_tree_model_get_iter (model, &iter, path);
+	gtk_tree_model_get (model, &iter, 1, &check, 2, &sel, -1);
+
+	/* manually toggle the toggle button */
+	check ^= 1;
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 1, check, -1);
+	
+	repos = repolist->list;
+	while (repos!=NULL)
+	{
+		repo_r = repos->data;
+		if (!strcmp(repo_r->name, sel))
+		{
+			repo_r->enabled = (check==TRUE) ? TRUE:FALSE;
+			break;
+		}
+		repos = g_list_next (repos);
+	}
+
+	/* write config file */
+	gfpm_write_config_file ();
+
+	g_free (sel);
+	gtk_tree_path_free (path);
+
 	return;
 }
 
