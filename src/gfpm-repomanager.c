@@ -281,7 +281,10 @@ gfpm_write_config_file (void)
 		GList *footer = NULL;	
 		repo = rlist->data;
 		/* write the repository entry */
-		fprintf (fp, "Include = %s/%s\n", REPO_PATH, repo->name);
+		if (repo->enabled)
+			fprintf (fp, "Include = %s/%s\n", REPO_PATH, repo->name);
+		else
+			fprintf (fp, "#Include = %s/%s\n", REPO_PATH, repo->name);
 		
 		gfpm_write_servers_to_file (repo->name);
 		/* write the footer */
