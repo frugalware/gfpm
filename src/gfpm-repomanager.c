@@ -174,47 +174,6 @@ gfpm_repomanager_init (void)
 	return;
 }
 
-static void
-cb_gfpm_repo_enable_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data)
-{
-	GtkTreeModel	*model;
-	GtkTreeIter	iter;
-	GtkTreePath	*path;
-	gchar		*sel = NULL;
-	gboolean	check;
-	GList		*repos = NULL;
-	gfpm_repo_t	*repo_r = NULL;
-
-	model = (GtkTreeModel *)data;
-	path = gtk_tree_path_new_from_string (path_str);
-	gtk_tree_model_get_iter (model, &iter, path);
-	gtk_tree_model_get (model, &iter, 1, &check, 2, &sel, -1);
-
-	/* manually toggle the toggle button */
-	check ^= 1;
-	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 1, check, -1);
-	
-	repos = repolist->list;
-	while (repos!=NULL)
-	{
-		repo_r = repos->data;
-		if (!strcmp(repo_r->name, sel))
-		{
-			repo_r->enabled = (check==TRUE) ? TRUE:FALSE;
-			break;
-		}
-		repos = g_list_next (repos);
-	}
-
-	/* write config file */
-	gfpm_write_config_file ();
-
-	g_free (sel);
-	gtk_tree_path_free (path);
-
-	return;
-}
-
 /* This function replaces every occurence of
  * [foo]
  * Server = http://foo.com/
@@ -1021,6 +980,48 @@ gfpm_write_servers_to_file (const gchar *reponame)
 }
 
 /* CALLBACKS */
+
+static void
+cb_gfpm_repo_enable_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data)
+{
+	GtkTreeModel	*model;
+	GtkTreeIter	iter;
+	GtkTreePath	*path;
+	gchar		*sel = NULL;
+	gboolean	check;
+	GList		*repos = NULL;
+	gfpm_repo_t	*repo_r = NULL;
+
+	model = (GtkTreeModel *)data;
+	path = gtk_tree_path_new_from_string (path_str);
+	gtk_tree_model_get_iter (model, &iter, path);
+	gtk_tree_model_get (model, &iter, 1, &check, 2, &sel, -1);
+
+	/* manually toggle the toggle button */
+	check ^= 1;
+	gtk_list_store_set (GTK_LIST_STORE(model), &iter, 1, check, -1);
+	
+	repos = repolist->list;
+	while (repos!=NULL)
+	{
+		repo_r = repos->data;
+		if (!strcmp(repo_r->name, sel))
+		{
+			repo_r->enabled = (check==TRUE) ? TRUE:FALSE;
+			break;
+		}
+		repos = g_list_next (repos);
+	}
+
+	/* write config file */
+	gfpm_write_config_file ();
+
+	g_free (sel);
+	gtk_tree_path_free (path);
+
+	return;
+}
+
 static void
 cb_gfpm_repomgr_btnadd_clicked (GtkButton *button, gpointer data)
 {
