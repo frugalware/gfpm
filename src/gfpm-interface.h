@@ -18,6 +18,7 @@ void gfpm_load_info_tvw (const char *);
 void gfpm_load_files_txtvw (const char *, gboolean);
 void gfpm_load_changelog_txtvw (const char *, gboolean);
 void gfpm_interface_init (void);
+void gfpm_interface_setup_repo_combos (void);
 void cb_gfpm_apply_btn_clicked (GtkButton *, gpointer);
 
 #endif

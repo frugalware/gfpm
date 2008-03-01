@@ -1063,6 +1063,9 @@ cb_gfpm_repo_enable_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpo
 
 	/* write config file */
 	gfpm_write_config_file ();
+	
+	/* repopulate repository information and setup combos */
+	gfpm_interface_setup_repo_combos ();
 
 	g_free (sel);
 	gtk_tree_path_free (path);

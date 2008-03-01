@@ -63,6 +63,10 @@ gchar *current_group = NULL;
 GtkWidget *gfpm_mw;
 GtkWidget *gfpm_pkgs_tvw = NULL;
 
+/* init flag */
+/* indicates that the repos were initied atleast once */
+gboolean init = FALSE;
+
 static GtkWidget *gfpm_statusbar = NULL;
 static GtkWidget *gfpm_groups_tvw = NULL;
 static GtkWidget *gfpm_info_tvw = NULL;
@@ -79,6 +83,7 @@ static GtkWidget *gfpm_apply_inst_depcheck;
 static GtkWidget *gfpm_apply_inst_dwocheck;
 static GtkWidget *gfpm_apply_rem_depcheck;
 static GtkWidget *gfpm_search_combo;
+static GtkWidget *gfpm_repos_combo;
 
 static guint gfpm_populate_repos_combobox (GtkComboBox *combo);
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
@@ -110,12 +115,26 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 	gint			c_index = 0;
 	gboolean		found = FALSE;
 	
-	store = gtk_list_store_new (1, G_TYPE_STRING);
-	gtk_combo_box_set_model (GTK_COMBO_BOX(combo), GTK_TREE_MODEL(store));
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(combo), renderer, TRUE);
-	gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combo), renderer, "text", 0, NULL);
+	if (init == FALSE)
+	{
+		g_print ("im here\n");
+		store = gtk_list_store_new (1, G_TYPE_STRING);
+		gtk_combo_box_set_model (GTK_COMBO_BOX(combo), GTK_TREE_MODEL(store));
+		renderer = gtk_cell_renderer_text_new ();
+		gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(combo), renderer, TRUE);
+		gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combo), renderer, "text", 0, NULL);
+		g_print ("im here\n");
+	}
+	else
+	{
+		store = GTK_LIST_STORE (gtk_combo_box_get_model(combo));
+		if (store != NULL)
+		{
+			gtk_list_store_clear (store);
+		}
 
+	}	
+	
 	rlist = gfpm_db_get_repolist ();
 	for (;rlist != NULL;rlist=rlist->next)
 	{
@@ -140,6 +159,26 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 	return c_index;
 }
 
+void
+gfpm_interface_setup_repo_combos (void)
+{
+	if (gfpm_db_populate_repolist() == 0)
+	{
+		guint active;
+		active = gfpm_populate_repos_combobox (GTK_COMBO_BOX(gfpm_repos_combo));
+		g_signal_connect (G_OBJECT(gfpm_repos_combo), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
+		gtk_combo_box_set_active (GTK_COMBO_BOX(gfpm_repos_combo), active);
+		gfpm_populate_repos_combobox (GTK_COMBO_BOX(gfpm_search_combo));
+		gtk_combo_box_set_active (GTK_COMBO_BOX(gfpm_search_combo), active);
+	}
+	else
+	{
+		gfpm_error (_("Error"), _("Error parsing repository information from configuration file."));
+	}
+	
+	return;
+}
+
 GtkWidget *
 gfpm_get_widget (const char *wname)
 {
@@ -150,7 +189,6 @@ void
 gfpm_interface_init (void)
 {
 	GtkWidget		*gfpm_splash;
-	GtkWidget		*widget;
 	GtkListStore		*store;
 	GtkCellRenderer		*renderer;
 	GtkTreeSelection	*selection;
@@ -181,6 +219,7 @@ gfpm_interface_init (void)
 	gfpm_apply_rem_depcheck = gfpm_get_widget ("applyremdepcheck");
 	gfpm_apply_inst_dwocheck = gfpm_get_widget ("applyinstdwcheck");
 	gfpm_search_combo = gfpm_get_widget ("search_repocombo");
+	gfpm_repos_combo = gfpm_get_widget ("combobox_repos");
 
 	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -264,20 +303,8 @@ gfpm_interface_init (void)
 	g_object_set (gfpm_info_tvw, "hover-selection", TRUE, NULL);
 	
 	/* Setup repository combobox */
-	widget = gfpm_get_widget ("combobox_repos");
-	if (gfpm_db_populate_repolist() == 0)
-	{
-		guint active;
-		active = gfpm_populate_repos_combobox (GTK_COMBO_BOX(widget));
-		g_signal_connect (G_OBJECT(widget), "changed", G_CALLBACK(cb_gfpm_repos_combo_changed), NULL);
-		gtk_combo_box_set_active (GTK_COMBO_BOX(widget), active);
-		gfpm_populate_repos_combobox (GTK_COMBO_BOX(gfpm_search_combo));
-		gtk_combo_box_set_active (GTK_COMBO_BOX(gfpm_search_combo), active);
-	}
-	else
-	{
-		gfpm_error ("Error parsing repository information from configuration file.");
-	}
+	gfpm_interface_setup_repo_combos ();
+	if (!init) init = TRUE;
 
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
