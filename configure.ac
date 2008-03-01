@@ -1,8 +1,8 @@
 ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
-AC_INIT([Gfpm], 1.0.5.1, [priyankmg@gmail.com], gfpm)
-AC_DEFINE_UNQUOTED([GFPM_RELEASE_NAME], ["Triton"], [Release codenames])
+AC_INIT([Gfpm], 1.1.0, [priyankmg@gmail.com], gfpm)
+AC_DEFINE_UNQUOTED([GFPM_RELEASE_NAME], ["Callisto"], [Release codenames])
 AC_CONFIG_SRCDIR([src/gfpm.c])
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)
