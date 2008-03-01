@@ -67,9 +67,14 @@ static void gfpm_servmgr_edit_server (gfpm_server_entry_t *s);
 static gfpm_repo_t * gfpm_repomgr_get_repo_input (void);
 static gfpm_server_entry_t * gfpm_servmgr_get_server_input (void);
 
+/* some important functions */
+static void gfpm_repomgr_populate_repolist (void);
+static void gfpm_repomgr_populate_repotvw (void);
+
 /* signal callbacks */
 static void cb_gfpm_repomgr_btnadd_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_repomgr_btndel_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btndel_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnedit_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_servmgr_btnadd_clicked (GtkButton *button, gpointer data);
@@ -159,8 +164,9 @@ gfpm_repomanager_init (void)
 	
 	/* connect important signals */
 	/* repository manager signals */
-	g_signal_connect (G_OBJECT(gfpm_repomgr_btnedit), "clicked", G_CALLBACK(cb_gfpm_repomgr_btnedit_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_repomgr_btnadd), "clicked", G_CALLBACK(cb_gfpm_repomgr_btnadd_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_repomgr_btnedit), "clicked", G_CALLBACK(cb_gfpm_repomgr_btnedit_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_repomgr_btndel), "clicked", G_CALLBACK(cb_gfpm_repomgr_btndel_clicked), NULL);
 	
 	/* server manager signals */
 	g_signal_connect (G_OBJECT(gfpm_servmgr_btndel), "clicked", G_CALLBACK(cb_gfpm_servmgr_btndel_clicked), NULL);
@@ -259,6 +265,7 @@ gfpm_write_config_file (void)
 	GList		*rlist = NULL;
 	gfpm_repo_t	*repo = NULL;
 	GList		*header = NULL;
+	GList		*del_link = NULL;
 	
 	fp = fopen (CONF_FILE, "w");
 	if (fp == NULL)
@@ -281,12 +288,26 @@ gfpm_write_config_file (void)
 		GList *footer = NULL;	
 		repo = rlist->data;
 		/* write the repository entry */
-		if (repo->enabled)
-			fprintf (fp, "Include = %s/%s\n", REPO_PATH, repo->name);
+		if (repo->delete == FALSE)
+		{
+			if (repo->enabled)
+				fprintf (fp, "Include = %s/%s\n", REPO_PATH, repo->name);
+			else
+				fprintf (fp, "#Include = %s/%s\n", REPO_PATH, repo->name);
+			gfpm_write_servers_to_file (repo->name);
+		}
 		else
-			fprintf (fp, "#Include = %s/%s\n", REPO_PATH, repo->name);
+		{
+			/* this repo has to be deleted. so, delete it's servers file too. */
+			gchar *rpfile = NULL;
+			rpfile = g_strdup_printf ("%s/%s", REPO_PATH, repo->name);
+			/* remove only if it exists */
+			if (g_file_test(rpfile, G_FILE_TEST_EXISTS))
+				g_remove (rpfile);
+			g_free (rpfile);
+			del_link = repo;
+		}
 		
-		gfpm_write_servers_to_file (repo->name);
 		/* write the footer */
 		footer = repo->footer;
 		if (footer == NULL)
@@ -466,6 +487,29 @@ gfpm_repomgr_get_repo_input (void)
 	return ret;
 }
 
+static void
+gfpm_repomgr_delete_repo (const char *repo)
+{
+	GList		*rlist = NULL;
+	gfpm_repo_t	*r = NULL;
+	
+	rlist = repolist->list;
+	while (rlist != NULL)
+	{
+		r = rlist->data;
+		if (!strcmp(r->name, repo))
+		{
+			r->delete = TRUE;
+			break;
+		}
+		rlist = g_list_next (rlist);
+	}
+	gfpm_write_config_file ();
+	gfpm_repomgr_populate_repotvw ();
+	
+	return; 
+}
+
 static GList *
 gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 {
@@ -636,6 +680,7 @@ gfpm_repomgr_populate_repolist (void)
 			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
 			n++;
 		}
+		repo_r->delete = FALSE;
 	}
 	repolist->n = n;
 
@@ -1061,6 +1106,26 @@ cb_gfpm_repomgr_btnedit_clicked (GtkButton *button, gpointer data)
 		gtk_tree_model_get (model, &iter, 2, &repo, -1);
 		gfpm_servmanager_show (repo);
 		gfpm_repomgr_set_current_repo (repo);
+	}
+
+	return;
+}
+
+static void
+cb_gfpm_repomgr_btndel_clicked (GtkButton *button, gpointer data)
+{
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeModel		*model;
+	GtkTreeIter		iter;
+	gchar			*repo = NULL;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_repomgr_treeview));
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 2, &repo, -1);
+		if (gfpm_question(_("Confirmation"), _("Are you sure you want to delete this repository ?")) == GTK_RESPONSE_YES)
+			gfpm_repomgr_delete_repo (repo);
+		g_free (repo);
 	}
 
 	return;

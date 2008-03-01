@@ -15,6 +15,7 @@
 
 typedef struct __gfpm_repo_t {
 	gboolean 	enabled;
+	gboolean	delete;
 	GList		*header;
 	char		name[REPONAME_MAX_SIZE+1];
 	GList		*servers;
