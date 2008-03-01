@@ -1,5 +1,19 @@
 VERSION					DESCRIPTION
 ---------------------------------------------------------------------------------------------------------
+1.1.0 Callisto (2008-03-01)		- Added a Repository Manager which allows users to configure their package repositories.
+					  Added a Log Viewer which displays the pacman-g2 system log.
+					  Added a new splash screen (Thanks to masta64 for the artwork)
+					  New and Redesigned package search
+					  BUGFIX (#2812): Fixed tooltip for "Install from File" toolbar button
+					  BUGFIX (#2813): Don't try to remove a NULL package
+					  BUGFIX: Fixed a bug at startup where the default repository was not set to frugalware-current
+					  or frugalware
+					  BUGFIX: Fixed a segfault in the Search function. This occured only when the repository being searched
+					  was same as the current active repo)
+					  Minor enhancements in "Install From File" Dialog
+					  Many more minor fixes
+					  Translation updates: hu_HU, es_ES, da_DK, fr_FR, sv_SE
+					  New Translation: cs_CZ
 1.0.5.1					- Fix a bug where gfpm failed to optimize the package database as the location
 					  of the pacman-g2 database changed to /var/lib/pacman-g2
 1.0.5					- Gfpm should now parse /etc/pacman-g2.conf instead of /etc/pacman.conf
