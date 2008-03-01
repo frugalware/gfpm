@@ -95,7 +95,6 @@ gfpm_db_populate_repolist (void)
 	/* get the list of usable repositories */
 	if (pacman_parse_config (CFG_FILE, _db_callback, "") == -1)
 	{
-		g_error ("error parsing config file");
 		return 1;
 	}
 

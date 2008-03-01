@@ -274,6 +274,10 @@ gfpm_interface_init (void)
 		gfpm_populate_repos_combobox (GTK_COMBO_BOX(gfpm_search_combo));
 		gtk_combo_box_set_active (GTK_COMBO_BOX(gfpm_search_combo), active);
 	}
+	else
+	{
+		gfpm_error ("Error parsing repository information from configuration file.");
+	}
 
 	/* search */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
