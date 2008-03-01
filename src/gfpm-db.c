@@ -92,6 +92,12 @@ _db_callback (char *section, PM_DB *db)
 int
 gfpm_db_populate_repolist (void)
 {
+	if (dblist != NULL)
+	{
+		g_list_free (dblist);
+		dblist = NULL;
+	}
+		
 	/* get the list of usable repositories */
 	if (pacman_parse_config (CFG_FILE, _db_callback, "") == -1)
 	{
