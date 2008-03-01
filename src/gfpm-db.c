@@ -85,7 +85,6 @@ static void
 _db_callback (char *section, PM_DB *db)
 {
 	dblist = g_list_append (dblist, db);
-
 	return;
 }
 
@@ -94,10 +93,13 @@ gfpm_db_populate_repolist (void)
 {
 	if (dblist != NULL)
 	{
-		g_list_free (dblist);
+		/* if the dblist is already populated, the repos are already registered.
+		Hence, to repopulate the dblist, we need to release and re-initialize
+		libpacman or else it won't work */
+		pacman_release ();
+		pacman_initialize ("/");
 		dblist = NULL;
 	}
-		
 	/* get the list of usable repositories */
 	if (pacman_parse_config (CFG_FILE, _db_callback, "") == -1)
 	{

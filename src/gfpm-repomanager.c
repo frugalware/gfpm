@@ -1127,7 +1127,9 @@ cb_gfpm_repomgr_btndel_clicked (GtkButton *button, gpointer data)
 	{
 		gtk_tree_model_get (model, &iter, 2, &repo, -1);
 		if (gfpm_question(_("Confirmation"), _("Are you sure you want to delete this repository ?")) == GTK_RESPONSE_YES)
+		{
 			gfpm_repomgr_delete_repo (repo);
+		}
 		g_free (repo);
 	}
 

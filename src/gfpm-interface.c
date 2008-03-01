@@ -117,13 +117,11 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 	
 	if (init == FALSE)
 	{
-		g_print ("im here\n");
 		store = gtk_list_store_new (1, G_TYPE_STRING);
 		gtk_combo_box_set_model (GTK_COMBO_BOX(combo), GTK_TREE_MODEL(store));
 		renderer = gtk_cell_renderer_text_new ();
 		gtk_cell_layout_pack_start (GTK_CELL_LAYOUT(combo), renderer, TRUE);
 		gtk_cell_layout_set_attributes (GTK_CELL_LAYOUT(combo), renderer, "text", 0, NULL);
-		g_print ("im here\n");
 	}
 	else
 	{
@@ -132,7 +130,6 @@ gfpm_populate_repos_combobox (GtkComboBox *combo)
 		{
 			gtk_list_store_clear (store);
 		}
-
 	}	
 	
 	rlist = gfpm_db_get_repolist ();
