@@ -33,7 +33,7 @@
 extern GtkWidget	*gfpm_mw;
 
 GtkProgressBar		*progressbar = NULL;
-GtkWidget			*progresswindow = NULL;
+GtkWidget		*progresswindow = NULL;
 static GtkWidget	*main_label = NULL;
 static GtkWidget	*sub_label = NULL;
 static GtkWidget	*rate_label = NULL;
@@ -45,7 +45,7 @@ static GtkWidget	*button_close = NULL;
 static GtkWidget	*autoclose_checkbtn = NULL;
 
 GtkTextIter	t_iter;
-GtkTextBuffer *buffer = NULL;
+GtkTextBuffer 	*buffer = NULL;
 
 float	rate;
 int	offset;
@@ -97,7 +97,8 @@ gfpm_progress_init (void)
 static void
 cb_gfpm_close_button_clicked (GtkWidget *button, gpointer data)
 {
-	gfpm_progress_show (FALSE);
+	pacman_trans_release ();
+//	gfpm_progress_show (FALSE);
 
 	return;
 }
@@ -167,13 +168,13 @@ gfpm_progress_show (gboolean show)
 int
 gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 {
-	int				size;
-	int				per;
-	char			text[6];
-	char			rate_text[10];
-	struct timeval 	t1;
-	float 			tdiff;
-	gchar			*rx_str = NULL;
+	int		size;
+	int		per;
+	char		text[6];
+	char		rate_text[10];
+	struct timeval	t1;
+	float 		tdiff;
+	gchar		*rx_str = NULL;
 
 	while (gtk_events_pending())
 		gtk_main_iteration ();
@@ -212,7 +213,6 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	gfpm_progress_set_sub_text (reponame);
 	while (gtk_events_pending())
 		gtk_main_iteration ();
-
 
 	return 1;
 }
