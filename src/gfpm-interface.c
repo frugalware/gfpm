@@ -338,6 +338,10 @@ gfpm_interface_init (void)
 		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_refresh1"), FALSE);
 		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_file1"), FALSE);
 	}
+	else
+	{
+		gfpm_repomanager_init ();
+	}
 
 	/* initialize modules */
 	if (gfpm_db_init ())
@@ -347,7 +351,6 @@ gfpm_interface_init (void)
 	gfpm_optimize_db_dlg_init ();
 	gfpm_quickpane_init ();
 	gfpm_icmonitor_init ();
-	gfpm_repomanager_init ();
 	gfpm_logviewer_init ();
 	
 	gtk_widget_hide (gfpm_splash);
