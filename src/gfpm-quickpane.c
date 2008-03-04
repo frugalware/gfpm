@@ -77,9 +77,9 @@ gfpm_quickpane_init (void)
 	/* Disable the Quick pane Install,Remove,Upgrade buttons if gfpm is not run as root */
 	if (geteuid() != 0)
 	{
-		gtk_widget_set_sensitive ("quick_pane_install_btn", FALSE);
-		gtk_widget_set_sensitive ("quick_pane_remove_btn", FALSE);
-		gtk_widget_set_sensitive ("quick_pane_upgrade_btn", FALSE);
+		gtk_widget_set_sensitive (quick_pane_install_btn, FALSE);
+		gtk_widget_set_sensitive (quick_pane_remove_btn, FALSE);
+		gtk_widget_set_sensitive (quick_pane_upgrade_btn, FALSE);
 	}
 
 	return;
