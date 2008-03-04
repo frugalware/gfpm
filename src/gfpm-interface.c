@@ -334,13 +334,19 @@ gfpm_interface_init (void)
 	/* Disable Apply, Refresh and File buttons if user is not root */
 	if ( geteuid() != 0 )
 	{
+		/* disable some widgets */
 		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_apply"), FALSE);
 		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_refresh1"), FALSE);
 		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_file1"), FALSE);
+		gtk_widget_set_sensitive (gfpm_get_widget("repos"), FALSE);
+		gtk_widget_set_sensitive (gfpm_get_widget("clr1"), FALSE);
+		gtk_widget_set_sensitive (gfpm_get_widget("opt1"), FALSE);
 	}
 	else
 	{
+		/* init repomanager only if gfpm is run as root user */
 		gfpm_repomanager_init ();
+		
 	}
 
 	/* initialize modules */
