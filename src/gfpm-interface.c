@@ -1446,6 +1446,9 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 	if (event->button != 3)
 		return;
 
+	if (geteuid() != 0)
+		return;
+
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	if ( FALSE == gtk_tree_selection_get_selected (selection, &model, &iter) )
@@ -1496,7 +1499,7 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 		g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_mark_for_reinstall), (gpointer)pkgname);
 		gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
 		gtk_widget_show (menu_item);
-		
+
 		menu_item = gtk_image_menu_item_new_with_label (_("Mark for removal"));
 		image = gtk_image_new_from_stock ("gtk-remove", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
