@@ -568,7 +568,7 @@ gfpm_repomgr_populate_repo_info (const char *path, gfpm_repo_t *repo_r)
 	
 	if ((tmp = fopen (path, "r")) == NULL)
 	{
-		gchar *errorstr = g_strdup_printf ("%s for %s %s", _("Error opening repository servers file"), path, _("repository"));
+		gchar *errorstr = g_strdup_printf ("%s : %s.\n%s", _("Error opening"), path, _("This repository will be disabled"));
 		gfpm_error (_("Error opening repository file"), errorstr);
 		g_free (errorstr);
 		return;
@@ -663,7 +663,13 @@ gfpm_repomgr_populate_repolist (void)
 			repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
 			memset (repo_r, 0, sizeof(gfpm_repo_t));
 			gfpm_repomgr_populate_repo_info (str, repo_r);
+			if (!strlen(repo_r->name))
+			{
+				g_free (repo_r);
+				continue;
+			}
 			repo_r->enabled = TRUE;
+			repo_r->delete = FALSE;
 			// and then append it to our repo list
 			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
 			n++;
@@ -675,12 +681,17 @@ gfpm_repomgr_populate_repolist (void)
 			repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
 			memset (repo_r, 0, sizeof(gfpm_repo_t));
 			gfpm_repomgr_populate_repo_info (str, repo_r);
+			if (!strlen(repo_r->name))
+			{
+				g_free (repo_r);
+				continue;
+			}
 			repo_r->enabled = FALSE;
+			repo_r->delete = FALSE;
 			// and then append it to our repo list
 			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
 			n++;
 		}
-		repo_r->delete = FALSE;
 	}
 	repolist->n = n;
 
