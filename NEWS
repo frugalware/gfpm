@@ -1,5 +1,14 @@
 VERSION					DESCRIPTION
 ---------------------------------------------------------------------------------------------------------
+1.1.1					- BUGFIX: Fixed a major bug where Gfpm repository manager failed to save [options] part
+					  of the configuration file resulting in an inconsistent configuration
+					  BUGFIX: In repository manager, while parsing the repositories from the conf file, skip
+					  bad repos. This prevents a segfault.
+					  BUGFIX (#2811): Hide the HELP button until the documentation for Gfpm is ready
+					  BUGFIX (#2814): Changed text of some buttons on the quick pane to make it more clear for the user
+					  Don't allow non-root users to perform certain operations like installing/removing a package,
+					  optimize the database etc.
+					  Fix a segfault when gfpm is run by a non-root user.
 1.1.0 Callisto (2008-03-01)		- Added a Repository Manager which allows users to configure their package repositories.
 					  Added a Log Viewer which displays the pacman-g2 system log.
 					  Added a new splash screen (Thanks to masta64 for the artwork)
