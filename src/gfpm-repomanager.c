@@ -644,20 +644,9 @@ gfpm_repomgr_populate_repolist (void)
 		fwutil_trim (line);
 		if (!strlen(line))
 			continue;
-		else if (line[0] == '#' && line[1] != 'I')
+		else if (line[0] == 'I' && line[1] == 'n')
 		{
-			if (flag == FALSE)
-			{
-				repolist->header = g_list_append (repolist->header, (gpointer) g_strdup(line));
-			}
-			else
-			{
-				repo_r->footer = g_list_append (repo_r->footer, (gpointer) g_strdup(line));
-			}
-			continue;
-		}
-		else if (sscanf(line, "Include = %s", str))
-		{
+			sscanf (line, "Include = %s", str);
 			if (flag == FALSE)
 				flag = TRUE;
 			repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
@@ -674,8 +663,9 @@ gfpm_repomgr_populate_repolist (void)
 			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
 			n++;
 		}
-		else if (sscanf(line, "#Include = %s", str))
+		else if (line[0] == '#' && line[1] == 'I')
 		{
+			sscanf (line, "#Include = %s", str);
 			if (flag == FALSE)
 				flag = TRUE;
 			repo_r = (gfpm_repo_t*)malloc(sizeof(gfpm_repo_t));
@@ -691,6 +681,18 @@ gfpm_repomgr_populate_repolist (void)
 			// and then append it to our repo list
 			repolist->list = g_list_append (repolist->list, (gpointer)repo_r);
 			n++;
+		}
+		else
+		{
+			if (flag == FALSE)
+			{
+				repolist->header = g_list_append (repolist->header, (gpointer) g_strdup(line));
+			}
+			else
+			{
+				repo_r->footer = g_list_append (repo_r->footer, (gpointer) g_strdup(line));
+			}
+			continue;
 		}
 	}
 	repolist->n = n;
