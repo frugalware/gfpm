@@ -98,7 +98,7 @@ static void
 cb_gfpm_close_button_clicked (GtkWidget *button, gpointer data)
 {
 	pacman_trans_release ();
-//	gfpm_progress_show (FALSE);
+	gfpm_progress_show (FALSE);
 
 	return;
 }
