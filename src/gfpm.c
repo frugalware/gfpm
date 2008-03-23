@@ -49,7 +49,7 @@ main (int argc, char *argv[])
 
 	path = g_strdup_printf ("%s%s", PREFIX, UI_FILE);
 
-	if (!(xml=glade_xml_new(path, NULL, "UTF-8")))
+	if (!(xml=glade_xml_new(path, NULL, NULL)))
 	{
 		gfpm_error (_("Interface initialization Failed"), _("Failed to initialize interface"));
 		return 1;
