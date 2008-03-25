@@ -23,6 +23,7 @@
 #include "gfpm-interface.h"
 #include "gfpm-util.h"
 #include <glib.h>
+#include <glib/gstdio.h>
 
 #define CONF_FILE	"/etc/pacman-g2.conf"
 #define REPO_PATH	"/etc/pacman-g2/repos"
