@@ -7,6 +7,6 @@ Terminal=false
 Type=Application
 StartupNotify=true
 Icon=gfpm
-Categories=Application;GTK;Settings;X-GNOME-SystemSettings;
+Categories=Application;GTK;System;
 MimeType=
 OnlyShowIn=GNOME;XFCE;
