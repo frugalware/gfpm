@@ -1215,12 +1215,19 @@ static void
 cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 {
 	gint 	ret;
+	GList	*dbs = NULL;
 	PM_LIST *packages;
 	gchar 	*updatestr = NULL;
 
 	gfpm_progress_set_main_text (_("Synchronizing package databases"), 1);
 	gfpm_progress_show (TRUE);
-	ret = pacman_db_update (0, sync_db);
+	dbs = gfpm_db_get_repolist ();
+	while (dbs != NULL)
+	{
+		PM_DB *tdb = dbs->data;
+		ret = pacman_db_update (0, tdb);
+		dbs = g_list_next (dbs);
+	}
 	gfpm_progress_show (FALSE);
 	/* check for a pacman-g2 update */
 	if (gfpm_check_if_package_updatable ("pacman-g2"))
