@@ -346,7 +346,6 @@ gfpm_interface_init (void)
 	{
 		/* init repomanager only if gfpm is run as root user */
 		gfpm_repomanager_init ();
-		
 	}
 
 	/* initialize modules */

@@ -442,7 +442,6 @@ gfpm_progress_set_sub_text (const char *msg)
 				return;
 		}
 
-
 		str = g_strdup (msg);
 		g_strstrip (str);
 		gtk_label_set_text (GTK_LABEL(sub_label), str);
