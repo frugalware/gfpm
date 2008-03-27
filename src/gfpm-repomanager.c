@@ -266,7 +266,6 @@ gfpm_write_config_file (void)
 	GList		*rlist = NULL;
 	gfpm_repo_t	*repo = NULL;
 	GList		*header = NULL;
-	GList		*del_link = NULL;
 	
 	fp = fopen (CONF_FILE, "w");
 	if (fp == NULL)
@@ -306,7 +305,6 @@ gfpm_write_config_file (void)
 			if (g_file_test(rpfile, G_FILE_TEST_EXISTS))
 				g_remove (rpfile);
 			g_free (rpfile);
-			del_link = repo;
 		}
 		
 		/* write the footer */
