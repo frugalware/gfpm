@@ -13,6 +13,7 @@
 #define FW_CURRENT	"frugalware-current"
 #define FW_STABLE	"frugalware"
 #define FW_LOCAL	"local"
+#define CFG_FILE	"/etc/pacman-g2.conf"
 
 void gfpm_db_register (const char *);
 int gfpm_db_init (void);

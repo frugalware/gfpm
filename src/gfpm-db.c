@@ -19,7 +19,6 @@
  */
 
 #define _GNU_SOURCE
-#define CFG_FILE	"/etc/pacman-g2.conf"
 
 #include <pacman.h>
 #include "gfpm-db.h"
