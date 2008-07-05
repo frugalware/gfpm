@@ -36,19 +36,45 @@ static GList *gfpm_prefs_ignorepkg_list = NULL;
 
 
 static void gfpm_prefs_populate_holdpkg (void);
+static void gfpm_prefs_populate_ignorepkg (void);
+static void gfpm_prefs_populate_holdpkg_tvw (void);
+static void gfpm_prefs_populate_ignorepkg_tvw (void);
 
 void
 gfpm_prefs_init (void)
 {
+	GtkListStore		*store = NULL;
+	GtkCellRenderer		*renderer = NULL;
+	GtkTreeViewColumn	*column = NULL;
+	
 	gfpm_prefs_holdpkg_tvw = gfpm_get_widget ("gfpm_prefs_holdpkg_tvw");
 	gfpm_prefs_ignorepkg_tvw = gfpm_get_widget ("gfpm_prefs_ignorepkg_tvw");
+
+	/* setup ui */
+	store = gtk_list_store_new (1, G_TYPE_STRING);
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Packages"),
+								renderer,
+								"text", 0,
+								NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_column_set_expand (column, TRUE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_prefs_holdpkg_tvw), column);
+	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_prefs_holdpkg_tvw), GTK_TREE_MODEL(store));
+
+	store = gtk_list_store_new (1, G_TYPE_STRING);
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Packages"),
+								renderer,
+								"text", 0,
+								NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_column_set_expand (column, TRUE);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_prefs_ignorepkg_tvw), column);
+	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_prefs_ignorepkg_tvw), GTK_TREE_MODEL(store));
 	
-	gfpm_prefs_populate_holdpkg ();
-	while (gfpm_prefs_holdpkg_list != NULL)
-	{
-		g_print ("%s\n", (char*)gfpm_prefs_holdpkg_list->data);
-		gfpm_prefs_holdpkg_list = gfpm_prefs_holdpkg_list->next;
-	}
+	gfpm_prefs_populate_holdpkg_tvw ();
+	gfpm_prefs_populate_ignorepkg_tvw ();
 
 	return;
 }
@@ -102,6 +128,54 @@ gfpm_prefs_populate_ignorepkg (void)
 		}
 	}
 
+	return;
+}
+
+static void
+gfpm_prefs_populate_holdpkg_tvw (void)
+{
+	GList		*list = NULL;
+	GtkListStore	*store = NULL;
+	GtkTreeModel	*model = NULL;
+	GtkTreeIter	iter;
+	
+	gfpm_prefs_populate_holdpkg ();
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_prefs_holdpkg_tvw));
+	store = GTK_LIST_STORE (model);
+	gtk_list_store_clear (store);
+	
+	list = gfpm_prefs_holdpkg_list;
+	while (list != NULL)
+	{
+		gtk_list_store_append (store, &iter);
+		gtk_list_store_set (store, &iter, 0, (char*)list->data, -1);
+		list = g_list_next (list);
+	}
+	
+	return;
+}
+
+static void
+gfpm_prefs_populate_ignorepkg_tvw (void)
+{
+	GList		*list = NULL;
+	GtkListStore	*store = NULL;
+	GtkTreeModel	*model = NULL;
+	GtkTreeIter	iter;
+	
+	gfpm_prefs_populate_ignorepkg ();
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_prefs_ignorepkg_tvw));
+	store = GTK_LIST_STORE (model);
+	gtk_list_store_clear (store);
+	
+	list = gfpm_prefs_ignorepkg_list;
+	while (list != NULL)
+	{
+		gtk_list_store_append (store, &iter);
+		gtk_list_store_set (store, &iter, 0, (char*)list->data, -1);
+		list = g_list_next (list);
+	}
+	
 	return;
 }
 
