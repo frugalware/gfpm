@@ -448,12 +448,13 @@ gfpm_plist_message (const char *message_title, const char *main_msg, GtkMessageT
 }
 
 char *
-gfpm_input (const char *title, const char *message, int *res)
+gfpm_input (const char *title, const char *message)
 {
 	GtkWidget	*dialog;
 	GtkWidget	*entry;
 	GtkWidget	*label;
 	char		*ret = NULL;
+	gint		response;
 
 	ret = NULL;
 
@@ -475,8 +476,9 @@ gfpm_input (const char *title, const char *message, int *res)
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), label);
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), entry);
 	gtk_widget_show_all (GTK_WIDGET(dialog));
-	*res = gtk_dialog_run (GTK_DIALOG(dialog));
-	ret = (char*)g_strdup(gtk_entry_get_text (GTK_ENTRY(entry)));
+	response = gtk_dialog_run (GTK_DIALOG(dialog));
+	if (response == GTK_RESPONSE_ACCEPT)
+		ret = (char*)g_strdup(gtk_entry_get_text (GTK_ENTRY(entry)));
 	gtk_widget_destroy (GTK_WIDGET(dialog));
 
 	return ret;

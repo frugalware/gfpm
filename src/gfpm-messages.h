@@ -26,7 +26,7 @@ gint gfpm_plist_question (const char *, const char *, GList *);
 
 void gfpm_plist_message (const char *, const char *, GtkMessageType, GList *);
 
-char * gfpm_input (const char *, const char *, int *);
+char * gfpm_input (const char *, const char *);
 
 void cb_gfpm_trans_conv (unsigned char, void *, void *, void *, int *);
 
