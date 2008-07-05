@@ -46,6 +46,7 @@
 #include "gfpm-util.h"
 #include "gfpm-about.h"
 #include "gfpm-db.h"
+#include "gfpm-prefs.h"
 
 extern GladeXML *xml;
 extern PM_DB	*sync_db;
@@ -357,6 +358,7 @@ gfpm_interface_init (void)
 	gfpm_quickpane_init ();
 	gfpm_icmonitor_init ();
 	gfpm_logviewer_init ();
+	gfpm_prefs_init ();
 	
 	gtk_widget_hide (gfpm_splash);
 	title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
