@@ -27,6 +27,7 @@
 #endif
 
 #include "gfpm.h"
+#include "gfpm-config.h"
 #include "gfpm-interface.h"
 #include "gfpm-messages.h"
 #include "gfpm-db.h"
@@ -62,10 +63,11 @@ main (int argc, char *argv[])
 		gfpm_error (_("Error initializing libpacman"), _("Failed to initialize libpacman"));
 		return 1;
 	}
-
+	gfpm_config_init ();
 	gfpm_interface_init ();
 	gtk_main ();
 	gfpm_db_cleanup ();
+	gfpm_config_free ();
 	pacman_release ();
 
 	return 0;

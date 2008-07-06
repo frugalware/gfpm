@@ -35,6 +35,7 @@
 
 #include "gfpm.h"
 #include "gfpm-interface.h"
+#include "gfpm-config.h"
 #include "gfpm-messages.h"
 #include "gfpm-packagelist.h"
 #include "gfpm-progress.h"
@@ -183,58 +184,57 @@ gfpm_get_widget (const char *wname)
 	return (glade_xml_get_widget(xml,wname));	
 }
 
-void
-gfpm_interface_init (void)
+static void
+gfpm_setup_pkgs_tvw (void)
 {
-	GtkWidget		*gfpm_splash;
-	GtkListStore		*store;
-	GtkCellRenderer		*renderer;
-	GtkTreeSelection	*selection;
-	GtkTreeViewColumn	*column;
-	gchar			*title = NULL;
-
-	gfpm_mw		= gfpm_get_widget ("mainwindow");
-	gfpm_splash	= gfpm_get_widget ("splash_window");
-	gfpm_statusbar	= gfpm_get_widget ("statusbar");
-	gtk_widget_show (gfpm_splash);
-	while (gtk_events_pending())
-		gtk_main_iteration ();
-
-	sleep (1);
-	gfpm_groups_tvw = gfpm_get_widget ("grouptreeview");
-	gfpm_pkgs_tvw	= gfpm_get_widget ("pkgstreeview");
-	gfpm_info_tvw	= gfpm_get_widget ("infotreeview");
-	gfpm_files_txtvw = gfpm_get_widget ("filestextview");
-	gfpm_clog_txtvw = gfpm_get_widget ("changelogtextview");
-	gfpm_clrold_opt = gfpm_get_widget ("rem_old_opt");
-	gfpm_clrall_opt = gfpm_get_widget ("rem_all_opt");
-	gfpm_inst_from_file_dlg = gfpm_get_widget ("inst_from_file_dlg");
-	gfpm_inst_filechooser = gfpm_get_widget ("gfpm_inst_filechooser");
-	gfpm_inst_depcheck = gfpm_get_widget ("depcheck");
-	gfpm_inst_upgcheck = gfpm_get_widget ("upgcheck");
-	gfpm_inst_forcheck = gfpm_get_widget ("forcheck");
-	gfpm_apply_inst_depcheck = gfpm_get_widget ("applyinstdepcheck");
-	gfpm_apply_rem_depcheck = gfpm_get_widget ("applyremdepcheck");
-	gfpm_apply_inst_dwocheck = gfpm_get_widget ("applyinstdwcheck");
-	gfpm_search_combo = gfpm_get_widget ("search_repocombo");
-	gfpm_repos_combo = gfpm_get_widget ("combobox_repos");
-
-	/* Setup groups treeview */
-	store = gtk_list_store_new (1, G_TYPE_STRING);
-	renderer = gtk_cell_renderer_text_new ();
-	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_groups_tvw), -1, "Groups", renderer, "text", 0, NULL);
-	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_groups_tvw), GTK_TREE_MODEL(store));
-	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_groups_tvw));
-	g_signal_connect (selection, "changed", G_CALLBACK(cb_gfpm_groups_tvw_selected), NULL);
-
-	/* Setup pkgs treeview */
-	store = gtk_list_store_new (5,
+	guint			cols = 5;
+	gboolean		show_compressed = FALSE;
+	gboolean		show_uncompressed = FALSE;
+	GtkListStore		*store = NULL;
+	GtkTreeViewColumn	*column = NULL;
+	GtkCellRenderer		*renderer = NULL;
+	
+	if (gfpm_config_get_value_bool("show_compressed_size"))
+	{
+		show_compressed = TRUE;
+		cols++;
+	}
+	if (gfpm_config_get_value_bool("show_uncompressed_size"))
+	{
+		show_uncompressed = TRUE;
+		cols++;
+	}
+	if (show_compressed && show_uncompressed)
+	{
+		store = gtk_list_store_new (cols,
+				G_TYPE_BOOLEAN,  /* Install status */
+				GDK_TYPE_PIXBUF, /* Status icon */
+				G_TYPE_STRING,   /* Package name */
+				G_TYPE_STRING,   /* Installed version */
+				G_TYPE_STRING,	 /* Latest version */
+				G_TYPE_STRING,	 /* Compressed size */
+				G_TYPE_STRING);	 /* Uncompressed size */
+	}
+	else
+	if (show_compressed || show_uncompressed)
+	{
+		store = gtk_list_store_new (cols,
+				G_TYPE_BOOLEAN,  /* Install status */
+				GDK_TYPE_PIXBUF, /* Status icon */
+				G_TYPE_STRING,   /* Package name */
+				G_TYPE_STRING,   /* Installed version */
+				G_TYPE_STRING,	 /* Latest version */
+				G_TYPE_STRING);	 /* (Un)Compressed size */
+	}
+	else
+	{
+		store = gtk_list_store_new (cols,
 				G_TYPE_BOOLEAN,  /* Install status */
 				GDK_TYPE_PIXBUF, /* Status icon */
 				G_TYPE_STRING,   /* Package name */
 				G_TYPE_STRING,   /* Installed version */
 				G_TYPE_STRING);   /* Latest version */
-			/*	G_TYPE_STRING);  Package Description */
+	}
 
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
@@ -279,8 +279,78 @@ gfpm_interface_init (void)
 							NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
+	
+	if (show_compressed)
+	{
+		renderer = gtk_cell_renderer_text_new ();
+		column = gtk_tree_view_column_new_with_attributes (_("Compressed Size"),
+								renderer,
+								"text", 5,
+								NULL);
+		gtk_tree_view_column_set_resizable (column, FALSE);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
+	}
+	if (show_uncompressed)
+	{
+		renderer = gtk_cell_renderer_text_new ();
+		column = gtk_tree_view_column_new_with_attributes (_("Uncompressed Size"),
+								renderer,
+								"text", 6,
+								NULL);
+		gtk_tree_view_column_set_resizable (column, FALSE);
+		gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
+	}
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_pkgs_tvw), GTK_TREE_MODEL(store));
+
+	return;
+}
+
+void
+gfpm_interface_init (void)
+{
+	GtkWidget		*gfpm_splash;
+	GtkListStore		*store;
+	GtkCellRenderer		*renderer;
+	GtkTreeSelection	*selection;
+	gchar			*title = NULL;
+
+	gfpm_mw		= gfpm_get_widget ("mainwindow");
+	gfpm_splash	= gfpm_get_widget ("splash_window");
+	gfpm_statusbar	= gfpm_get_widget ("statusbar");
+	gtk_widget_show (gfpm_splash);
+	while (gtk_events_pending())
+		gtk_main_iteration ();
+
+	sleep (1);
+	gfpm_groups_tvw = gfpm_get_widget ("grouptreeview");
+	gfpm_pkgs_tvw	= gfpm_get_widget ("pkgstreeview");
+	gfpm_info_tvw	= gfpm_get_widget ("infotreeview");
+	gfpm_files_txtvw = gfpm_get_widget ("filestextview");
+	gfpm_clog_txtvw = gfpm_get_widget ("changelogtextview");
+	gfpm_clrold_opt = gfpm_get_widget ("rem_old_opt");
+	gfpm_clrall_opt = gfpm_get_widget ("rem_all_opt");
+	gfpm_inst_from_file_dlg = gfpm_get_widget ("inst_from_file_dlg");
+	gfpm_inst_filechooser = gfpm_get_widget ("gfpm_inst_filechooser");
+	gfpm_inst_depcheck = gfpm_get_widget ("depcheck");
+	gfpm_inst_upgcheck = gfpm_get_widget ("upgcheck");
+	gfpm_inst_forcheck = gfpm_get_widget ("forcheck");
+	gfpm_apply_inst_depcheck = gfpm_get_widget ("applyinstdepcheck");
+	gfpm_apply_rem_depcheck = gfpm_get_widget ("applyremdepcheck");
+	gfpm_apply_inst_dwocheck = gfpm_get_widget ("applyinstdwcheck");
+	gfpm_search_combo = gfpm_get_widget ("search_repocombo");
+	gfpm_repos_combo = gfpm_get_widget ("combobox_repos");
+
+	/* Setup groups treeview */
+	store = gtk_list_store_new (1, G_TYPE_STRING);
+	renderer = gtk_cell_renderer_text_new ();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_groups_tvw), -1, "Groups", renderer, "text", 0, NULL);
+	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_groups_tvw), GTK_TREE_MODEL(store));
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_groups_tvw));
+	g_signal_connect (selection, "changed", G_CALLBACK(cb_gfpm_groups_tvw_selected), NULL);
+
+	/* Setup pkgs treeview */
+	gfpm_setup_pkgs_tvw ();
 
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	g_signal_connect(selection, "changed", G_CALLBACK(cb_gfpm_pkgs_tvw_selected), NULL);
