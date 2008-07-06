@@ -667,6 +667,10 @@ gfpm_load_pkgs_tvw (const char *group_name)
 	GdkPixbuf	*icon_ln = NULL;
 	gboolean	check = FALSE;
 	gint		r = 0;
+	float		size = 0;
+	gchar		*tmp = NULL;
+	gboolean	show_compressed = FALSE;
+	gboolean	show_uncompressed = FALSE;
 
 	if (!strcmp(repo,"local"))
 		pm_db = local_db;
@@ -676,6 +680,8 @@ gfpm_load_pkgs_tvw (const char *group_name)
 		r = 1;
 	}
 
+	show_compressed = gfpm_config_get_value_bool ("show_compressed_size");
+	show_uncompressed = gfpm_config_get_value_bool ("show_uncompressed_size");
 	gfpm_update_status (_("Loading package list ..."));
 	pm_group = pacman_db_readgrp (pm_db, (char*)group_name);
 	l = pacman_grp_getinfo (pm_group, PM_GRP_PKGNAMES);
@@ -765,6 +771,25 @@ gfpm_load_pkgs_tvw (const char *group_name)
 						4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
 						//5, g_strstrip((char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC)),
 						-1);
+		}
+		pm_pkg = pacman_db_readpkg (sync_db, g_strstrip((char*)pacman_list_getdata(i)));
+		if (show_compressed)
+		{
+			size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_SIZE)/1024)/1024;
+			asprintf (&tmp, "%0.2f MB", size);
+			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+						5, tmp,
+						-1);
+			g_free (tmp);
+		}
+		if (show_uncompressed)
+		{
+			size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_USIZE)/1024)/1024,
+			asprintf (&tmp, "%0.2f MB", size);
+			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+						(show_compressed)?6:5, tmp,
+						-1);
+			g_free (tmp);
 		}
 		pacman_pkg_free (pm_pkg);
 		pacman_pkg_free (pm_lpkg);
