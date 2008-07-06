@@ -3235,6 +3235,7 @@
                 <property name="label" translatable="yes">gtk-close</property>
                 <property name="use_stock">True</property>
                 <property name="response_id">0</property>
+                <signal name="clicked" handler="gtk_widget_hide" object="gfpm_prefs"/>
               </widget>
             </child>
           </widget>
