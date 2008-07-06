@@ -12,6 +12,7 @@
 
 GtkWidget * gfpm_get_widget (const char *);
 void gfpm_update_status (const char *);
+void gfpm_setup_pkgs_tvw (void);
 void gfpm_load_groups_tvw (const char *);
 void gfpm_load_pkgs_tvw (const char *);
 void gfpm_load_info_tvw (const char *);

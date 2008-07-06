@@ -184,7 +184,7 @@ gfpm_get_widget (const char *wname)
 	return (glade_xml_get_widget(xml,wname));	
 }
 
-static void
+void
 gfpm_setup_pkgs_tvw (void)
 {
 	guint			cols = 5;
@@ -193,6 +193,8 @@ gfpm_setup_pkgs_tvw (void)
 	GtkListStore		*store = NULL;
 	GtkTreeViewColumn	*column = NULL;
 	GtkCellRenderer		*renderer = NULL;
+	gboolean		flag = FALSE;
+	GList			*columns = NULL;
 	
 	if (gfpm_config_get_value_bool("show_compressed_size"))
 	{
@@ -214,17 +216,21 @@ gfpm_setup_pkgs_tvw (void)
 				G_TYPE_STRING,	 /* Latest version */
 				G_TYPE_STRING,	 /* Compressed size */
 				G_TYPE_STRING);	 /* Uncompressed size */
+		flag = TRUE;
 	}
 	else
 	if (show_compressed || show_uncompressed)
 	{
-		store = gtk_list_store_new (cols,
-				G_TYPE_BOOLEAN,  /* Install status */
-				GDK_TYPE_PIXBUF, /* Status icon */
-				G_TYPE_STRING,   /* Package name */
-				G_TYPE_STRING,   /* Installed version */
-				G_TYPE_STRING,	 /* Latest version */
-				G_TYPE_STRING);	 /* (Un)Compressed size */
+		if (!flag)
+		{
+			store = gtk_list_store_new (cols,
+					G_TYPE_BOOLEAN,  /* Install status */
+					GDK_TYPE_PIXBUF, /* Status icon */
+					G_TYPE_STRING,   /* Package name */
+					G_TYPE_STRING,   /* Installed version */
+					G_TYPE_STRING,	 /* Latest version */
+					G_TYPE_STRING);	 /* (Un)Compressed size */
+		}
 	}
 	else
 	{
@@ -236,6 +242,17 @@ gfpm_setup_pkgs_tvw (void)
 				G_TYPE_STRING);   /* Latest version */
 	}
 
+	/* reset previous columns */
+	/* TODO: Fix a memleak here */
+	gtk_list_store_clear (GTK_LIST_STORE(gtk_tree_view_get_model(gfpm_pkgs_tvw)));
+	columns = gtk_tree_view_get_columns (GTK_TREE_VIEW(gfpm_pkgs_tvw));
+	while (columns != NULL)
+	{
+		column = columns->data;
+		gtk_tree_view_remove_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), GTK_TREE_VIEW_COLUMN(column));
+		columns = g_list_next (columns);
+	}
+	
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
 	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_gfpm_pkg_selection_toggled), store);

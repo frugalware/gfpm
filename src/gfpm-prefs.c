@@ -34,11 +34,19 @@ static GtkWidget *gfpm_prefs_ignorepkg_tvw;
 static GList *gfpm_prefs_holdpkg_list = NULL;
 static GList *gfpm_prefs_ignorepkg_list = NULL;
 
+extern gchar *current_group;
 
 static void gfpm_prefs_populate_holdpkg (void);
 static void gfpm_prefs_populate_ignorepkg (void);
 static void gfpm_prefs_populate_holdpkg_tvw (void);
 static void gfpm_prefs_populate_ignorepkg_tvw (void);
+
+static void cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_prefs_ignorepkg_add_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_prefs_holdpkg_remove_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_prefs_ignorepkg_remove_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_prefs_compressed_size_toggled (GtkToggleButton *button, gpointer data);
+static void cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gpointer data);
 
 void
 gfpm_prefs_init (void)
@@ -73,6 +81,26 @@ gfpm_prefs_init (void)
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_prefs_ignorepkg_tvw), column);
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_prefs_ignorepkg_tvw), GTK_TREE_MODEL(store));
 	
+	/* load default values */
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_get_widget("prefs_show_compressed_size_tgl")),
+					gfpm_config_get_value_bool("show_compressed_size"));
+	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_get_widget("prefs_show_uncompressed_size_tgl")),
+					gfpm_config_get_value_bool("show_uncompressed_size"));
+	
+	/* some signals */
+	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_holdpkg_add_btn")), "clicked",
+			G_CALLBACK(cb_gfpm_prefs_holdpkg_add_btn_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_ignorepkg_add_btn")), "clicked",
+			G_CALLBACK(cb_gfpm_prefs_ignorepkg_add_btn_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_holdpkg_remove_btn")), "clicked",
+			G_CALLBACK(cb_gfpm_prefs_holdpkg_remove_btn_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_ignorepkg_remove_btn")), "clicked",
+			G_CALLBACK(cb_gfpm_prefs_ignorepkg_remove_btn_clicked), NULL);
+	g_signal_connect (gfpm_get_widget("prefs_show_compressed_size_tgl"), "toggled",
+			G_CALLBACK(cb_gfpm_prefs_compressed_size_toggled), NULL);
+	g_signal_connect (gfpm_get_widget("prefs_show_uncompressed_size_tgl"), "toggled",
+			G_CALLBACK(cb_gfpm_prefs_uncompressed_size_toggled), NULL);
+
 	gfpm_prefs_populate_holdpkg_tvw ();
 	gfpm_prefs_populate_ignorepkg_tvw ();
 
@@ -176,6 +204,98 @@ gfpm_prefs_populate_ignorepkg_tvw (void)
 		list = g_list_next (list);
 	}
 	
+	return;
+}
+
+static void
+cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer data)
+{
+	char	*pkg = NULL;
+	
+	pkg = gfpm_input (_("Hold Package"), _("Enter the name of the package :"));
+	
+	return;
+}
+
+static void
+cb_gfpm_prefs_ignorepkg_add_btn_clicked (GtkButton *button, gpointer data)
+{
+	char	*pkg = NULL;
+
+	pkg = gfpm_input (_("Ignore Package"), _("Enter the name of the package :"));
+	
+	return;
+}
+
+static void
+cb_gfpm_prefs_holdpkg_remove_btn_clicked (GtkButton *button, gpointer data)
+{
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeModel		*model;
+	GtkTreeIter		iter;
+	gchar			*pkg = NULL;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_prefs_holdpkg_tvw));
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 0, &pkg, -1);
+		
+	}
+	
+	return;
+}
+
+static void
+cb_gfpm_prefs_ignorepkg_remove_btn_clicked (GtkButton *button, gpointer data)
+{
+	GtkTreeSelection	*selection = NULL;
+	GtkTreeModel		*model;
+	GtkTreeIter		iter;
+	gchar			*pkg = NULL;
+
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_prefs_ignorepkg_tvw));
+	if (gtk_tree_selection_get_selected(selection, &model, &iter))
+	{
+		gtk_tree_model_get (model, &iter, 0, &pkg, -1);
+		
+	}
+	
+	return;
+}
+
+static void
+cb_gfpm_prefs_compressed_size_toggled (GtkToggleButton *button, gpointer data)
+{
+	gboolean	check;
+
+	check = gtk_toggle_button_get_active (button);
+
+	/* write settings to config file */
+	gfpm_config_set_value_bool ("show_compressed_size", check);
+	gfpm_config_save ();
+
+	/* re-set package view */
+	gfpm_setup_pkgs_tvw ();
+	gfpm_load_pkgs_tvw (current_group);
+
+	return;
+}
+
+static void
+cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gpointer data)
+{
+	gboolean	check;
+
+	check = gtk_toggle_button_get_active (button);
+
+	/* write settings to config file */
+	gfpm_config_set_value_bool ("show_uncompressed_size", check);
+	gfpm_config_save ();
+
+	/* re-set package view */
+	gfpm_setup_pkgs_tvw ();
+	gfpm_load_pkgs_tvw (current_group);
+
 	return;
 }
 
