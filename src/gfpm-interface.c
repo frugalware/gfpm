@@ -288,6 +288,7 @@ gfpm_setup_pkgs_tvw (void)
 								"text", 5,
 								NULL);
 		gtk_tree_view_column_set_resizable (column, FALSE);
+		gtk_tree_view_column_set_sort_column_id (column, 5);
 		gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 	}
 	if (show_uncompressed)
@@ -295,9 +296,10 @@ gfpm_setup_pkgs_tvw (void)
 		renderer = gtk_cell_renderer_text_new ();
 		column = gtk_tree_view_column_new_with_attributes (_("Uncompressed Size"),
 								renderer,
-								"text", 6,
+								"text", (show_compressed)?6:5,
 								NULL);
 		gtk_tree_view_column_set_resizable (column, FALSE);
+		gtk_tree_view_column_set_sort_column_id (column, (show_compressed)?6:5);
 		gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
 	}
 
