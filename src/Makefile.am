@@ -6,7 +6,9 @@ bin_PROGRAMS=gfpm
 
 ## Gfpm
 gfpm_SOURCES=				\
+			wejpconfig.c 	\
 			gfpm-util.c		\
+			gfpm-config.c	\
 			gfpm-db.c		\
 			gfpm-packagelist.c		\
 			gfpm-progress.c		\
