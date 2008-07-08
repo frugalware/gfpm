@@ -38,10 +38,11 @@ gfpm_pmlist_to_glist (PM_LIST *list)
 	GList	*ret = NULL;
 	PM_LIST *i = NULL;
 
-	if (list == NULL)
-		return ret;
-	for (i=pacman_list_first(list);i;i=pacman_list_next(i))
-		ret = g_list_append (ret, (char*)pacman_list_getdata(i));
+	if (list != NULL)
+	{
+		for (i=pacman_list_first(list);i;i=pacman_list_next(i))
+			ret = g_list_append (ret, (char*)pacman_list_getdata(i));
+	}
 
 	return ret;
 }
