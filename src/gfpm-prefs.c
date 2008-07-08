@@ -41,6 +41,7 @@ static void gfpm_prefs_populate_holdpkg (void);
 static void gfpm_prefs_populate_ignorepkg (void);
 static void gfpm_prefs_populate_holdpkg_tvw (void);
 static void gfpm_prefs_populate_ignorepkg_tvw (void);
+static gboolean gfpm_prefs_write_config (void);
 static gchar* gfpm_prefs_get_logfile_path (void);
 
 static void cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer data);
@@ -133,6 +134,82 @@ gfpm_prefs_populate_holdpkg (void)
 	}
 	
 	return;
+}
+
+static gboolean
+gfpm_prefs_write_config (void)
+{
+	FILE	*fp = NULL;
+	FILE	*tp = NULL;
+	char	line[PATH_MAX+1];
+	
+	fp = fopen (CONF_FILE, "r");
+	if (fp == NULL)
+		return FALSE;
+	tp = tmpfile ();
+	if (tp == NULL)
+	{
+		g_error ("Could not open temporary file");
+		return FALSE;
+	}
+	while (fgets(line,PATH_MAX,fp))
+	{
+		if (line[0]=='#')
+			goto down;
+		if (g_str_has_prefix(line,"LogFile"))
+		{
+			if (gfpm_prefs_logfile != NULL)
+				fprintf (tp, "LogFile = %s\n", gfpm_prefs_logfile);
+			continue;
+		}
+		else
+		if (g_str_has_prefix(line,"HoldPkg"))
+		{
+			GList	*list = NULL;
+			list = gfpm_prefs_holdpkg_list;
+			if (list == NULL)
+				goto hskip;
+			fprintf (tp, "HoldPkg = ");
+			while (list != NULL)
+			{
+				fprintf (tp, "%s ", (char*)list->data);
+				list = g_list_next (list);
+			}
+			hskip:fprintf (tp, "\n");
+			continue;
+		}
+		else
+		if (g_str_has_prefix(line,"IgnorePkg"))
+		{
+			GList	*list = NULL;
+			list = gfpm_prefs_ignorepkg_list;
+			if (list == NULL)
+				goto iskip;
+			fprintf (tp, "IgnorePkg = ");
+			while (list != NULL)
+			{
+				fprintf (tp, "%s ", (char*)list->data);
+				list = g_list_next (list);
+			}
+			iskip:fprintf (tp, "\n");
+			continue;
+		}
+		down:fprintf (tp,line);
+	}
+	rewind (tp);
+	fclose (fp);
+	fp = fopen (CONF_FILE, "w");
+	if (fp == NULL)
+	{
+		g_error ("Error saving configuration");
+		return FALSE;
+	}
+	while (fgets(line,PATH_MAX,tp))
+		fprintf (fp, line);
+	fclose (fp);
+	fclose (tp);
+	
+	return TRUE;
 }
 
 static void
