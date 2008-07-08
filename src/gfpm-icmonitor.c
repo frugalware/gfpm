@@ -19,11 +19,15 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#define MON_DIR	"/usr/share/icons/hicolor"
+
+#include "gfpm-icmonitor.h"
+
+#ifdef HAVE_ICMONITOR
 
 #include <inotifytools/inotifytools.h>
 #include <inotifytools/inotify.h>
-#include "gfpm-icmonitor.h"
+
+#define MON_DIR	"/usr/share/icons/hicolor"
 
 static gboolean changed;
 static gboolean inited;
@@ -137,4 +141,6 @@ gfpm_icmonitor_is_running (void)
 	
 	return TRUE;
 }
+
+#endif
 

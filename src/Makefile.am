@@ -10,6 +10,7 @@ gfpm_SOURCES=				\
 			gfpm-util.c		\
 			gfpm-config.c	\
 			gfpm-db.c		\
+			gfpm-icmonitor.c\
 			gfpm-packagelist.c		\
 			gfpm-progress.c		\
 			gfpm-interface.c \
@@ -17,11 +18,10 @@ gfpm_SOURCES=				\
 			gfpm-optimizedb.c \
 			gfpm-quickpane.c \
 			gfpm-about.c \
-			gfpm-icmonitor.c \
 			gfpm-repomanager.c \
 			gfpm-logviewer.c \
 			gfpm-prefs.c \
 			gfpm.c
 
-gfpm_LDADD= @GFPM_LIBS@ -lpacman -linotifytools -lfwutil
+gfpm_LDADD= @GFPM_LIBS@ $(INOTIFY_LIBS) -lpacman -lfwutil
 

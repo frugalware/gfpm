@@ -445,7 +445,9 @@ gfpm_interface_init (void)
 	gfpm_progress_init ();
 	gfpm_optimize_db_dlg_init ();
 	gfpm_quickpane_init ();
+	#ifdef HAVE_ICMONITOR
 	gfpm_icmonitor_init ();
+	#endif
 	gfpm_logviewer_init ();
 	gfpm_prefs_init ();
 	
@@ -529,8 +531,11 @@ try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) g_print ("pkgs is null.. bad bad bad!\n");
 
-		/* start iconcache montior */
+		#ifdef HAVE_ICMONITOR
+		// start iconcache montior
 		gfpm_icmonitor_start_monitor ();
+		#endif
+		
 		/* commit transaction */
 		ret = gfpm_trans_commit (&pdata);
 
@@ -585,9 +590,11 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		pkgs = pacman_trans_getinfo (PM_TRANS_PACKAGES);
 		if (pkgs == NULL) gfpm_error (_("Error"), _("Error getting transaction info"));
 
+		#ifdef HAVE_ICMONITOR
 		/* start iconcache montior if it wasn't already started */
 		if (gfpm_icmonitor_is_running()==FALSE)
 			gfpm_icmonitor_start_monitor ();
+		#endif
 		/* commit transaction */
 		ret = gfpm_trans_commit (&pdata);
 
@@ -604,12 +611,14 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 	}
 	gfpm_db_reset_localdb ();
 
+	#ifdef HAVE_ICMONITOR
 	gfpm_icmonitor_stop_monitor ();
 	if (gfpm_icmonitor_is_ic_changed() == TRUE)
 	{
 		gfpm_icmonitor_reset_ic ();
 		gfpm_update_iconcache ();
 	}
+	#endif
 	if (current_group != NULL)
 		gfpm_load_pkgs_tvw ((const char*)current_group);
 

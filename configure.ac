@@ -15,10 +15,27 @@ AC_PROG_CC(GCC)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/ioctl.h unistd.h])
 
+AC_ARG_ENABLE(icmonitor,
+    AC_HELP_STRING([  --enable-icmonitor], [Enable iconcache monitor support]), [icmonitor="yes"])
 AC_ARG_ENABLE(werror,
     AC_HELP_STRING([  --enable-werror], [Enable -Werror usage]), [werror="yes"])
 AC_ARG_ENABLE(debug,
     AC_HELP_STRING([  --enable-debug], [Enable debugging support]), [debug="yes"])
+
+dnl Check for Iconcache monitor support
+AC_MSG_CHECKING(for iconcache monitor support)
+if test "x$icmonitor" = "xyes" ; then
+    icmonitor=yes
+    AC_MSG_RESULT(yes)
+	INOTIFY_LIBS="-linotifytools"
+	AC_DEFINE(HAVE_ICMONITOR, 1, [Building with iconcache monitor support])
+else
+	INOTIFY_LIBS=""
+    icmonitor=no
+    AC_MSG_RESULT(no)
+fi
+AC_SUBST([INOTIFY_LIBS])
+AM_CONDITIONAL([HAVE_ICMONITOR],[test $icmonitor = yes])
 
 dnl Check for Werror request
 AC_MSG_CHECKING(for werror usage)
@@ -94,5 +111,6 @@ Gfpm $VERSION configuration summary:
         compiler                 : ${CC}
         compiler flags           : ${CFLAGS}
 	debug support            : ${debug}
+	iconcache monitor        : ${icmonitor}
 	werror usage             : ${werror}
 "

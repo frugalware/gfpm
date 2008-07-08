@@ -1,6 +1,8 @@
 #ifndef __GFPM_ICMONITOR_H__
 #define __GFPM_ICMONITOR_H__
 
+#ifdef HAVE_ICMONITOR
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,3 +25,4 @@ gboolean gfpm_icmonitor_is_running (void);
 
 #endif
 
+#endif /* __GFPM_ICMONITOR_H__ */
