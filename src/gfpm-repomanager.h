@@ -10,8 +10,9 @@
 #include <gtk/gtk.h>
 #include <libfwutil.h>
 
-#define REPONAME_MAX_SIZE 32
-#define SERVER_MAX_SIZE 255
+#define CONF_FILE		"/etc/pacman-g2.conf"
+#define REPONAME_MAX_SIZE	32
+#define SERVER_MAX_SIZE		255
 
 typedef struct __gfpm_repo_t {
 	gboolean 	enabled;
