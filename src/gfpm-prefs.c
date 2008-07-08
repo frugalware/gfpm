@@ -33,7 +33,7 @@ static GtkWidget *gfpm_prefs_ignorepkg_tvw;
 
 static GList *gfpm_prefs_holdpkg_list = NULL;
 static GList *gfpm_prefs_ignorepkg_list = NULL;
-static gchar *gfpm_prefs_logfile = NULL;
+static gchar *gfpm_prefs_logfile_path = NULL;
 
 extern gchar *current_group;
 
@@ -158,8 +158,8 @@ gfpm_prefs_write_config (void)
 			goto down;
 		if (g_str_has_prefix(line,"LogFile"))
 		{
-			if (gfpm_prefs_logfile != NULL)
-				fprintf (tp, "LogFile = %s\n", gfpm_prefs_logfile);
+			if (gfpm_prefs_logfile_path != NULL)
+				fprintf (tp, "LogFile = %s\n", gfpm_prefs_logfile_path);
 			continue;
 		}
 		else
@@ -244,8 +244,8 @@ gfpm_prefs_get_logfile_path (void)
 	FILE	*fp = NULL;
 	char	line[PATH_MAX+1] = "";
 	
-	if (gfpm_prefs_logfile != NULL)
-		g_free (gfpm_prefs_logfile);
+	if (gfpm_prefs_logfile_path != NULL)
+		g_free (gfpm_prefs_logfile_path);
 	fp = fopen (CONF_FILE, "r");
 	if (fp == NULL)
 		return NULL;
@@ -258,12 +258,12 @@ gfpm_prefs_get_logfile_path (void)
 			char *lf = NULL;
 			lf = strtok (line, "=");
 			lf = strtok (NULL, "=");
-			gfpm_prefs_logfile = g_strdup (fwutil_trim(lf));
+			gfpm_prefs_logfile_path = g_strdup (fwutil_trim(lf));
 		}
 	}
 	fclose (fp);
 
-	return gfpm_prefs_logfile;	
+	return gfpm_prefs_logfile_path;	
 }
 
 static void
