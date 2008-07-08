@@ -23,7 +23,7 @@
 #include "gfpm-interface.h"
 #include "gfpm-util.h"
 #include "gfpm-db.h"
-
+#include "gfpm-repomanager.h"
 
 static GtkWidget *gfpm_prefs_log_check;
 static GtkWidget *gfpm_prefs_log_location;
@@ -33,6 +33,7 @@ static GtkWidget *gfpm_prefs_ignorepkg_tvw;
 
 static GList *gfpm_prefs_holdpkg_list = NULL;
 static GList *gfpm_prefs_ignorepkg_list = NULL;
+static gchar *gfpm_prefs_logfile = NULL;
 
 extern gchar *current_group;
 
@@ -40,6 +41,7 @@ static void gfpm_prefs_populate_holdpkg (void);
 static void gfpm_prefs_populate_ignorepkg (void);
 static void gfpm_prefs_populate_holdpkg_tvw (void);
 static void gfpm_prefs_populate_ignorepkg_tvw (void);
+static gchar* gfpm_prefs_get_logfile_path (void);
 
 static void cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_prefs_ignorepkg_add_btn_clicked (GtkButton *button, gpointer data);
@@ -157,6 +159,34 @@ gfpm_prefs_populate_ignorepkg (void)
 	}
 
 	return;
+}
+
+static gchar*
+gfpm_prefs_get_logfile_path (void)
+{
+	FILE	*fp = NULL;
+	char	line[PATH_MAX+1] = "";
+	
+	if (gfpm_prefs_logfile != NULL)
+		g_free (gfpm_prefs_logfile);
+	fp = fopen (CONF_FILE, "r");
+	if (fp == NULL)
+		return NULL;
+	while (fgets(line,PATH_MAX,fp))
+	{
+		if (line[0] == '#')
+			continue;
+		if (g_str_has_prefix(line,"LogFile"))
+		{
+			char *lf = NULL;
+			lf = strtok (line, "=");
+			lf = strtok (NULL, "=");
+			gfpm_prefs_logfile = g_strdup (fwutil_trim(lf));
+		}
+	}
+	fclose (fp);
+
+	return gfpm_prefs_logfile;	
 }
 
 static void
