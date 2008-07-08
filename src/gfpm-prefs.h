@@ -11,5 +11,6 @@
 #include <libfwutil.h>
 
 void gfpm_prefs_init (void);
+void gfpm_prefs_cleanup (void);
 
 #endif

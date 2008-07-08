@@ -314,6 +314,16 @@ gfpm_prefs_populate_ignorepkg_tvw (void)
 	return;
 }
 
+void
+gfpm_prefs_cleanup (void)
+{
+	g_list_free (gfpm_prefs_holdpkg_list);
+	g_list_free (gfpm_prefs_ignorepkg_list);
+	g_free (gfpm_prefs_logfile_path);
+	
+	return;
+}
+
 static void
 cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer data)
 {
