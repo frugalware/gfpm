@@ -10,4 +10,5 @@ src/gfpm-optimizedb.c
 src/gfpm-messages.c
 src/gfpm-logviewer.c
 src/gfpm-repomanager.c
+src/gfpm-prefs.c
 data/gfpm.glade
