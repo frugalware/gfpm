@@ -1,4 +1,72 @@
-Gfpm 1.1.1 README
+Gfpm 1.x.x README
 ==================
 
+GFpm stands for Graphical Frugalware package manager.
+
+Gfpm is NOT merely a front-end to pacman-g2. It uses the libpacman library 
+(provided by pacman-g2) as it's backend. Gfpm is written in C using the
+GTK+2 Toolkit.
+
+Following are some of it's features:
+- Simple, yet feature rich
+- Supports easy management of multiple repositories
+- The repository manager also features a server manager to manage
+  servers for repositories
+- Ability to search packages across multiple repos
+- Features a database optimizer based on pacman-g2-optimize to speed up
+  package operations
+- Built-in log viewer to keep track of package operations
+- Includes a README viewer for packages that install a README.Frugalware
+- Gfpm provides detailed information about a package like group
+  information, size, packager, files etc. It also displays a package's
+  Changelog.
+
+Requirements
+============
+
+Gfpm requires the following packages :
+
+- gtk+2 >= 2.10
+- libglade >= 2.6
+- pacman-g2 >= 3.7.0
+- frugalwareutils >= 0.7.9
+- inotify-tools (optional)
+
+Installation
+============
+
+unpack and run the following command(s):
+
+$ ./configure
+
+If this completes without any errors, run the make command as shown
+below in order to compile gfpm.
+
+$ make
+
+And finally, run make install as root to install gfpm.
+
+$ make install
+
+Read the INSTALL file for more details.
+
+(NOTE: Gfpm includes an experimental component called the 'iconcache monitor' 
+ which monitors the /usr/share/icons directory for changes and updates
+ the hicolor iconcache if the directory is updated by a package
+ operation. This feature was added because some package might install
+ icons in the directory but not update the iconcache. So gfpm takes care
+ of it. If you wish to use/test this component, run the configure script
+ with the --enable-icmonitor argument)
+
+Reporting Bugs
+==============
+
+Report any bug(s) at http://bugs.frugalware.org/ with a detailed
+description and steps to reproduce the bug. Also mention your version of
+gfpm.
+
+Author(s)
+=========
+
+See the AUTHORS file included with this package.
 
