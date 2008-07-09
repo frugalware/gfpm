@@ -25,6 +25,7 @@
 #include "gfpm-db.h"
 #include "gfpm-repomanager.h"
 #include "gfpm-logviewer.h"
+#include "gfpm-config.h"
 
 static GtkWidget *gfpm_prefs_log_check;
 static GtkWidget *gfpm_prefs_log_location;
@@ -135,7 +136,10 @@ gfpm_prefs_populate_holdpkg (void)
 	
 	/* free the old list */
 	if (gfpm_prefs_holdpkg_list != NULL)
+	{
 		g_list_free (gfpm_prefs_holdpkg_list);
+		gfpm_prefs_holdpkg_list = NULL;
+	}
 	
 	/* populate the new list */
 	pacman_parse_config (CFG_FILE, NULL, "");
@@ -292,7 +296,10 @@ gfpm_prefs_populate_ignorepkg (void)
 	
 	/* free the old list */
 	if (gfpm_prefs_ignorepkg_list != NULL)
+	{
 		g_list_free (gfpm_prefs_ignorepkg_list);
+		gfpm_prefs_ignorepkg_list = NULL;
+	}
 	
 	/* populate the new list */
 	pacman_parse_config (CFG_FILE, NULL, "");
@@ -428,7 +435,24 @@ cb_gfpm_prefs_holdpkg_remove_btn_clicked (GtkButton *button, gpointer data)
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
 		gtk_tree_model_get (model, &iter, 0, &pkg, -1);
-		
+		if (pkg!=NULL)
+		{
+			GList	*list = NULL;
+			list = gfpm_prefs_holdpkg_list;
+			while (list != NULL)
+			{
+				/* delete the item from the list if found */
+				if (!strcmp((char*)list->data,pkg))
+				{
+					gfpm_prefs_holdpkg_list = g_list_delete_link (gfpm_prefs_holdpkg_list,
+											list);
+					gfpm_prefs_write_config ();
+					gfpm_prefs_populate_holdpkg_tvw ();
+					break;
+				}
+				list = g_list_next (list);
+			}
+		}
 	}
 	
 	return;
@@ -446,7 +470,25 @@ cb_gfpm_prefs_ignorepkg_remove_btn_clicked (GtkButton *button, gpointer data)
 	if (gtk_tree_selection_get_selected(selection, &model, &iter))
 	{
 		gtk_tree_model_get (model, &iter, 0, &pkg, -1);
-		
+		if (pkg!=NULL)
+		{
+			GList	*list = NULL;
+			list = gfpm_prefs_ignorepkg_list;
+			while (list != NULL)
+			{
+				/* delete the item from the list if found */
+				if (!strcmp((char*)list->data,pkg))
+				{
+					gfpm_prefs_ignorepkg_list = g_list_delete_link (gfpm_prefs_ignorepkg_list,
+											list);
+					gfpm_prefs_write_config ();
+					g_print ("wrote\n");
+					gfpm_prefs_populate_ignorepkg_tvw ();
+					break;
+				}
+				list = g_list_next (list);
+			}
+		}
 	}
 	
 	return;
