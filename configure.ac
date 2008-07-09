@@ -77,10 +77,13 @@ if test "x$have_pacman" = "xno"; then
 	AC_MSG_ERROR([libpacman library not found.])
 fi
 
-AC_CHECK_HEADERS([inotifytools/inotifytools.h], [have_inotify=yes], [have_inotify=no])
-if test "x$have_inotify" = "xno"; then
-	AC_MSG_ERROR([inotifytools library not found.])
+if test "$icmonitor" = "yes"; then
+	AC_CHECK_HEADERS([inotifytools/inotifytools.h], [have_inotify=yes], [have_inotify=no])
+	if test "x$have_inotify" = "xno"; then
+		AC_MSG_ERROR([inotifytools library not found.])
+	fi
 fi
+
 
 pkg_modules="gtk+-2.0 >= 2.12.0 \
 			libglade-2.0 >= 2.6.0 "
