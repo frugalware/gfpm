@@ -9,6 +9,9 @@
 #include <libintl.h>
 #include <gtk/gtk.h>
 
+/* location of pacman-g2.log */
+#define LOG_FILE "/var/log/pacman-g2.log"
+
 void gfpm_logviewer_init (void);
 
 void gfpm_logviewer_show (void);

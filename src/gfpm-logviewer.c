@@ -34,9 +34,6 @@ typedef struct _LogViewItem
 	GList	*children;
 } LogViewItem;
 
-/* location of pacman-g2.log */
-#define LOG_FILE "/var/log/pacman-g2.log"
-
 /* location of datemsk file */
 #define DMK_FILE "/share/gfpm/datemsk"
 
