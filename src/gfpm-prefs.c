@@ -24,6 +24,7 @@
 #include "gfpm-util.h"
 #include "gfpm-db.h"
 #include "gfpm-repomanager.h"
+#include "gfpm-logviewer.h"
 
 static GtkWidget *gfpm_prefs_log_check;
 static GtkWidget *gfpm_prefs_log_location;
@@ -50,6 +51,7 @@ static void cb_gfpm_prefs_holdpkg_remove_btn_clicked (GtkButton *button, gpointe
 static void cb_gfpm_prefs_ignorepkg_remove_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_prefs_compressed_size_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gpointer data);
+static void cb_gfpm_prefs_logging_enable_toggled (GtkToggleButton *button, gpointer data);
 
 void
 gfpm_prefs_init (void)
@@ -60,7 +62,9 @@ gfpm_prefs_init (void)
 	
 	gfpm_prefs_holdpkg_tvw = gfpm_get_widget ("gfpm_prefs_holdpkg_tvw");
 	gfpm_prefs_ignorepkg_tvw = gfpm_get_widget ("gfpm_prefs_ignorepkg_tvw");
-
+	gfpm_prefs_log_check = gfpm_get_widget ("prefs_enable_log_tgl");
+	gfpm_prefs_log_location = gfpm_get_widget ("prefs_log_file_path");
+	
 	/* setup ui */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 	renderer = gtk_cell_renderer_text_new ();
@@ -89,6 +93,16 @@ gfpm_prefs_init (void)
 					gfpm_config_get_value_bool("show_compressed_size"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_get_widget("prefs_show_uncompressed_size_tgl")),
 					gfpm_config_get_value_bool("show_uncompressed_size"));
+	if (gfpm_prefs_get_logfile_path ())
+	{
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_prefs_log_check),TRUE);
+		gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_log_location), gfpm_prefs_logfile_path);
+	}
+	else
+	{
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_prefs_log_check),FALSE);
+		gtk_widget_set_sensitive (gfpm_prefs_log_location, FALSE);
+	}
 	
 	/* some signals */
 	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_holdpkg_add_btn")), "clicked",
@@ -103,10 +117,13 @@ gfpm_prefs_init (void)
 			G_CALLBACK(cb_gfpm_prefs_compressed_size_toggled), NULL);
 	g_signal_connect (gfpm_get_widget("prefs_show_uncompressed_size_tgl"), "toggled",
 			G_CALLBACK(cb_gfpm_prefs_uncompressed_size_toggled), NULL);
+	g_signal_connect (gfpm_get_widget("prefs_enable_log_tgl"), "toggled",
+			G_CALLBACK(cb_gfpm_prefs_logging_enable_toggled), NULL);
 
 	gfpm_prefs_populate_holdpkg_tvw ();
 	gfpm_prefs_populate_ignorepkg_tvw ();
 
+	//printf ("%s\n", gfpm_prefs_get_logfile_path());
 	return;
 }
 
@@ -143,6 +160,10 @@ gfpm_prefs_write_config (void)
 	FILE	*tp = NULL;
 	char	line[PATH_MAX+1];
 	
+	gboolean has_logfile = FALSE;
+	gboolean has_holdpkg = FALSE;
+	gboolean has_ignorepkg = FALSE;
+	
 	fp = fopen (CONF_FILE, "r");
 	if (fp == NULL)
 		return FALSE;
@@ -154,8 +175,59 @@ gfpm_prefs_write_config (void)
 	}
 	while (fgets(line,PATH_MAX,fp))
 	{
+		if (line[0] == '#')
+			continue;
+		if (g_str_has_prefix(line,"LogFile"))
+			has_logfile = TRUE;
+		else
+		if (g_str_has_prefix(line,"HoldPkg"))
+			has_holdpkg = TRUE;
+		else
+		if (g_str_has_prefix(line,"IgnorePkg"))
+			has_ignorepkg = TRUE;
+		else
+			continue;
+	}
+	rewind (fp);
+	while (fgets(line,PATH_MAX,fp))
+	{
 		if (line[0]=='#')
 			goto down;
+		if (g_str_has_prefix(line,"[options]"))
+		{
+			fprintf (tp, line);
+			if (!has_logfile && gfpm_prefs_logfile_path!=NULL)
+			{
+				fprintf (tp, "LogFile = %s\n", gfpm_prefs_logfile_path);
+			}
+			if (!has_holdpkg && gfpm_prefs_holdpkg_list!=NULL)
+			{
+				GList	*list = NULL;
+				list = gfpm_prefs_holdpkg_list;
+				fprintf (tp, "HoldPkg = ");
+				while (list != NULL)
+				{
+					fprintf (tp, "%s ", (char*)list->data);
+					list = g_list_next (list);
+				}
+				fprintf (tp, "\n");
+				continue;
+			}
+			if (!has_ignorepkg && gfpm_prefs_ignorepkg_list!=NULL)
+			{
+				GList	*list = NULL;
+				list = gfpm_prefs_ignorepkg_list;
+				fprintf (tp, "IgnorePkg = ");
+				while (list != NULL)
+				{
+					fprintf (tp, "%s ", (char*)list->data);
+					list = g_list_next (list);
+				}
+				fprintf (tp, "\n");
+				continue;
+			}
+			continue;
+		}
 		if (g_str_has_prefix(line,"LogFile"))
 		{
 			if (gfpm_prefs_logfile_path != NULL)
@@ -412,6 +484,34 @@ cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gpointer data)
 	/* re-set package view */
 	gfpm_setup_pkgs_tvw ();
 	gfpm_load_pkgs_tvw (current_group);
+
+	return;
+}
+
+static void
+cb_gfpm_prefs_logging_enable_toggled (GtkToggleButton *button, gpointer data)
+{
+	gboolean	check;
+
+	check = gtk_toggle_button_get_active (button);
+
+	/* write settings to config file */
+	if (check==FALSE)
+	{
+		gtk_widget_set_sensitive (gfpm_prefs_log_location, FALSE);
+		if (gfpm_prefs_logfile_path!=NULL)
+		{
+			g_free (gfpm_prefs_logfile_path);
+			gfpm_prefs_logfile_path = NULL;
+		}
+	}
+	else
+	{
+		gtk_widget_set_sensitive (gfpm_prefs_log_location, TRUE);
+		gfpm_prefs_logfile_path = g_strdup (LOG_FILE);
+		gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_log_location), gfpm_prefs_logfile_path);
+	}
+	gfpm_prefs_write_config ();
 
 	return;
 }
