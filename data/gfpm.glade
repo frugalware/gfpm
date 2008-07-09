@@ -2802,7 +2802,7 @@
                                   </widget>
                                 </child>
                                 <child>
-                                  <widget class="GtkButton" id="button5">
+                                  <widget class="GtkButton" id="prefs_logpath_edit_btn">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>

@@ -407,9 +407,33 @@ static void
 cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer data)
 {
 	char	*pkg = NULL;
+	GList	*list = NULL;
 	
 	pkg = gfpm_input (_("Hold Package"), _("Enter the name of the package :"));
-	
+	list = gfpm_prefs_holdpkg_list;
+	if (list == NULL)
+	{
+		gfpm_prefs_holdpkg_list = g_list_append (gfpm_prefs_holdpkg_list,
+							pkg);
+	}
+	else
+	{
+		while (list != NULL)
+		{
+			if (!strcmp((char*)list->data,pkg))
+			{
+				gfpm_error (_("Duplicate"), _("This package already exists in the list"));
+				g_free (pkg);
+				return;
+			}
+			list = g_list_next (list);
+		}
+		gfpm_prefs_holdpkg_list = g_list_append (gfpm_prefs_holdpkg_list,
+							pkg);
+	}
+	gfpm_prefs_write_config ();
+	gfpm_prefs_populate_holdpkg_tvw ();
+
 	return;
 }
 
@@ -417,9 +441,33 @@ static void
 cb_gfpm_prefs_ignorepkg_add_btn_clicked (GtkButton *button, gpointer data)
 {
 	char	*pkg = NULL;
+	GList	*list = NULL;
 
 	pkg = gfpm_input (_("Ignore Package"), _("Enter the name of the package :"));
-	
+	list = gfpm_prefs_ignorepkg_list;
+	if (list == NULL)
+	{
+		gfpm_prefs_ignorepkg_list = g_list_append (gfpm_prefs_ignorepkg_list,
+							pkg);
+	}
+	else
+	{
+		while (list != NULL)
+		{
+			if (!strcmp((char*)list->data,pkg))
+			{
+				gfpm_error (_("Duplicate"), _("This package already exists in the list"));
+				g_free (pkg);
+				return;
+			}
+			list = g_list_next (list);
+		}
+		gfpm_prefs_ignorepkg_list = g_list_append (gfpm_prefs_ignorepkg_list,
+							pkg);
+	}
+	gfpm_prefs_write_config ();
+	gfpm_prefs_populate_ignorepkg_tvw ();
+
 	return;
 }
 
@@ -482,7 +530,6 @@ cb_gfpm_prefs_ignorepkg_remove_btn_clicked (GtkButton *button, gpointer data)
 					gfpm_prefs_ignorepkg_list = g_list_delete_link (gfpm_prefs_ignorepkg_list,
 											list);
 					gfpm_prefs_write_config ();
-					g_print ("wrote\n");
 					gfpm_prefs_populate_ignorepkg_tvw ();
 					break;
 				}
