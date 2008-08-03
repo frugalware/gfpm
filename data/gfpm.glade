@@ -2806,9 +2806,28 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="label" translatable="yes">gtk-edit</property>
-                                    <property name="use_stock">True</property>
                                     <property name="response_id">0</property>
+                                    <child>
+                                      <widget class="GtkHBox" id="hbox24">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <widget class="GtkImage" id="image15">
+                                            <property name="visible">True</property>
+                                            <property name="xpad">2</property>
+                                            <property name="stock">gtk-edit</property>
+                                          </widget>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkLabel" id="label43">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">Change</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                    </child>
                                   </widget>
                                   <packing>
                                     <property name="expand">False</property>
@@ -2985,7 +3004,7 @@
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="xalign">0</property>
                     <property name="yalign">0</property>
-                    <property name="label" translatable="yes">Description of Hold Packages</property>
+                    <property name="label" translatable="yes">Issue a warning before removal of the following packages</property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
@@ -3078,7 +3097,7 @@
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="xalign">0</property>
                     <property name="yalign">0</property>
-                    <property name="label" translatable="yes">Description of Ignore Packages</property>
+                    <property name="label" translatable="yes">Ignore any upgrades for the following packages</property>
                   </widget>
                   <packing>
                     <property name="expand">False</property>
