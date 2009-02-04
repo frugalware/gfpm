@@ -470,7 +470,11 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 			flags |= PM_TRANS_FLAG_NODEPS;
 
 		/* create transaction */
-try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE, flags, gfpm_progress_event, cb_gfpm_trans_conv, gfpm_progress_install) == -1)
+		try: if (pacman_trans_init(PM_TRANS_TYPE_REMOVE,
+					flags,
+					gfpm_progress_event,
+					cb_gfpm_trans_conv,
+					gfpm_progress_install) == -1)
 		{
 			gchar *str;
 			str = g_strdup_printf (_("Failed to init transaction (%s)\n"), pacman_strerror(pm_errno));
@@ -1251,7 +1255,10 @@ gfpm_trans_prepare (PM_LIST *list)
 static gint
 gfpm_trans_commit (PM_LIST **list)
 {
-	if (pacman_trans_commit(list) == -1)
+	int error; 
+	
+	error = pacman_trans_commit (list);
+	if (error == -1)
 	{
 		PM_LIST *i;
 		GList	*pkgs = NULL;
@@ -1292,7 +1299,12 @@ gfpm_trans_commit (PM_LIST **list)
 							GTK_MESSAGE_ERROR,
 							pkgs);
 			}
+			case PM_ERR_RETRIEVE:
+			{
+				gfpm_error (_("Download Failed"), _("Failed to retrieve packages."));
+			}
 		}
+		pacman_trans_release ();
 		return -1;
 	}
 	else

@@ -53,6 +53,8 @@ int	xferred1;
 struct 	timeval	t0, t;
 char 	reponame[PM_DLFNM_LEN+1];
 
+gboolean cancelled = FALSE;
+
 static void gfpm_progress_textview_reset (void);
 
 /* callbacks */
@@ -98,7 +100,8 @@ static void
 cb_gfpm_close_button_clicked (GtkWidget *button, gpointer data)
 {
 	pacman_trans_release ();
-	gfpm_progress_show (FALSE);
+//	gfpm_progress_show (FALSE);
+	cancelled = TRUE;
 
 	return;
 }
@@ -175,6 +178,12 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	struct timeval	t1;
 	float 		tdiff;
 	gchar		*rx_str = NULL;
+
+	if (cancelled)
+	{
+		cancelled = FALSE;
+		return 0;
+	}
 
 	while (gtk_events_pending())
 		gtk_main_iteration ();
@@ -411,15 +420,15 @@ gfpm_progress_set_main_text (const char *msg, int txt)
 	
 		if (txt)
 		{
-		if (prev_msg != NULL)
-		{
-			if (!strcmp(prev_msg, msg))
-				return;
-		}
-		gtk_text_buffer_insert (buffer, &t_iter, nstr, strlen(nstr));
-		g_free (prev_msg);
-		prev_msg = g_strdup_printf (msg);
-		g_free (nstr);
+			if (prev_msg != NULL)
+			{
+				if (!strcmp(prev_msg, msg))
+					return;
+			}
+			gtk_text_buffer_insert (buffer, &t_iter, nstr, strlen(nstr));
+			g_free (prev_msg);
+			prev_msg = g_strdup_printf (msg);
+			g_free (nstr);
 		}
 	}
 
