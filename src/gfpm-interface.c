@@ -280,6 +280,7 @@ gfpm_setup_pkgs_tvw (void)
 	gtk_tree_view_column_set_expand (column, TRUE);
 	gtk_tree_view_column_set_min_width (column, 140);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
+	gtk_tree_view_column_set_sort_column_id (column, 2);
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Installed Version"),
