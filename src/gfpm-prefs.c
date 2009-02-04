@@ -551,10 +551,7 @@ cb_gfpm_prefs_compressed_size_toggled (GtkToggleButton *button, gpointer data)
 	/* write settings to config file */
 	gfpm_config_set_value_bool ("show_compressed_size", check);
 	gfpm_config_save ();
-
-	/* re-set package view */
-	gfpm_setup_pkgs_tvw ();
-	gfpm_load_pkgs_tvw (current_group);
+	gfpm_pkgs_show_compressed_size (check);
 
 	return;
 }
@@ -569,10 +566,7 @@ cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gpointer data)
 	/* write settings to config file */
 	gfpm_config_set_value_bool ("show_uncompressed_size", check);
 	gfpm_config_save ();
-
-	/* re-set package view */
-	gfpm_setup_pkgs_tvw ();
-	gfpm_load_pkgs_tvw (current_group);
+	gfpm_pkgs_show_uncompressed_size (check);
 
 	return;
 }

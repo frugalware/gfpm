@@ -69,6 +69,16 @@ GtkWidget *gfpm_pkgs_tvw = NULL;
 /* indicates that the repos were initied atleast once */
 gboolean init = FALSE;
 
+enum gfpm_cols {
+	COL_PKG_STATUS,
+	COL_PKG_ICON,
+	COL_PKG_NAME,
+	COL_PKG_VER_INSTALLED,
+	COL_PKG_VER_LATEST,
+	COL_PKG_SIZE_COMPRESSED,
+	COL_PKG_SIZE_UNCOMPRESSED
+};
+
 static GtkWidget *gfpm_statusbar = NULL;
 static GtkWidget *gfpm_groups_tvw = NULL;
 static GtkWidget *gfpm_info_tvw = NULL;
@@ -86,6 +96,8 @@ static GtkWidget *gfpm_apply_inst_dwocheck;
 static GtkWidget *gfpm_apply_rem_depcheck;
 static GtkWidget *gfpm_search_combo;
 static GtkWidget *gfpm_repos_combo;
+static GtkWidget *gfpm_compressed_size_col;
+static GtkWidget *gfpm_uncompressed_size_col;
 
 static guint gfpm_populate_repos_combobox (GtkComboBox *combo);
 static void cb_gfpm_repos_combo_changed (GtkComboBox *combo, gpointer data);
@@ -187,28 +199,23 @@ gfpm_get_widget (const char *wname)
 void
 gfpm_setup_pkgs_tvw (void)
 {
-	guint			cols = 5;
+	guint			cols = 7;
 	gboolean		show_compressed = FALSE;
 	gboolean		show_uncompressed = FALSE;
 	GtkListStore		*store = NULL;
 	GtkTreeViewColumn	*column = NULL;
 	GtkCellRenderer		*renderer = NULL;
-	gboolean		flag = FALSE;
 	GList			*columns = NULL;
 	
 	if (gfpm_config_get_value_bool("show_compressed_size"))
 	{
 		show_compressed = TRUE;
-		cols++;
 	}
 	if (gfpm_config_get_value_bool("show_uncompressed_size"))
 	{
 		show_uncompressed = TRUE;
-		cols++;
 	}
-	if (show_compressed && show_uncompressed)
-	{
-		store = gtk_list_store_new (cols,
+	store = gtk_list_store_new (cols,
 				G_TYPE_BOOLEAN,  /* Install status */
 				GDK_TYPE_PIXBUF, /* Status icon */
 				G_TYPE_STRING,   /* Package name */
@@ -216,49 +223,13 @@ gfpm_setup_pkgs_tvw (void)
 				G_TYPE_STRING,	 /* Latest version */
 				G_TYPE_STRING,	 /* Compressed size */
 				G_TYPE_STRING);	 /* Uncompressed size */
-		flag = TRUE;
-	}
-	else
-	if (show_compressed || show_uncompressed)
-	{
-		if (!flag)
-		{
-			store = gtk_list_store_new (cols,
-					G_TYPE_BOOLEAN,  /* Install status */
-					GDK_TYPE_PIXBUF, /* Status icon */
-					G_TYPE_STRING,   /* Package name */
-					G_TYPE_STRING,   /* Installed version */
-					G_TYPE_STRING,	 /* Latest version */
-					G_TYPE_STRING);	 /* (Un)Compressed size */
-		}
-	}
-	else
-	{
-		store = gtk_list_store_new (cols,
-				G_TYPE_BOOLEAN,  /* Install status */
-				GDK_TYPE_PIXBUF, /* Status icon */
-				G_TYPE_STRING,   /* Package name */
-				G_TYPE_STRING,   /* Installed version */
-				G_TYPE_STRING);   /* Latest version */
-	}
-
-	/* reset previous columns */
-	/* TODO: Fix a memleak here */
-	gtk_list_store_clear (GTK_LIST_STORE(gtk_tree_view_get_model(gfpm_pkgs_tvw)));
-	columns = gtk_tree_view_get_columns (GTK_TREE_VIEW(gfpm_pkgs_tvw));
-	while (columns != NULL)
-	{
-		column = columns->data;
-		gtk_tree_view_remove_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), GTK_TREE_VIEW_COLUMN(column));
-		columns = g_list_next (columns);
-	}
 	
 	renderer = gtk_cell_renderer_toggle_new ();
 	g_object_set (G_OBJECT(renderer), "activatable", TRUE, NULL);
 	g_signal_connect (renderer, "toggled", G_CALLBACK(cb_gfpm_pkg_selection_toggled), store);
 	column = gtk_tree_view_column_new_with_attributes (_("S"),
 							renderer,
-							"active", 0,
+							"active", COL_PKG_STATUS,
 							NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
@@ -266,7 +237,7 @@ gfpm_setup_pkgs_tvw (void)
 	renderer = gtk_cell_renderer_pixbuf_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Status"),
 							renderer,
-							"pixbuf", 1,
+							"pixbuf", COL_PKG_ICON,
 							NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
@@ -274,18 +245,18 @@ gfpm_setup_pkgs_tvw (void)
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Package Name"),
 							renderer,
-							"text", 2,
+							"text", COL_PKG_NAME,
 							NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_column_set_expand (column, TRUE);
 	gtk_tree_view_column_set_min_width (column, 140);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
-	gtk_tree_view_column_set_sort_column_id (column, 2);
+	gtk_tree_view_column_set_sort_column_id (column, COL_PKG_NAME);
 
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Installed Version"),
 							renderer,
-							"text", 3,
+							"text", COL_PKG_VER_INSTALLED,
 							NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
@@ -293,33 +264,32 @@ gfpm_setup_pkgs_tvw (void)
 	renderer = gtk_cell_renderer_text_new ();
 	column = gtk_tree_view_column_new_with_attributes (_("Latest Version"),
 							renderer,
-							"text", 4,
+							"text", COL_PKG_VER_LATEST,
 							NULL);
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
+
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Compressed Size"),
+							renderer,
+							"text", COL_PKG_SIZE_COMPRESSED,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+	gtk_tree_view_column_set_sort_column_id (column, COL_PKG_SIZE_COMPRESSED);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
+	gfpm_compressed_size_col = column;
+	gfpm_pkgs_show_compressed_size (show_compressed);
 	
-	if (show_compressed)
-	{
-		renderer = gtk_cell_renderer_text_new ();
-		column = gtk_tree_view_column_new_with_attributes (_("Compressed Size"),
-								renderer,
-								"text", 5,
-								NULL);
-		gtk_tree_view_column_set_resizable (column, FALSE);
-		gtk_tree_view_column_set_sort_column_id (column, 5);
-		gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
-	}
-	if (show_uncompressed)
-	{
-		renderer = gtk_cell_renderer_text_new ();
-		column = gtk_tree_view_column_new_with_attributes (_("Uncompressed Size"),
-								renderer,
-								"text", (show_compressed)?6:5,
-								NULL);
-		gtk_tree_view_column_set_resizable (column, FALSE);
-		gtk_tree_view_column_set_sort_column_id (column, (show_compressed)?6:5);
-		gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
-	}
+	renderer = gtk_cell_renderer_text_new ();
+	column = gtk_tree_view_column_new_with_attributes (_("Uncompressed Size"),
+							renderer,
+							"text", COL_PKG_SIZE_UNCOMPRESSED,
+							NULL);
+	gtk_tree_view_column_set_resizable (column, FALSE);
+//	gtk_tree_view_column_set_sort_column_id (column, (show_compressed)?6:5);
+	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
+	gfpm_uncompressed_size_col = column;
+	gfpm_pkgs_show_uncompressed_size (show_uncompressed);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_pkgs_tvw), GTK_TREE_MODEL(store));
 
@@ -800,24 +770,21 @@ gfpm_load_pkgs_tvw (const char *group_name)
 						-1);
 		}
 		pm_pkg = pacman_db_readpkg (sync_db, g_strstrip((char*)pacman_list_getdata(i)));
-		if (show_compressed)
-		{
-			size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_SIZE)/1024)/1024;
-			asprintf (&tmp, "%0.2f MB", size);
-			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						5, tmp,
+		
+		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_SIZE)/1024)/1024;
+		asprintf (&tmp, "%0.2f MB", size);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+							COL_PKG_SIZE_COMPRESSED, tmp,
 						-1);
-			g_free (tmp);
-		}
-		if (show_uncompressed)
-		{
-			size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_USIZE)/1024)/1024,
-			asprintf (&tmp, "%0.2f MB", size);
-			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-						(show_compressed)?6:5, tmp,
-						-1);
-			g_free (tmp);
-		}
+		g_free (tmp);
+		
+		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_USIZE)/1024)/1024,
+		asprintf (&tmp, "%0.2f MB", size);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+					COL_PKG_SIZE_UNCOMPRESSED, tmp,
+					-1);
+		g_free (tmp);
+
 		pacman_pkg_free (pm_pkg);
 		pacman_pkg_free (pm_lpkg);
 		while (gtk_events_pending()) gtk_main_iteration ();
@@ -1332,6 +1299,20 @@ gfpm_trans_commit (PM_LIST **list)
 	{
 		return 0;
 	}
+}
+
+void
+gfpm_pkgs_show_compressed_size (gboolean check)
+{
+	gtk_tree_view_column_set_visible (GTK_TREE_VIEW_COLUMN(gfpm_compressed_size_col),
+					check);	
+}
+
+void
+gfpm_pkgs_show_uncompressed_size (gboolean check)
+{
+	gtk_tree_view_column_set_visible (GTK_TREE_VIEW_COLUMN(gfpm_uncompressed_size_col),
+					check);
 }
 
 /* CALLBACKS */
