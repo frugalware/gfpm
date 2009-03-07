@@ -536,7 +536,7 @@ gfpm_prefs_cleanup (void)
 	if (gfpm_prefs_logfile_path)
 		g_free (gfpm_prefs_logfile_path);
 	if (gfpm_prefs_proxy_server)
-		g_free (gfpm_prefs_logfile_path);
+		g_free (gfpm_prefs_proxy_server);
 	if (gfpm_prefs_cache_dir)
 		g_free (gfpm_prefs_cache_dir);
 	if (gfpm_prefs_database_path)
