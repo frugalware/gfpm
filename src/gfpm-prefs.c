@@ -32,6 +32,8 @@ static GtkWidget *gfpm_prefs_log_location;
 static GtkWidget *gfpm_prefs_cache_dir_entry;
 static GtkWidget *gfpm_prefs_database_path_entry;
 static GtkWidget *gfpm_prefs_maxtries_spin;
+static GtkWidget *gfpm_prefs_upg_delay_spin;
+static GtkWidget *gfpm_prefs_old_delay_spin;
 static GtkWidget *gfpm_prefs_proxy_enable_check;
 static GtkWidget *gfpm_prefs_proxy_server_entry;
 
@@ -45,6 +47,8 @@ static gchar *gfpm_prefs_database_path = NULL;
 static gchar *gfpm_prefs_cache_dir = NULL;
 static gchar *gfpm_prefs_proxy_server = NULL;
 static guint gfpm_prefs_max_tries = 0;
+static guint gfpm_prefs_upg_delay = 0;
+static guint gfpm_prefs_old_delay = 0;
 
 extern gchar *current_group;
 
@@ -67,6 +71,8 @@ static void cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gp
 static void cb_gfpm_prefs_logging_enable_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_proxy_enable_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_maxtries_value_changed (GtkSpinButton *button, gpointer data);
+static void cb_gfpm_prefs_upgdelay_value_changed (GtkSpinButton *button, gpointer data);
+static void cb_gfpm_prefs_olddelay_value_changed (GtkSpinButton *button, gpointer data);
 
 #define DEFAULT_CACHEDIR	"/var/cache/pacman"
 #define DEFAULT_DBPATH		"/var/lib/pacman"
@@ -156,6 +162,24 @@ gfpm_prefs_init (void)
 		g_free (temp);
 	}
 	
+	/* get upgrade delay and old delay */
+	gfpm_prefs_upg_delay_spin = gfpm_get_widget ("prefs_upg_delay_spin");
+	gfpm_prefs_old_delay_spin = gfpm_get_widget ("prefs_old_delay_spin");
+	temp = gfpm_prefs_get_value_for_key ("UpgradeDelay");
+	if (temp)
+	{
+		gfpm_prefs_upg_delay = atoi (temp);
+		gtk_spin_button_set_value (GTK_SPIN_BUTTON(gfpm_prefs_upg_delay_spin), gfpm_prefs_upg_delay);
+		g_free (temp);
+	}
+	temp = gfpm_prefs_get_value_for_key ("OldDelay");
+	if (temp)
+	{
+		gfpm_prefs_old_delay = atoi (temp);
+		gtk_spin_button_set_value (GTK_SPIN_BUTTON(gfpm_prefs_old_delay_spin), gfpm_prefs_old_delay);
+		g_free (temp);
+	}
+	
 	/* get proxy info */
 	gfpm_prefs_proxy_server = gfpm_prefs_get_value_for_key ("ProxyServer");
 	if (gfpm_prefs_proxy_server)
@@ -187,6 +211,10 @@ gfpm_prefs_init (void)
 			G_CALLBACK(cb_gfpm_prefs_proxy_enable_toggled), NULL);
 	g_signal_connect (gfpm_prefs_maxtries_spin, "value-changed",
 			G_CALLBACK(cb_gfpm_prefs_maxtries_value_changed), NULL);
+	g_signal_connect (gfpm_prefs_upg_delay_spin, "value-changed",
+			G_CALLBACK(cb_gfpm_prefs_upgdelay_value_changed), NULL);
+	g_signal_connect (gfpm_prefs_old_delay_spin, "value-changed",
+			G_CALLBACK(cb_gfpm_prefs_olddelay_value_changed), NULL);
 	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_logpath_edit_btn")), "clicked",
 			G_CALLBACK(cb_gfpm_prefs_edit_logpath_btn_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_database_edit_btn")), "clicked",
@@ -243,6 +271,8 @@ gfpm_prefs_write_config (void)
 	gboolean has_ignorepkg = FALSE;
 	gboolean has_proxy = FALSE;
 	gboolean has_maxtries = FALSE;
+	gboolean has_upgdelay = FALSE;
+	gboolean has_olddelay = FALSE;
 	
 	fp = fopen (CONF_FILE, "r");
 	if (fp == NULL)
@@ -277,6 +307,12 @@ gfpm_prefs_write_config (void)
 		else
 		if (g_str_has_prefix(line,"MaxTries"))
 			has_maxtries = TRUE;
+		else
+		if (g_str_has_prefix(line,"UpgradeDelay"))
+			has_upgdelay = TRUE;
+		else
+		if (g_str_has_prefix(line,"OldDelay"))
+			has_olddelay = TRUE;
 		continue;
 	}
 	rewind (fp);
@@ -337,6 +373,18 @@ gfpm_prefs_write_config (void)
 			if (!has_maxtries)
 			{
 				fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
+				fprintf (tp, "\n");
+				continue;
+			}
+			if (!has_upgdelay)
+			{
+				fprintf (tp, "UpgradeDelay = %d\n", gfpm_prefs_upg_delay);
+				fprintf (tp, "\n");
+				continue;
+			}
+			if (!has_olddelay)
+			{
+				fprintf (tp, "OldDelay = %d\n", gfpm_prefs_old_delay);
 				fprintf (tp, "\n");
 				continue;
 			}
@@ -403,6 +451,18 @@ gfpm_prefs_write_config (void)
 		if (g_str_has_prefix(line,"MaxTries"))
 		{
 			fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
+			continue;
+		}
+		else
+		if (g_str_has_prefix(line,"UpgradeDelay"))
+		{
+			fprintf (tp, "UpgradeDelay = %d\n", gfpm_prefs_upg_delay);
+			continue;
+		}
+		else
+		if (g_str_has_prefix(line,"OldDelay"))
+		{
+			fprintf (tp, "OldDelay = %d\n", gfpm_prefs_old_delay);
 			continue;
 		}
 		down:fprintf (tp,line);
@@ -790,6 +850,20 @@ cb_gfpm_prefs_maxtries_value_changed (GtkSpinButton *button, gpointer data)
 	gfpm_prefs_write_config ();
 	
 	return;
+}
+
+static void
+cb_gfpm_prefs_upgdelay_value_changed (GtkSpinButton *button, gpointer data)
+{
+	gfpm_prefs_upg_delay = gtk_spin_button_get_value (button);
+	gfpm_prefs_write_config ();
+}
+
+static void
+cb_gfpm_prefs_olddelay_value_changed (GtkSpinButton *button, gpointer data)
+{
+	gfpm_prefs_old_delay = gtk_spin_button_get_value (button);
+	gfpm_prefs_write_config ();
 }
 
 static void
