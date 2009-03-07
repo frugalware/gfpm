@@ -308,6 +308,12 @@ gfpm_interface_init (void)
 	gfpm_mw		= gfpm_get_widget ("mainwindow");
 	gfpm_splash	= gfpm_get_widget ("splash_window");
 	gfpm_statusbar	= gfpm_get_widget ("statusbar");
+	
+	/* set application icon */
+	GdkPixbuf *icon = gfpm_get_icon ("gfpm", 32);
+	gtk_window_set_icon (GTK_WINDOW(gfpm_mw), icon);
+	g_object_unref (icon);
+	
 	gtk_widget_show (gfpm_splash);
 	while (gtk_events_pending())
 		gtk_main_iteration ();
