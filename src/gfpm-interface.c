@@ -405,9 +405,11 @@ gfpm_interface_init (void)
 		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_apply"), FALSE);
 		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_refresh1"), FALSE);
 		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_file1"), FALSE);
-		gtk_widget_set_sensitive (gfpm_get_widget("repos"), FALSE);
+		gtk_widget_set_sensitive (gfpm_get_widget("button_preferences"), FALSE);
+		gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_repos"), FALSE);
+		gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_prefs"), FALSE);
 		gtk_widget_set_sensitive (gfpm_get_widget("clr1"), FALSE);
-		gtk_widget_set_sensitive (gfpm_get_widget("opt1"), FALSE);
+		gtk_widget_set_sensitive (gfpm_get_widget("menu_tools_optimize"), FALSE);
 	}
 	else
 	{
