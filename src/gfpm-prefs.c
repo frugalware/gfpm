@@ -59,6 +59,9 @@ static void cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer d
 static void cb_gfpm_prefs_ignorepkg_add_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_prefs_holdpkg_remove_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_prefs_ignorepkg_remove_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_prefs_edit_logpath_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_prefs_edit_cachedir_btn_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_prefs_edit_database_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_prefs_compressed_size_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_logging_enable_toggled (GtkToggleButton *button, gpointer data);
@@ -132,17 +135,17 @@ gfpm_prefs_init (void)
 	if (gfpm_prefs_database_path == NULL)
 	{
 		gfpm_prefs_database_path = g_strdup (DEFAULT_DBPATH);
-		gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_database_path_entry), gfpm_prefs_database_path);
 	}
+	gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_database_path_entry), gfpm_prefs_database_path);
 	
 	/* get package cache path */
 	gfpm_prefs_cache_dir = gfpm_prefs_get_value_for_key ("CacheDir");
 	if (gfpm_prefs_cache_dir == NULL)
 	{
 		gfpm_prefs_cache_dir = g_strdup (DEFAULT_CACHEDIR);
-		gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_cache_dir_entry), gfpm_prefs_cache_dir);
 	}
-	
+	gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_cache_dir_entry), gfpm_prefs_cache_dir);
+
 	/* get max tries */
 	gfpm_prefs_maxtries_spin = gfpm_get_widget ("prefs_max_retries");
 	temp = gfpm_prefs_get_value_for_key ("MaxTries");
@@ -165,7 +168,6 @@ gfpm_prefs_init (void)
 		gtk_widget_set_sensitive (gfpm_prefs_proxy_server_entry, FALSE);
 	}
 	
-	
 	/* some signals */
 	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_holdpkg_add_btn")), "clicked",
 			G_CALLBACK(cb_gfpm_prefs_holdpkg_add_btn_clicked), NULL);
@@ -185,6 +187,12 @@ gfpm_prefs_init (void)
 			G_CALLBACK(cb_gfpm_prefs_proxy_enable_toggled), NULL);
 	g_signal_connect (gfpm_prefs_maxtries_spin, "value-changed",
 			G_CALLBACK(cb_gfpm_prefs_maxtries_value_changed), NULL);
+	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_logpath_edit_btn")), "clicked",
+			G_CALLBACK(cb_gfpm_prefs_edit_logpath_btn_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_database_edit_btn")), "clicked",
+			G_CALLBACK(cb_gfpm_prefs_edit_database_btn_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_cache_edit_btn")), "clicked",
+			G_CALLBACK(cb_gfpm_prefs_edit_cachedir_btn_clicked), NULL);
 
 	gfpm_prefs_populate_holdpkg_tvw ();
 	gfpm_prefs_populate_ignorepkg_tvw ();
@@ -229,6 +237,8 @@ gfpm_prefs_write_config (void)
 	char	line[PATH_MAX+1];
 	
 	gboolean has_logfile = FALSE;
+	gboolean has_cachedir = FALSE;
+	gboolean has_dbpath = FALSE;
 	gboolean has_holdpkg = FALSE;
 	gboolean has_ignorepkg = FALSE;
 	gboolean has_proxy = FALSE;
@@ -249,6 +259,12 @@ gfpm_prefs_write_config (void)
 			continue;
 		if (g_str_has_prefix(line,"LogFile"))
 			has_logfile = TRUE;
+		else
+		if (g_str_has_prefix(line,"CacheDir"))
+			has_cachedir = TRUE;
+		else
+		if (g_str_has_prefix(line,"DBPath"))
+			has_dbpath = TRUE;
 		else
 		if (g_str_has_prefix(line,"HoldPkg"))
 			has_holdpkg = TRUE;
@@ -274,6 +290,16 @@ gfpm_prefs_write_config (void)
 			if (!has_logfile && gfpm_prefs_logfile_path!=NULL)
 			{
 				fprintf (tp, "LogFile = %s\n", gfpm_prefs_logfile_path);
+				continue;
+			}
+			if (!has_cachedir && gfpm_prefs_cache_dir!=NULL)
+			{
+				fprintf (tp, "CacheDir = %s\n", gfpm_prefs_cache_dir);
+				continue;
+			}
+			if (!has_dbpath && gfpm_prefs_database_path!=NULL)
+			{
+				fprintf (tp, "DBPath = %s\n", gfpm_prefs_database_path);
 				continue;
 			}
 			if (!has_holdpkg && gfpm_prefs_holdpkg_list!=NULL)
@@ -320,6 +346,18 @@ gfpm_prefs_write_config (void)
 		{
 			if (gfpm_prefs_logfile_path != NULL)
 				fprintf (tp, "LogFile = %s\n", gfpm_prefs_logfile_path);
+			continue;
+		}
+		if (g_str_has_prefix(line,"CacheDir"))
+		{
+			if (gfpm_prefs_cache_dir != NULL)
+				fprintf (tp, "CacheDir = %s\n", gfpm_prefs_cache_dir);
+			continue;
+		}
+		if (g_str_has_prefix(line,"DBPath"))
+		{
+			if (gfpm_prefs_database_path != NULL)
+				fprintf (tp, "DBPath = %s\n", gfpm_prefs_database_path);
 			continue;
 		}
 		else
@@ -754,4 +792,93 @@ cb_gfpm_prefs_maxtries_value_changed (GtkSpinButton *button, gpointer data)
 	return;
 }
 
+static void
+cb_gfpm_prefs_edit_logpath_btn_clicked (GtkButton *button, gpointer data)
+{
+	GtkFileChooserDialog *dlg;
+	
+	dlg = gtk_file_chooser_dialog_new (_("Select log file"),
+									   NULL,
+									   GTK_FILE_CHOOSER_ACTION_OPEN,
+									   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+									   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+									   NULL);
+	if (gtk_dialog_run (GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT)
+	{
+		char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(dlg));
+		if (filename)
+		{
+			if (gfpm_prefs_logfile_path)
+				g_free (gfpm_prefs_logfile_path);
+			gfpm_prefs_logfile_path = filename;
+			if (gfpm_prefs_write_config())
+			{
+				gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_log_location), gfpm_prefs_logfile_path);
+			}
+		}
+	}
+	gtk_widget_destroy (dlg);
+	
+	return;
+}
+
+static void
+cb_gfpm_prefs_edit_cachedir_btn_clicked (GtkButton *button, gpointer data)
+{
+	GtkFileChooserDialog *dlg;
+	
+	dlg = gtk_file_chooser_dialog_new (_("Select directory"),
+									   NULL,
+									   GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+									   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+									   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+									   NULL);
+	if (gtk_dialog_run (GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT)
+	{
+		char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(dlg));
+		if (filename)
+		{
+			if (gfpm_prefs_cache_dir)
+				g_free (gfpm_prefs_cache_dir);
+			gfpm_prefs_cache_dir = filename;
+			if (gfpm_prefs_write_config())
+			{
+				gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_cache_dir_entry), gfpm_prefs_cache_dir);
+			}
+		}
+	}
+	gtk_widget_destroy (dlg);
+	
+	return;
+}
+
+static void
+cb_gfpm_prefs_edit_database_btn_clicked (GtkButton *button, gpointer data)
+{
+	GtkFileChooserDialog *dlg;
+	
+	dlg = gtk_file_chooser_dialog_new (_("Select directory"),
+									   NULL,
+									   GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+									   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+									   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+									   NULL);
+	if (gtk_dialog_run (GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT)
+	{
+		char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(dlg));
+		if (filename)
+		{
+			if (gfpm_prefs_database_path)
+				g_free (gfpm_prefs_database_path);
+			gfpm_prefs_database_path = filename;
+			if (gfpm_prefs_write_config())
+			{
+				gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_database_path_entry), gfpm_prefs_database_path);
+			}
+		}
+	}
+	gtk_widget_destroy (dlg);
+	
+	return;
+}
 
