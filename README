@@ -1,18 +1,18 @@
-Gfpm 1.x.x README
-==================
+GFpm README
+=============
 
 GFpm stands for Graphical Frugalware package manager.
 
-Gfpm is NOT merely a front-end to pacman-g2. It uses the libpacman library 
+GFpm is NOT a front-end to pacman-g2. It uses the libpacman library 
 (provided by pacman-g2) as it's backend. Gfpm is written in C using the
 GTK+2 Toolkit.
 
-Following are some of it's features:
-- Simple, yet feature rich
-- Supports easy management of multiple repositories
+A short list of features:
+- It's faster than frugalpkg or other frontends to pacman-g2
+- Includes a repository manager for managing multiple repositories
 - The repository manager also features a server manager to manage
   servers for repositories
-- Ability to search packages across multiple repos
+- Ability to search packages across multiple repositories
 - Features a database optimizer based on pacman-g2-optimize to speed up
   package operations
 - Built-in log viewer to keep track of package operations
