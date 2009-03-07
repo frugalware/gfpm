@@ -29,6 +29,11 @@
 
 static GtkWidget *gfpm_prefs_log_check;
 static GtkWidget *gfpm_prefs_log_location;
+static GtkWidget *gfpm_prefs_cache_dir_entry;
+static GtkWidget *gfpm_prefs_database_path_entry;
+static GtkWidget *gfpm_prefs_maxtries_spin;
+static GtkWidget *gfpm_prefs_proxy_enable_check;
+static GtkWidget *gfpm_prefs_proxy_server_entry;
 
 static GtkWidget *gfpm_prefs_holdpkg_tvw;
 static GtkWidget *gfpm_prefs_ignorepkg_tvw;
@@ -36,6 +41,10 @@ static GtkWidget *gfpm_prefs_ignorepkg_tvw;
 static GList *gfpm_prefs_holdpkg_list = NULL;
 static GList *gfpm_prefs_ignorepkg_list = NULL;
 static gchar *gfpm_prefs_logfile_path = NULL;
+static gchar *gfpm_prefs_database_path = NULL;
+static gchar *gfpm_prefs_cache_dir = NULL;
+static gchar *gfpm_prefs_proxy_server = NULL;
+static guint gfpm_prefs_max_tries = 0;
 
 extern gchar *current_group;
 
@@ -44,7 +53,7 @@ static void gfpm_prefs_populate_ignorepkg (void);
 static void gfpm_prefs_populate_holdpkg_tvw (void);
 static void gfpm_prefs_populate_ignorepkg_tvw (void);
 static gboolean gfpm_prefs_write_config (void);
-static gchar* gfpm_prefs_get_logfile_path (void);
+static char *gfpm_prefs_get_value_for_key (const char *key);
 
 static void cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_prefs_ignorepkg_add_btn_clicked (GtkButton *button, gpointer data);
@@ -53,6 +62,11 @@ static void cb_gfpm_prefs_ignorepkg_remove_btn_clicked (GtkButton *button, gpoin
 static void cb_gfpm_prefs_compressed_size_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_logging_enable_toggled (GtkToggleButton *button, gpointer data);
+static void cb_gfpm_prefs_proxy_enable_toggled (GtkToggleButton *button, gpointer data);
+static void cb_gfpm_prefs_maxtries_value_changed (GtkSpinButton *button, gpointer data);
+
+#define DEFAULT_CACHEDIR	"/var/cache/pacman"
+#define DEFAULT_DBPATH		"/var/lib/pacman"
 
 void
 gfpm_prefs_init (void)
@@ -60,11 +74,16 @@ gfpm_prefs_init (void)
 	GtkListStore		*store = NULL;
 	GtkCellRenderer		*renderer = NULL;
 	GtkTreeViewColumn	*column = NULL;
+	char			*temp = NULL;
 	
 	gfpm_prefs_holdpkg_tvw = gfpm_get_widget ("gfpm_prefs_holdpkg_tvw");
 	gfpm_prefs_ignorepkg_tvw = gfpm_get_widget ("gfpm_prefs_ignorepkg_tvw");
 	gfpm_prefs_log_check = gfpm_get_widget ("prefs_enable_log_tgl");
 	gfpm_prefs_log_location = gfpm_get_widget ("prefs_log_file_path");
+	gfpm_prefs_cache_dir_entry = gfpm_get_widget ("prefs_cache_dir_path");
+	gfpm_prefs_database_path_entry = gfpm_get_widget ("prefs_db_path");
+	gfpm_prefs_proxy_enable_check = gfpm_get_widget ("prefs_proxy_enable_chk");
+	gfpm_prefs_proxy_server_entry = gfpm_get_widget ("prefs_proxy_server_entry");
 	
 	/* setup ui */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
@@ -94,7 +113,10 @@ gfpm_prefs_init (void)
 					gfpm_config_get_value_bool("show_compressed_size"));
 	gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_get_widget("prefs_show_uncompressed_size_tgl")),
 					gfpm_config_get_value_bool("show_uncompressed_size"));
-	if (gfpm_prefs_get_logfile_path ())
+
+	/* Log file related information */
+	gfpm_prefs_logfile_path = gfpm_prefs_get_value_for_key ("LogFile");
+	if (gfpm_prefs_logfile_path)
 	{
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_prefs_log_check),TRUE);
 		gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_log_location), gfpm_prefs_logfile_path);
@@ -104,6 +126,45 @@ gfpm_prefs_init (void)
 		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_prefs_log_check),FALSE);
 		gtk_widget_set_sensitive (gfpm_prefs_log_location, FALSE);
 	}
+	
+	/* get package database path */
+	gfpm_prefs_database_path = gfpm_prefs_get_value_for_key ("DBPath");
+	if (gfpm_prefs_database_path == NULL)
+	{
+		gfpm_prefs_database_path = g_strdup (DEFAULT_DBPATH);
+		gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_database_path_entry), gfpm_prefs_database_path);
+	}
+	
+	/* get package cache path */
+	gfpm_prefs_cache_dir = gfpm_prefs_get_value_for_key ("CacheDir");
+	if (gfpm_prefs_cache_dir == NULL)
+	{
+		gfpm_prefs_cache_dir = g_strdup (DEFAULT_CACHEDIR);
+		gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_cache_dir_entry), gfpm_prefs_cache_dir);
+	}
+	
+	/* get max tries */
+	gfpm_prefs_maxtries_spin = gfpm_get_widget ("prefs_max_retries");
+	temp = gfpm_prefs_get_value_for_key ("MaxTries");
+	if (temp)
+	{
+		gfpm_prefs_max_tries = atoi (temp);
+		gtk_spin_button_set_value (GTK_SPIN_BUTTON(gfpm_prefs_maxtries_spin), gfpm_prefs_max_tries);
+		g_free (temp);
+	}
+	
+	/* get proxy info */
+	gfpm_prefs_proxy_server = gfpm_prefs_get_value_for_key ("ProxyServer");
+	if (gfpm_prefs_proxy_server)
+	{
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_prefs_proxy_enable_check), TRUE);
+		gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_proxy_server_entry), gfpm_prefs_proxy_server);
+	}
+	else
+	{
+		gtk_widget_set_sensitive (gfpm_prefs_proxy_server_entry, FALSE);
+	}
+	
 	
 	/* some signals */
 	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_holdpkg_add_btn")), "clicked",
@@ -120,11 +181,14 @@ gfpm_prefs_init (void)
 			G_CALLBACK(cb_gfpm_prefs_uncompressed_size_toggled), NULL);
 	g_signal_connect (gfpm_get_widget("prefs_enable_log_tgl"), "toggled",
 			G_CALLBACK(cb_gfpm_prefs_logging_enable_toggled), NULL);
+	g_signal_connect (gfpm_prefs_proxy_enable_check, "toggled",
+			G_CALLBACK(cb_gfpm_prefs_proxy_enable_toggled), NULL);
+	g_signal_connect (gfpm_prefs_maxtries_spin, "value-changed",
+			G_CALLBACK(cb_gfpm_prefs_maxtries_value_changed), NULL);
 
 	gfpm_prefs_populate_holdpkg_tvw ();
 	gfpm_prefs_populate_ignorepkg_tvw ();
 
-	//printf ("%s\n", gfpm_prefs_get_logfile_path());
 	return;
 }
 
@@ -167,6 +231,8 @@ gfpm_prefs_write_config (void)
 	gboolean has_logfile = FALSE;
 	gboolean has_holdpkg = FALSE;
 	gboolean has_ignorepkg = FALSE;
+	gboolean has_proxy = FALSE;
+	gboolean has_maxtries = FALSE;
 	
 	fp = fopen (CONF_FILE, "r");
 	if (fp == NULL)
@@ -174,7 +240,7 @@ gfpm_prefs_write_config (void)
 	tp = tmpfile ();
 	if (tp == NULL)
 	{
-		g_error ("Could not open temporary file");
+		g_error (_("Could not open temporary file"));
 		return FALSE;
 	}
 	while (fgets(line,PATH_MAX,fp))
@@ -190,7 +256,12 @@ gfpm_prefs_write_config (void)
 		if (g_str_has_prefix(line,"IgnorePkg"))
 			has_ignorepkg = TRUE;
 		else
-			continue;
+		if (g_str_has_prefix(line,"ProxyServer"))
+			has_proxy = TRUE;
+		else
+		if (g_str_has_prefix(line,"MaxTries"))
+			has_maxtries = TRUE;
+		continue;
 	}
 	rewind (fp);
 	while (fgets(line,PATH_MAX,fp))
@@ -203,6 +274,7 @@ gfpm_prefs_write_config (void)
 			if (!has_logfile && gfpm_prefs_logfile_path!=NULL)
 			{
 				fprintf (tp, "LogFile = %s\n", gfpm_prefs_logfile_path);
+				continue;
 			}
 			if (!has_holdpkg && gfpm_prefs_holdpkg_list!=NULL)
 			{
@@ -230,12 +302,31 @@ gfpm_prefs_write_config (void)
 				fprintf (tp, "\n");
 				continue;
 			}
+			if (!has_proxy && gfpm_prefs_proxy_server!=NULL)
+			{
+				fprintf (tp, "ProxyServer = %s\n", gfpm_prefs_proxy_server);
+				fprintf (tp, "\n");
+				continue;
+			}
+			if (!has_maxtries)
+			{
+				fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
+				fprintf (tp, "\n");
+				continue;
+			}
 			continue;
 		}
 		if (g_str_has_prefix(line,"LogFile"))
 		{
 			if (gfpm_prefs_logfile_path != NULL)
 				fprintf (tp, "LogFile = %s\n", gfpm_prefs_logfile_path);
+			continue;
+		}
+		else
+		if (g_str_has_prefix(line,"ProxyServer"))
+		{
+			if (gfpm_prefs_proxy_server != NULL)
+				fprintf (tp, "ProxyServer = %s\n", gfpm_prefs_proxy_server);
 			continue;
 		}
 		else
@@ -270,6 +361,12 @@ gfpm_prefs_write_config (void)
 			iskip:fprintf (tp, "\n");
 			continue;
 		}
+		else
+		if (g_str_has_prefix(line,"MaxTries"))
+		{
+			fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
+			continue;
+		}
 		down:fprintf (tp,line);
 	}
 	rewind (tp);
@@ -277,7 +374,7 @@ gfpm_prefs_write_config (void)
 	fp = fopen (CONF_FILE, "w");
 	if (fp == NULL)
 	{
-		g_error ("Error saving configuration");
+		g_error (_("Error saving configuration"));
 		return FALSE;
 	}
 	while (fgets(line,PATH_MAX,tp))
@@ -318,31 +415,31 @@ gfpm_prefs_populate_ignorepkg (void)
 }
 
 static gchar*
-gfpm_prefs_get_logfile_path (void)
+gfpm_prefs_get_value_for_key (const char *key)
 {
 	FILE	*fp = NULL;
+	char	*ret = NULL;
 	char	line[PATH_MAX+1] = "";
-	
-	if (gfpm_prefs_logfile_path != NULL)
-		g_free (gfpm_prefs_logfile_path);
-	fp = fopen (CONF_FILE, "r");
-	if (fp == NULL)
-		return NULL;
-	while (fgets(line,PATH_MAX,fp))
-	{
-		if (line[0] == '#')
-			continue;
-		if (g_str_has_prefix(line,"LogFile"))
-		{
-			char *lf = NULL;
-			lf = strtok (line, "=");
-			lf = strtok (NULL, "=");
-			gfpm_prefs_logfile_path = g_strdup (fwutil_trim(lf));
-		}
-	}
-	fclose (fp);
 
-	return gfpm_prefs_logfile_path;	
+	fp = fopen (CONF_FILE, "r");
+	if (fp != NULL)
+	{
+		while (fgets(line,PATH_MAX,fp))
+		{
+			if (line[0] == '#')
+				continue;
+			if (g_str_has_prefix(line,key))
+			{
+				char *lf = NULL;
+				lf = strtok (line, "=");
+				lf = strtok (NULL, "=");
+				ret = g_strdup (g_strstrip(lf));
+			}
+		}
+		fclose (fp);
+	}
+
+	return ret;
 }
 
 static void
@@ -598,4 +695,56 @@ cb_gfpm_prefs_logging_enable_toggled (GtkToggleButton *button, gpointer data)
 
 	return;
 }
+
+static void
+cb_gfpm_prefs_proxy_enable_toggled (GtkToggleButton *button, gpointer data)
+{
+	gboolean	check;
+
+	check = gtk_toggle_button_get_active (button);
+
+	if (check)
+	{
+		char	*proxy = NULL;
+		
+		/* get url of the proxy server from user */
+		proxy = gfpm_input (_("Enter proxy server url"), _("Enter the URL of the proxy server :"));
+		if (proxy)
+		{
+			gtk_widget_set_sensitive (gfpm_prefs_proxy_server_entry, TRUE);
+			gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_proxy_server_entry), proxy);
+			/* say goodbye to the old proxy server, if any */
+			if (gfpm_prefs_proxy_server)
+			{
+				g_free (gfpm_prefs_proxy_server);
+			}
+			/* set the new proxy server */
+			gfpm_prefs_proxy_server = proxy;
+		}
+	}
+	else
+	{
+		if (gfpm_prefs_proxy_server)
+		{
+			gtk_widget_set_sensitive (gfpm_prefs_proxy_server_entry, FALSE);
+			gtk_entry_set_text (GTK_ENTRY(gfpm_prefs_proxy_server_entry), "");
+			g_free (gfpm_prefs_proxy_server);
+			gfpm_prefs_proxy_server = NULL;
+		}
+	}
+	/* write settings to config file */
+	gfpm_prefs_write_config ();
+
+	return;
+}
+
+static void
+cb_gfpm_prefs_maxtries_value_changed (GtkSpinButton *button, gpointer data)
+{
+	gfpm_prefs_max_tries = gtk_spin_button_get_value (button);
+	gfpm_prefs_write_config ();
+	
+	return;
+}
+
 
