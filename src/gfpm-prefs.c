@@ -36,6 +36,7 @@ static GtkWidget *gfpm_prefs_upg_delay_spin;
 static GtkWidget *gfpm_prefs_old_delay_spin;
 static GtkWidget *gfpm_prefs_proxy_enable_check;
 static GtkWidget *gfpm_prefs_proxy_server_entry;
+static GtkWidget *gfpm_prefs_pasvftp_check;
 
 static GtkWidget *gfpm_prefs_holdpkg_tvw;
 static GtkWidget *gfpm_prefs_ignorepkg_tvw;
@@ -49,6 +50,7 @@ static gchar *gfpm_prefs_proxy_server = NULL;
 static guint gfpm_prefs_max_tries = 0;
 static guint gfpm_prefs_upg_delay = 0;
 static guint gfpm_prefs_old_delay = 0;
+static gboolean gfpm_prefs_no_pasvftp = FALSE;
 
 extern gchar *current_group;
 
@@ -57,6 +59,7 @@ static void gfpm_prefs_populate_ignorepkg (void);
 static void gfpm_prefs_populate_holdpkg_tvw (void);
 static void gfpm_prefs_populate_ignorepkg_tvw (void);
 static gboolean gfpm_prefs_write_config (void);
+static gboolean gfpm_prefs_key_exists (const char *key);
 static char *gfpm_prefs_get_value_for_key (const char *key);
 
 static void cb_gfpm_prefs_holdpkg_add_btn_clicked (GtkButton *button, gpointer data);
@@ -68,6 +71,7 @@ static void cb_gfpm_prefs_edit_cachedir_btn_clicked (GtkButton *button, gpointer
 static void cb_gfpm_prefs_edit_database_btn_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_prefs_compressed_size_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_uncompressed_size_toggled (GtkToggleButton *button, gpointer data);
+static void cb_gfpm_prefs_pasvftp_check_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_logging_enable_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_proxy_enable_toggled (GtkToggleButton *button, gpointer data);
 static void cb_gfpm_prefs_maxtries_value_changed (GtkSpinButton *button, gpointer data);
@@ -88,6 +92,7 @@ gfpm_prefs_init (void)
 	gfpm_prefs_holdpkg_tvw = gfpm_get_widget ("gfpm_prefs_holdpkg_tvw");
 	gfpm_prefs_ignorepkg_tvw = gfpm_get_widget ("gfpm_prefs_ignorepkg_tvw");
 	gfpm_prefs_log_check = gfpm_get_widget ("prefs_enable_log_tgl");
+	gfpm_prefs_pasvftp_check = gfpm_get_widget ("prefs_pasvftp_check");
 	gfpm_prefs_log_location = gfpm_get_widget ("prefs_log_file_path");
 	gfpm_prefs_cache_dir_entry = gfpm_get_widget ("prefs_cache_dir_path");
 	gfpm_prefs_database_path_entry = gfpm_get_widget ("prefs_db_path");
@@ -180,6 +185,13 @@ gfpm_prefs_init (void)
 		g_free (temp);
 	}
 	
+	/* check if no passive ftp is enabled */
+	if (gfpm_prefs_key_exists("NoPassiveFTP"))
+	{
+		gfpm_prefs_no_pasvftp = TRUE;
+		gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON(gfpm_prefs_pasvftp_check), TRUE);
+	}
+	
 	/* get proxy info */
 	gfpm_prefs_proxy_server = gfpm_prefs_get_value_for_key ("ProxyServer");
 	if (gfpm_prefs_proxy_server)
@@ -221,6 +233,8 @@ gfpm_prefs_init (void)
 			G_CALLBACK(cb_gfpm_prefs_edit_database_btn_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_get_widget("prefs_cache_edit_btn")), "clicked",
 			G_CALLBACK(cb_gfpm_prefs_edit_cachedir_btn_clicked), NULL);
+	g_signal_connect (G_OBJECT(gfpm_prefs_pasvftp_check), "toggled",
+			G_CALLBACK(cb_gfpm_prefs_pasvftp_check_toggled), NULL);
 
 	gfpm_prefs_populate_holdpkg_tvw ();
 	gfpm_prefs_populate_ignorepkg_tvw ();
@@ -273,6 +287,7 @@ gfpm_prefs_write_config (void)
 	gboolean has_maxtries = FALSE;
 	gboolean has_upgdelay = FALSE;
 	gboolean has_olddelay = FALSE;
+	gboolean has_nopasvftp = FALSE;
 	
 	fp = fopen (CONF_FILE, "r");
 	if (fp == NULL)
@@ -313,6 +328,9 @@ gfpm_prefs_write_config (void)
 		else
 		if (g_str_has_prefix(line,"OldDelay"))
 			has_olddelay = TRUE;
+		else
+		if (g_str_has_prefix(line,"NoPassiveFTP"))
+			has_nopasvftp = TRUE;
 		continue;
 	}
 	rewind (fp);
@@ -367,26 +385,27 @@ gfpm_prefs_write_config (void)
 			if (!has_proxy && gfpm_prefs_proxy_server!=NULL)
 			{
 				fprintf (tp, "ProxyServer = %s\n", gfpm_prefs_proxy_server);
-				fprintf (tp, "\n");
 				continue;
 			}
 			if (!has_maxtries)
 			{
 				fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
-				fprintf (tp, "\n");
 				continue;
 			}
 			if (!has_upgdelay)
 			{
 				fprintf (tp, "UpgradeDelay = %d\n", gfpm_prefs_upg_delay);
-				fprintf (tp, "\n");
 				continue;
 			}
 			if (!has_olddelay)
 			{
 				fprintf (tp, "OldDelay = %d\n", gfpm_prefs_old_delay);
-				fprintf (tp, "\n");
 				continue;
+			}
+			if (!has_nopasvftp)
+			{
+				if (gfpm_prefs_no_pasvftp)
+					fprintf (tp, "NoPassiveFTP\n");
 			}
 			continue;
 		}
@@ -465,6 +484,13 @@ gfpm_prefs_write_config (void)
 			fprintf (tp, "OldDelay = %d\n", gfpm_prefs_old_delay);
 			continue;
 		}
+		else
+		if (g_str_has_prefix(line,"NoPassiveFTP"))
+		{
+			if (gfpm_prefs_no_pasvftp)
+				fprintf (tp, "NoPassiveFTP\n");
+			continue;
+		}
 		down:fprintf (tp,line);
 	}
 	rewind (tp);
@@ -537,6 +563,31 @@ gfpm_prefs_get_value_for_key (const char *key)
 		fclose (fp);
 	}
 
+	return ret;
+}
+
+static gboolean
+gfpm_prefs_key_exists (const char *key)
+{
+	FILE		*fp = NULL;
+	gboolean	ret = FALSE;
+	char		line[PATH_MAX+1] = "";
+
+	fp = fopen (CONF_FILE, "r");
+	if (fp != NULL)
+	{
+		while (fgets(line,PATH_MAX,fp))
+		{
+			if (line[0] == '#')
+				continue;
+			if (g_str_has_prefix(line,key))
+			{
+				ret = TRUE;
+			}
+		}
+		fclose (fp);
+	}
+	
 	return ret;
 }
 
@@ -956,3 +1007,12 @@ cb_gfpm_prefs_edit_database_btn_clicked (GtkButton *button, gpointer data)
 	return;
 }
 
+static void
+cb_gfpm_prefs_pasvftp_check_toggled (GtkToggleButton *button, gpointer data)
+{
+	gboolean check = gtk_toggle_button_get_active (button);
+	gfpm_prefs_no_pasvftp = check;
+	gfpm_prefs_write_config ();
+	
+	return;
+}

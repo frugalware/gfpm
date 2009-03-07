@@ -876,7 +876,7 @@
     <property name="resizable">False</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ALWAYS</property>
     <property name="destroy_with_parent">True</property>
-    <property name="icon">gfpm</property>
+    <property name="icon_name">gfpm</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_SPLASHSCREEN</property>
     <property name="skip_taskbar_hint">True</property>
     <property name="skip_pager_hint">True</property>
@@ -2697,7 +2697,6 @@
     <property name="default_width">500</property>
     <property name="default_height">400</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
-    <property name="skip_taskbar_hint">True</property>
     <property name="transient_for">mainwindow</property>
     <child>
       <widget class="GtkVBox" id="vbox20">
