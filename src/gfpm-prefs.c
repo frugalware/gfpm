@@ -495,8 +495,15 @@ gfpm_prefs_cleanup (void)
 {
 	g_list_free (gfpm_prefs_holdpkg_list);
 	g_list_free (gfpm_prefs_ignorepkg_list);
-	g_free (gfpm_prefs_logfile_path);
-	
+	if (gfpm_prefs_logfile_path)
+		g_free (gfpm_prefs_logfile_path);
+	if (gfpm_prefs_proxy_server)
+		g_free (gfpm_prefs_logfile_path);
+	if (gfpm_prefs_cache_dir)
+		g_free (gfpm_prefs_cache_dir);
+	if (gfpm_prefs_database_path)
+		g_free (gfpm_prefs_database_path);
+
 	return;
 }
 
