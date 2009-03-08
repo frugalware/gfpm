@@ -2771,6 +2771,35 @@
                               <placeholder/>
                             </child>
                             <child>
+                              <widget class="GtkLabel" id="label44">
+                                <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="xalign">0</property>
+                                <property name="yalign">0</property>
+                                <property name="label" translatable="yes">Log File Path</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkCheckButton" id="prefs_enable_log_tgl">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="label" translatable="yes">Enable Logging</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
+                              </widget>
+                              <packing>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options">GTK_FILL</property>
+                              </packing>
+                            </child>
+                            <child>
                               <widget class="GtkHBox" id="hbox22">
                                 <property name="visible">True</property>
                                 <property name="spacing">4</property>
@@ -2822,35 +2851,6 @@
                                 <property name="bottom_attach">2</property>
                               </packing>
                             </child>
-                            <child>
-                              <widget class="GtkCheckButton" id="prefs_enable_log_tgl">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="label" translatable="yes">Enable Logging</property>
-                                <property name="response_id">0</property>
-                                <property name="draw_indicator">True</property>
-                              </widget>
-                              <packing>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label44">
-                                <property name="visible">True</property>
-                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="xalign">0</property>
-                                <property name="yalign">0</property>
-                                <property name="label" translatable="yes">Log File Path</property>
-                              </widget>
-                              <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
                           </widget>
                         </child>
                       </widget>
@@ -2891,6 +2891,84 @@
                             <property name="n_columns">2</property>
                             <property name="column_spacing">10</property>
                             <property name="row_spacing">5</property>
+                            <child>
+                              <widget class="GtkHBox" id="hbox27">
+                                <property name="visible">True</property>
+                                <property name="spacing">4</property>
+                                <child>
+                                  <widget class="GtkEntry" id="prefs_db_path">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="GtkButton" id="prefs_database_edit_btn">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                    <property name="response_id">0</property>
+                                    <child>
+                                      <widget class="GtkHBox" id="hbox28">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <widget class="GtkImage" id="image17">
+                                            <property name="visible">True</property>
+                                            <property name="xpad">2</property>
+                                            <property name="stock">gtk-edit</property>
+                                          </widget>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkLabel" id="label54">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">Change</property>
+                                          </widget>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label53">
+                                <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="xalign">0</property>
+                                <property name="yalign">0</property>
+                                <property name="label" translatable="yes">Database</property>
+                              </widget>
+                              <packing>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label50">
+                                <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="xalign">0</property>
+                                <property name="yalign">0</property>
+                                <property name="label" translatable="yes">Package cache</property>
+                              </widget>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
                             <child>
                               <widget class="GtkHBox" id="hbox25">
                                 <property name="visible">True</property>
@@ -2943,84 +3021,6 @@
                                 <property name="bottom_attach">2</property>
                               </packing>
                             </child>
-                            <child>
-                              <widget class="GtkLabel" id="label50">
-                                <property name="visible">True</property>
-                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="xalign">0</property>
-                                <property name="yalign">0</property>
-                                <property name="label" translatable="yes">Package cache</property>
-                              </widget>
-                              <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label53">
-                                <property name="visible">True</property>
-                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="xalign">0</property>
-                                <property name="yalign">0</property>
-                                <property name="label" translatable="yes">Database</property>
-                              </widget>
-                              <packing>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkHBox" id="hbox27">
-                                <property name="visible">True</property>
-                                <property name="spacing">4</property>
-                                <child>
-                                  <widget class="GtkEntry" id="prefs_db_path">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                  </widget>
-                                </child>
-                                <child>
-                                  <widget class="GtkButton" id="prefs_database_edit_btn">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                    <property name="response_id">0</property>
-                                    <child>
-                                      <widget class="GtkHBox" id="hbox28">
-                                        <property name="visible">True</property>
-                                        <child>
-                                          <widget class="GtkImage" id="image17">
-                                            <property name="visible">True</property>
-                                            <property name="xpad">2</property>
-                                            <property name="stock">gtk-edit</property>
-                                          </widget>
-                                        </child>
-                                        <child>
-                                          <widget class="GtkLabel" id="label54">
-                                            <property name="visible">True</property>
-                                            <property name="label" translatable="yes">Change</property>
-                                          </widget>
-                                          <packing>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                      </widget>
-                                    </child>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                              </packing>
-                            </child>
                           </widget>
                         </child>
                       </widget>
@@ -3063,32 +3063,36 @@
                             <property name="column_spacing">13</property>
                             <property name="row_spacing">10</property>
                             <child>
-                              <widget class="GtkHBox" id="hbox30">
+                              <widget class="GtkLabel" id="label56">
                                 <property name="visible">True</property>
-                                <child>
-                                  <widget class="GtkSpinButton" id="prefs_upg_delay_spin">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="adjustment">0 0 100 1 10 10</property>
-                                  </widget>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label60">
-                                    <property name="visible">True</property>
-                                    <property name="xalign">0.10000000149011612</property>
-                                    <property name="xpad">4</property>
-                                    <property name="label" translatable="yes">days</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Old Delay&lt;/b&gt;
+Issue a warning when you try to install a package, but the local package database hasn't been updated for specified number of days.</property>
+                                <property name="use_markup">True</property>
+                                <property name="wrap">True</property>
+                                <property name="width_chars">60</property>
+                                <property name="max_width_chars">0</property>
                               </widget>
                               <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options">GTK_FILL</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label58">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Upgrade Delay&lt;/b&gt;
+Upgrade only the packages that are specified number of days old while performing a system upgrade.</property>
+                                <property name="use_markup">True</property>
+                                <property name="wrap">True</property>
+                                <property name="width_chars">60</property>
+                              </widget>
+                              <packing>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -3123,36 +3127,32 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="label58">
+                              <widget class="GtkHBox" id="hbox30">
                                 <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Upgrade Delay&lt;/b&gt;
-Upgrade only the packages that are specified number of days old while performing a system upgrade.</property>
-                                <property name="use_markup">True</property>
-                                <property name="wrap">True</property>
-                                <property name="width_chars">60</property>
+                                <child>
+                                  <widget class="GtkSpinButton" id="prefs_upg_delay_spin">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="adjustment">0 0 100 1 10 10</property>
+                                  </widget>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label60">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0.10000000149011612</property>
+                                    <property name="xpad">4</property>
+                                    <property name="label" translatable="yes">days</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
                               </widget>
                               <packing>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="label56">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Old Delay&lt;/b&gt;
-Issue a warning when you try to install a package, but the local package database hasn't been updated for specified number of days.</property>
-                                <property name="use_markup">True</property>
-                                <property name="wrap">True</property>
-                                <property name="width_chars">60</property>
-                                <property name="max_width_chars">0</property>
-                              </widget>
-                              <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
                               </packing>
                             </child>
                           </widget>
@@ -3435,13 +3435,17 @@ Issue a warning when you try to install a package, but the local package databas
                               <placeholder/>
                             </child>
                             <child>
-                              <widget class="GtkCheckButton" id="prefs_pasvftp_check">
+                              <widget class="GtkLabel" id="fiiia">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Disable passive FTP connections</property>
-                                <property name="response_id">0</property>
-                                <property name="draw_indicator">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Maximum retries (in case of failure) (0 = disabled)</property>
                               </widget>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options">GTK_FILL</property>
+                              </packing>
                             </child>
                             <child>
                               <widget class="GtkSpinButton" id="prefs_max_retries">
@@ -3459,17 +3463,13 @@ Issue a warning when you try to install a package, but the local package databas
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="fiiia">
+                              <widget class="GtkCheckButton" id="prefs_pasvftp_check">
                                 <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">Maximum retries (in case of failure)</property>
+                                <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Disable passive FTP connections</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
                               </widget>
-                              <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options">GTK_FILL</property>
-                              </packing>
                             </child>
                           </widget>
                         </child>
@@ -3515,13 +3515,16 @@ Issue a warning when you try to install a package, but the local package databas
                               <placeholder/>
                             </child>
                             <child>
-                              <widget class="GtkCheckButton" id="prefs_proxy_enable_chk">
+                              <widget class="GtkEntry" id="prefs_proxy_server_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Use proxy server</property>
-                                <property name="response_id">0</property>
-                                <property name="draw_indicator">True</property>
                               </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                              </packing>
                             </child>
                             <child>
                               <widget class="GtkLabel" id="label55">
@@ -3537,16 +3540,13 @@ Issue a warning when you try to install a package, but the local package databas
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkEntry" id="prefs_proxy_server_entry">
+                              <widget class="GtkCheckButton" id="prefs_proxy_enable_chk">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="label" translatable="yes">Use proxy server</property>
+                                <property name="response_id">0</property>
+                                <property name="draw_indicator">True</property>
                               </widget>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                              </packing>
                             </child>
                           </widget>
                         </child>

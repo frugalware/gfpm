@@ -387,7 +387,7 @@ gfpm_prefs_write_config (void)
 				fprintf (tp, "ProxyServer = %s\n", gfpm_prefs_proxy_server);
 				continue;
 			}
-			if (!has_maxtries)
+			if (!has_maxtries && (gfpm_prefs_max_tries > 0))
 			{
 				fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
 				continue;
@@ -469,7 +469,10 @@ gfpm_prefs_write_config (void)
 		else
 		if (g_str_has_prefix(line,"MaxTries"))
 		{
-			fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
+			if (gfpm_prefs_max_tries > 0)
+				fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
+			else
+				fprintf (tp, "");
 			continue;
 		}
 		else
