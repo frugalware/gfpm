@@ -1400,7 +1400,7 @@ cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data)
 
 	if (packages == NULL)
 	{
-		gfpm_message ("No new updates available", _("No new package updates are available. The system is up to date."));
+		gfpm_message (_("No updates"), _("No new package updates are available. The system is up to date."));
 		goto cleanup;
 	}
 
