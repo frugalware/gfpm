@@ -55,10 +55,10 @@ static const gchar *authors[] = { \
 			};
 
 static const gchar *artists[] = { \
-				"Frugalware Logo - Viktor Gondor <nadfoka@frugalware.org>",
-				"Splash Background - Mordin Franck aka Masta64 (BullzArtDesign Team) <masta64@gmail.com>",
-				"Icons - Sekkyumu <charavel.olivier@gmail.com>",
-				"Splash - Priyank Gosalia <priyankmg@gmail.com>",
+				"Frugalware logo - Viktor Gondor <nadfoka@frugalware.org>",
+				"Splash Screen - Priyank M. Gosalia <priyankmg@gmail.com>",
+				"Background for the splash screen - Léo TOMAS <leotomas13@gmail.com>",
+				"Toolbar Icons - Sekkyumu <charavel.olivier@gmail.com>",
 				NULL
 			};
 
