@@ -715,7 +715,7 @@ gfpm_repomgr_populate_repotvw (void)
 		ret = repolist->list;
 	else
 	{
-		gfpm_message (_("Warning"), "No usable package repositories configured");
+		gfpm_message (_("Warning"), _("No usable package repositories configured"));
 		return;
 	}
 	while (ret != NULL)
