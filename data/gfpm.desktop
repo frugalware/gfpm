@@ -1,6 +1,6 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Package Manager (Gfpm)
+Name=GFpm (Package Manager)
 Comment=Graphical Frugalware Package Manager
 Exec=gksu gfpm
 Terminal=false
