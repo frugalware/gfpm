@@ -384,7 +384,7 @@ gfpm_interface_init (void)
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "syslog1")), "activate", G_CALLBACK(gfpm_logviewer_show), NULL);
 	
 	/* repository manager */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "repos")), "activate", G_CALLBACK(gfpm_repomanager_show), NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "menu_edit_repos")), "activate", G_CALLBACK(gfpm_repomanager_show), NULL);
 
 	/* aply */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
