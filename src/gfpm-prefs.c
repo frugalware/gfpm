@@ -392,12 +392,12 @@ gfpm_prefs_write_config (void)
 				fprintf (tp, "MaxTries = %d\n", gfpm_prefs_max_tries);
 				continue;
 			}
-			if (!has_upgdelay)
+			if (!has_upgdelay && (gfpm_prefs_upg_delay > 0))
 			{
 				fprintf (tp, "UpgradeDelay = %d\n", gfpm_prefs_upg_delay);
 				continue;
 			}
-			if (!has_olddelay)
+			if (!has_olddelay && (gfpm_prefs_old_delay > 0))
 			{
 				fprintf (tp, "OldDelay = %d\n", gfpm_prefs_old_delay);
 				continue;
@@ -478,13 +478,19 @@ gfpm_prefs_write_config (void)
 		else
 		if (g_str_has_prefix(line,"UpgradeDelay"))
 		{
-			fprintf (tp, "UpgradeDelay = %d\n", gfpm_prefs_upg_delay);
+			if (gfpm_prefs_upg_delay > 0)
+				fprintf (tp, "UpgradeDelay = %d\n", gfpm_prefs_upg_delay);
+			else
+				fprintf (tp, "");
 			continue;
 		}
 		else
 		if (g_str_has_prefix(line,"OldDelay"))
 		{
-			fprintf (tp, "OldDelay = %d\n", gfpm_prefs_old_delay);
+			if (gfpm_prefs_old_delay > 0)
+				fprintf (tp, "OldDelay = %d\n", gfpm_prefs_old_delay);
+			else
+				fprintf (tp, "");
 			continue;
 		}
 		else
