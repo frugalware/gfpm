@@ -69,6 +69,9 @@ GtkWidget *gfpm_pkgs_tvw = NULL;
 /* indicates that the repos were initied atleast once */
 gboolean init = FALSE;
 
+/* indicates gfpm is doing a package install/remove operation */
+gboolean running = FALSE;
+
 enum gfpm_cols {
 	COL_PKG_STATUS,
 	COL_PKG_ICON,
@@ -519,12 +522,15 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		gfpm_icmonitor_start_monitor ();
 		#endif
 		
-		/* commit transaction */
+		/* set running flag and prepare to commit transaction */
+		running = TRUE;
 		ret = gfpm_trans_commit (&pdata);
 
 		down:
 		/* release the transaction */
 		pacman_trans_release ();
+		/* not running */
+		running = FALSE;
 		/* clear list */
 		gfpm_package_list_free (GFPM_REMOVE_LIST);
 		gfpm_apply_dlg_reset ();
@@ -579,12 +585,15 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 			gfpm_icmonitor_start_monitor ();
 		#endif
 		/* commit transaction */
+		running = TRUE;
 		ret = gfpm_trans_commit (&pdata);
 
 
 		cleanup:
 		/* release the transaction */
 		pacman_trans_release ();
+		running = FALSE;
+
 		/* clear list */
 		gfpm_package_list_free (GFPM_INSTALL_LIST);
 		gfpm_apply_dlg_reset ();

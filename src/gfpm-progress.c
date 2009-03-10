@@ -31,6 +31,7 @@
 #endif
 
 extern GtkWidget	*gfpm_mw;
+extern gboolean		running;
 
 GtkProgressBar		*progressbar = NULL;
 GtkWidget		*progresswindow = NULL;
@@ -99,14 +100,18 @@ gfpm_progress_init (void)
 static void
 cb_gfpm_close_button_clicked (GtkWidget *button, gpointer data)
 {
-	if (!cancelled)
+	if (!cancelled && running)
 	{
-		gfpm_progress_show (FALSE);
+		if (running)
+		{
+			pacman_trans_release ();
+			cancelled = TRUE;
+			gfpm_progress_show (FALSE);
+		}
 	}
 	else
 	{
-		pacman_trans_release ();
-		cancelled = TRUE;
+		gfpm_progress_show (FALSE);
 	}
 
 	return;
