@@ -78,8 +78,8 @@ static void cb_gfpm_prefs_maxtries_value_changed (GtkSpinButton *button, gpointe
 static void cb_gfpm_prefs_upgdelay_value_changed (GtkSpinButton *button, gpointer data);
 static void cb_gfpm_prefs_olddelay_value_changed (GtkSpinButton *button, gpointer data);
 
-#define DEFAULT_CACHEDIR	"/var/cache/pacman/pkg"
-#define DEFAULT_DBPATH		"/var/lib/pacman"
+#define DEFAULT_CACHEDIR	"/var/cache/pacman-g2/pkg"
+#define DEFAULT_DBPATH		"/var/lib/pacman-g2"
 
 void
 gfpm_prefs_init (void)
