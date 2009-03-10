@@ -931,12 +931,12 @@ cb_gfpm_prefs_edit_logpath_btn_clicked (GtkButton *button, gpointer data)
 {
 	GtkFileChooserDialog *dlg;
 	
-	dlg = gtk_file_chooser_dialog_new (_("Select log file"),
-									   NULL,
-									   GTK_FILE_CHOOSER_ACTION_OPEN,
-									   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-									   GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-									   NULL);
+	dlg = (GtkFileChooserDialog*) gtk_file_chooser_dialog_new (_("Select log file"),
+								NULL,
+								GTK_FILE_CHOOSER_ACTION_OPEN,
+								GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+								GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+								NULL);
 	if (gtk_dialog_run (GTK_DIALOG(dlg)) == GTK_RESPONSE_ACCEPT)
 	{
 		char *filename = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(dlg));
@@ -951,7 +951,7 @@ cb_gfpm_prefs_edit_logpath_btn_clicked (GtkButton *button, gpointer data)
 			}
 		}
 	}
-	gtk_widget_destroy (dlg);
+	gtk_widget_destroy (GTK_WIDGET(dlg));
 	
 	return;
 }
@@ -961,7 +961,7 @@ cb_gfpm_prefs_edit_cachedir_btn_clicked (GtkButton *button, gpointer data)
 {
 	GtkFileChooserDialog *dlg;
 	
-	dlg = gtk_file_chooser_dialog_new (_("Select directory"),
+	dlg = (GtkFileChooserDialog*) gtk_file_chooser_dialog_new (_("Select directory"),
 									   NULL,
 									   GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
 									   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -981,7 +981,7 @@ cb_gfpm_prefs_edit_cachedir_btn_clicked (GtkButton *button, gpointer data)
 			}
 		}
 	}
-	gtk_widget_destroy (dlg);
+	gtk_widget_destroy (GTK_WIDGET(dlg));
 	
 	return;
 }
@@ -991,7 +991,7 @@ cb_gfpm_prefs_edit_database_btn_clicked (GtkButton *button, gpointer data)
 {
 	GtkFileChooserDialog *dlg;
 	
-	dlg = gtk_file_chooser_dialog_new (_("Select directory"),
+	dlg = (GtkFileChooserDialog*) gtk_file_chooser_dialog_new (_("Select directory"),
 									   NULL,
 									   GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
 									   GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
@@ -1011,7 +1011,7 @@ cb_gfpm_prefs_edit_database_btn_clicked (GtkButton *button, gpointer data)
 			}
 		}
 	}
-	gtk_widget_destroy (dlg);
+	gtk_widget_destroy (GTK_WIDGET(dlg));
 	
 	return;
 }
