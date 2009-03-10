@@ -99,9 +99,15 @@ gfpm_progress_init (void)
 static void
 cb_gfpm_close_button_clicked (GtkWidget *button, gpointer data)
 {
-	pacman_trans_release ();
-//	gfpm_progress_show (FALSE);
-	cancelled = TRUE;
+	if (!cancelled)
+	{
+		gfpm_progress_show (FALSE);
+	}
+	else
+	{
+		pacman_trans_release ();
+		cancelled = TRUE;
+	}
 
 	return;
 }
