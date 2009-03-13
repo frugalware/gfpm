@@ -119,6 +119,7 @@ static void cb_gfpm_mark_for_install (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_reinstall (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_removal (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
+static void cb_gfpm_reinstall (GtkButton *button, gpointer data);
 static gint gfpm_trans_prepare (PM_LIST *list);
 static gint gfpm_trans_commit (PM_LIST **list);
 
@@ -1638,6 +1639,13 @@ cb_gfpm_pkgs_tvw_right_click (GtkTreeView *treeview, GdkEventButton *event)
 		menu_item = gtk_image_menu_item_new_with_label (_("Reinstall package"));
 		image = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
 		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
+		g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_reinstall), (gpointer)pkgname);
+		gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
+		gtk_widget_show (menu_item);
+		
+		menu_item = gtk_image_menu_item_new_with_label (_("Mark for re-installation"));
+		image = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_MENU);
+		gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item), image);
 		g_signal_connect (G_OBJECT(menu_item), "activate", G_CALLBACK(cb_gfpm_mark_for_reinstall), (gpointer)pkgname);
 		gtk_menu_shell_append (GTK_MENU_SHELL(menu), menu_item);
 		gtk_widget_show (menu_item);
@@ -1674,6 +1682,14 @@ cb_gfpm_mark_for_install (GtkButton *button, gpointer data)
 
 static void
 cb_gfpm_mark_for_reinstall (GtkButton *button, gpointer data)
+{
+	gfpm_package_list_add (GFPM_INSTALL_LIST, (char*)data);
+
+	return;
+}
+
+static void
+cb_gfpm_reinstall (GtkButton *button, gpointer data)
 {
 	GfpmList *temp = NULL;
 
