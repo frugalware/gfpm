@@ -26,6 +26,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <glib.h>
+#include <glib/gstdio.h>
+
+/* required for getdate() */
 #include <time.h>
 
 typedef struct _LogViewItem
