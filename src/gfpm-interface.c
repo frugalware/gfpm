@@ -209,7 +209,6 @@ gfpm_setup_pkgs_tvw (void)
 	GtkListStore		*store = NULL;
 	GtkTreeViewColumn	*column = NULL;
 	GtkCellRenderer		*renderer = NULL;
-	GList			*columns = NULL;
 	
 	if (gfpm_config_get_value_bool("show_compressed_size"))
 	{
@@ -281,7 +280,7 @@ gfpm_setup_pkgs_tvw (void)
 	gtk_tree_view_column_set_resizable (column, FALSE);
 	gtk_tree_view_column_set_sort_column_id (column, COL_PKG_SIZE_COMPRESSED);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
-	gfpm_compressed_size_col = column;
+	gfpm_compressed_size_col = (GtkWidget*) column;
 	gfpm_pkgs_show_compressed_size (show_compressed);
 	
 	renderer = gtk_cell_renderer_text_new ();
@@ -292,7 +291,7 @@ gfpm_setup_pkgs_tvw (void)
 	gtk_tree_view_column_set_resizable (column, FALSE);
 //	gtk_tree_view_column_set_sort_column_id (column, (show_compressed)?6:5);
 	gtk_tree_view_append_column (GTK_TREE_VIEW(gfpm_pkgs_tvw), column);
-	gfpm_uncompressed_size_col = column;
+	gfpm_uncompressed_size_col = (GtkWidget*) column;
 	gfpm_pkgs_show_uncompressed_size (show_uncompressed);
 
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_pkgs_tvw), GTK_TREE_MODEL(store));
