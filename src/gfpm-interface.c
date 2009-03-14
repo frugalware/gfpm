@@ -533,8 +533,12 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		pacman_trans_release ();
 		/* not running */
 		running = FALSE;
-		/* clear list */
-		gfpm_package_list_free (GFPM_REMOVE_LIST);
+		/* Ask the user before clearing the package list */
+		if ((!ret) || ((ret == -1) && gfpm_question(_("Remember selection"),
+					_("GFpm has detected that a failure has occurred. Do you want GFpm to remember your current package selection?")) == GTK_RESPONSE_NO))
+		{
+			gfpm_package_list_free (GFPM_REMOVE_LIST);
+		}
 		gfpm_apply_dlg_reset ();
 		/* close the progress dialog if commit failed */
 		if (ret == -1)
@@ -598,8 +602,12 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		pacman_trans_release ();
 		running = FALSE;
 
-		/* clear list */
-		gfpm_package_list_free (GFPM_INSTALL_LIST);
+		/* Ask the user before clearing the package list */
+		if ((!ret) || ((ret == -1) && gfpm_question(_("Remember selection"),
+					_("GFpm has detected that a failure has occurred. Do you want GFpm to remember your current package selection?")) == GTK_RESPONSE_NO))
+		{
+			gfpm_package_list_free (GFPM_INSTALL_LIST);
+		}
 		gfpm_apply_dlg_reset ();
 		/* hide the progress dialog if commit fails */
 		if (ret == -1)
