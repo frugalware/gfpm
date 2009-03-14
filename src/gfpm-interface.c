@@ -511,6 +511,8 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 		{
 			char *target = i->data;
 			pacman_trans_addtarget (target);
+			while (gtk_events_pending())
+				gtk_main_iteration();
 		}
 		if (gfpm_trans_prepare(pdata) == -1)
 			goto down;
@@ -573,6 +575,8 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		{
 			char *target = i->data;
 			pacman_trans_addtarget (target);
+			while (gtk_events_pending())
+				gtk_main_iteration();
 		}
 		if (gfpm_trans_prepare(pdata) == -1)
 			goto cleanup;
