@@ -1,14 +1,21 @@
 VERSION					DESCRIPTION
----------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+1.2.1					- BUGFIX (#3684): UI freezes for a while before download operation begins
+					  BUGFIX (#3683): Truncated text in GFpm search pane (only on French locale)
+					  BUGFIX (#3669): Progress bar always shows 100% while installing freshly downloaded packages
+					  BUGFIX (#3431): Remember package selection in case of a failure
+					  BUGFIX (#3452): Improper status information while downloading/installing packages
+					  FEATURE(#3679): Add a "Mark for re-nstallation" to package context menu
+					  Minor  tweaks
 1.2.0 Eris (2009-03-08)			- Added a brand new Preferences dialog that can be used to configure various pacman-g2 options
-					- BUGFIX: Clicking the synchronize button synced only the active repo instead of all repos.
-					- BUGFIX (#3641): Fixed a bug where some strings were not translated in the glade file
-					- BUGFIX (#3657): GFpm doesn't hide the progress dialog after an operation is finished.
-					- FEATURE (#2877): GFpm now shows Compressed and Uncompressed size in package info.
-					- Cancelling an on-going package download operation is now supported (finally ;))
-					- IconCache monitor is now disabled by default. [reason: buggy]
-					- Minor UI enhancements
-					- New Translaton : Vietnamese (Thanks to Clytie Siddall)
+					  BUGFIX: Clicking the synchronize button synced only the active repo instead of all repos.
+					  BUGFIX (#3641): Fixed a bug where some strings were not translated in the glade file
+					  BUGFIX (#3657): GFpm doesn't hide the progress dialog after an operation is finished.
+					  FEATURE (#2877): GFpm now shows Compressed and Uncompressed size in package info.
+					  Cancelling an on-going package download operation is now supported (finally ;))
+					  IconCache monitor is now disabled by default. [reason: buggy]
+					  Minor UI enhancements
+					  New Translaton : Vietnamese (Thanks to Clytie Siddall)
 1.1.1					- BUGFIX: Fixed a major bug where Gfpm repository manager failed to save [options] part
 					  of the configuration file resulting in an inconsistent configuration
 					  BUGFIX: In repository manager, while parsing the repositories from the conf file, skip
