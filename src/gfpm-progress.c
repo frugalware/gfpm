@@ -286,6 +286,10 @@ gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howm
 		gfpm_progress_set_sub_text (sub_text);
 		g_free (sub_text);
 	}
+	/* set percentage */
+	char text[6];
+	snprintf (text, sizeof(text), "%d %%", percent);
+	gtk_progress_bar_set_text (progressbar, text);
 	gtk_progress_bar_set_fraction (progressbar, (float)percent/100);
 	g_free (main_text);
 	while (gtk_events_pending())
