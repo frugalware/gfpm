@@ -54,6 +54,10 @@ int	xferred1;
 struct 	timeval	t0, t;
 char 	reponame[PM_DLFNM_LEN+1];
 
+/* package download status */
+unsigned int remain;
+unsigned int howmany;
+
 gboolean cancelled = FALSE;
 
 static void gfpm_progress_textview_reset (void);
@@ -70,6 +74,8 @@ gfpm_progress_init (void)
 	pacman_set_option (PM_OPT_DLOFFSET, (long)&offset);
 	pacman_set_option (PM_OPT_DLRATE, (long)&rate);
 	pacman_set_option (PM_OPT_DLFNM, (long)reponame);
+	pacman_set_option (PM_OPT_DLHOWMANY, (long)&howmany);
+	pacman_set_option (PM_OPT_DLREMAIN, (long)&remain);
 
 	progressbar = GTK_PROGRESS_BAR(gfpm_get_widget ("progressbar1"));
 	progresswindow = gfpm_get_widget ("progresswindow");
@@ -186,6 +192,7 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	int		per;
 	char		text[6];
 	char		rate_text[10];
+	char		sub_text[PATH_MAX+1];
 	struct timeval	t1;
 	float 		tdiff;
 	gchar		*rx_str = NULL;
@@ -230,7 +237,17 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	gtk_progress_bar_set_text (progressbar, text);
 	gtk_label_set_text (GTK_LABEL(rate_label), rate_text);
 	gtk_progress_bar_set_fraction (progressbar, (float)per/100);
-	gfpm_progress_set_sub_text (reponame);
+
+	if (remain && howmany)
+	{
+		snprintf (sub_text, PATH_MAX, "(%d/%d) %s", remain, howmany, g_strstrip(reponame));
+	}
+	else
+	{
+		snprintf (sub_text, PATH_MAX, g_strstrip(reponame));
+	}
+	gfpm_progress_set_sub_text (sub_text);
+
 	while (gtk_events_pending())
 		gtk_main_iteration ();
 
@@ -238,7 +255,7 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 }
 
 void
-gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howmany, int remain)
+gfpm_progress_install (unsigned char event, char *pkgname, int percent, int count, int remaining)
 {
 	char *main_text = NULL;
 	char *sub_text = NULL;
@@ -247,31 +264,32 @@ gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howm
 		return;
 	if (percent < 0 || percent > 100)
 		return;
+
 	while (gtk_events_pending())
 		gtk_main_iteration ();
 
 	switch (event)
 	{
 		case PM_TRANS_PROGRESS_ADD_START:
-			if (howmany > 1)
+			if (count > 1)
 				main_text = g_strdup (_("Installing packages..."));
 			else
 				main_text = g_strdup (_("Installing package..."));
 			break;
 		case PM_TRANS_PROGRESS_UPGRADE_START:
-			if (howmany > 1)
+			if (count > 1)
 				main_text = g_strdup (_("Upgrading packages..."));
 			else
 				main_text = g_strdup (_("Upgrading package..."));
 			break;
 		case PM_TRANS_PROGRESS_REMOVE_START:
-			if (howmany > 1)
+			if (count > 1)
 				main_text = g_strdup (_("Removing packages..."));
 			else
 				main_text = g_strdup (_("Removing package..."));
 			break;
 		case PM_TRANS_PROGRESS_CONFLICTS_START:
-			if (howmany > 1)
+			if (count > 1)
 				main_text = g_strdup (_("Checking packages for file conflicts..."));
 			else
 				main_text = g_strdup (_("Checking package for file conflicts..."));
@@ -280,11 +298,15 @@ gfpm_progress_install (unsigned char event, char *pkgname, int percent, int howm
 			return;
 	}
 	gfpm_progress_set_main_text (main_text, 0);
-	if (howmany > 1)
+	if (count > 1)
 	{
-		sub_text = g_strdup_printf ("(%d/%d) %s", remain, howmany, pkgname);
-		gfpm_progress_set_sub_text (sub_text);
-		g_free (sub_text);
+		/* TODO: Figure out a way to display "checking for file conflicts" status */
+		if (pkgname && strlen(pkgname))
+		{
+			sub_text = g_strdup_printf ("(%d/%d) %s", remaining, count, pkgname);
+			gfpm_progress_set_sub_text (sub_text);
+			g_free (sub_text);
+		}
 	}
 	/* set percentage */
 	char text[6];
@@ -349,7 +371,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 			break;
 		case PM_TRANS_EVT_UPGRADE_DONE:
 			gfpm_progress_set_main_text (_("Package upgrade finished"), 0);
-			substr = g_strdup_printf (_("upgraded %s from %s to %s"),
+			substr = g_strdup_printf (_("Upgraded %s from %s to %s"),
 					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME),
 					(char*)pacman_pkg_getinfo(data2, PM_PKG_VERSION),
 					(char*)pacman_pkg_getinfo(data1, PM_PKG_VERSION));
@@ -360,7 +382,7 @@ gfpm_progress_event (unsigned char event, void *data1, void *data2)
 			break;
 		case PM_TRANS_EVT_REMOVE_DONE:
 			gfpm_progress_set_main_text (_("Package removal finished"), 0);
-			substr = g_strdup_printf (_("removed %s"),
+			substr = g_strdup_printf (_("Removed %s"),
 					(char*)pacman_pkg_getinfo(data1, PM_PKG_NAME));
 			gtk_widget_set_sensitive (button_close, TRUE);
 			break;
