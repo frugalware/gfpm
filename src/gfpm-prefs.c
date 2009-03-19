@@ -235,7 +235,9 @@ gfpm_prefs_init (void)
 			G_CALLBACK(cb_gfpm_prefs_edit_cachedir_btn_clicked), NULL);
 	g_signal_connect (G_OBJECT(gfpm_prefs_pasvftp_check), "toggled",
 			G_CALLBACK(cb_gfpm_prefs_pasvftp_check_toggled), NULL);
-
+	g_signal_connect (G_OBJECT(gfpm_get_widget("gfpm_prefs")), "delete-event",
+			G_CALLBACK(gtk_widget_hide), (gpointer)gfpm_get_widget("gfpm_prefs"));
+	
 	gfpm_prefs_populate_holdpkg_tvw ();
 	gfpm_prefs_populate_ignorepkg_tvw ();
 
