@@ -72,6 +72,8 @@ gboolean init = FALSE;
 /* indicates gfpm is doing a package install/remove operation */
 gboolean running = FALSE;
 
+static GMutex *search_mutex = NULL;
+
 enum gfpm_cols {
 	COL_PKG_STATUS,
 	COL_PKG_ICON,
@@ -122,6 +124,7 @@ static void cb_gfpm_mark_for_upgrade (GtkButton *button, gpointer data);
 static void cb_gfpm_reinstall (GtkButton *button, gpointer data);
 static gint gfpm_trans_prepare (PM_LIST *list);
 static gint gfpm_trans_commit (PM_LIST **list);
+static void gfpm_search (GtkWidget *widget);
 
 static guint
 gfpm_populate_repos_combobox (GtkComboBox *combo)
@@ -432,6 +435,9 @@ gfpm_interface_init (void)
 	#endif
 	gfpm_logviewer_init ();
 	gfpm_prefs_init ();
+	
+	/* init search mutex */
+	search_mutex = g_mutex_new ();
 	
 	gtk_widget_hide (gfpm_splash);
 	title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
@@ -1780,6 +1786,26 @@ cb_gfpm_search_buttonpress (GtkButton *button, gpointer data)
 static void
 cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
+	GError	*error = NULL;
+
+	if (event!=NULL)
+	{
+		if (event->keyval != GDK_Return)
+			return;
+	}
+	if (!g_thread_create ((GThreadFunc)gfpm_search,
+			(gpointer)widget,
+			FALSE,
+			&error))
+	{
+		g_print ("Error creating search thread: %s\n", error->message); 
+	}
+	return;
+}
+
+static void
+gfpm_search (GtkWidget *widget)
+{
 	GtkListStore	*store;
 	GdkPixbuf	*icon_yes;
 	GdkPixbuf	*icon_no;
@@ -1797,24 +1823,27 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	gchar		*srepo = NULL;
 	PM_DB		*search_db = NULL;
 	guint		nounreg = 0;
-
-	if (event!=NULL)
-	{
-		if (event->keyval != GDK_Return)
-			return;
-	}
+	
+	g_mutex_lock (search_mutex);
+	gdk_threads_enter ();
 	search_str = (gchar*)gtk_entry_get_text (GTK_ENTRY(widget));
 	if (search_str == NULL)
-		return;
+	{
+		gdk_threads_leave ();
+		goto cleanup;
+	}
 
 	srepo = gtk_combo_box_get_active_text (GTK_COMBO_BOX(gfpm_search_combo));
-	if (srepo == NULL) return;
+	if (srepo == NULL)
+	{
+		gdk_threads_leave ();
+		goto cleanup;
+	}
 	if (!strcmp(srepo, _("Installed Packages")))
 	{
 		g_free (srepo);
 		srepo = g_strdup ("local");
 	}
-
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 	store = (GtkListStore*) model;
@@ -1842,15 +1871,17 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	{
 		gfpm_update_status (_("Search Complete"));
 		gfpm_error (_("Package not found"), _("No such package found"));
-		return;
+		gdk_threads_leave ();
+		goto cleanup;
 	}
+	
 	icon_yes = gfpm_get_icon (ICON_INSTALLED, 16);
 	icon_no = gfpm_get_icon (ICON_NINSTALLED, 16);
 	icon_up = gfpm_get_icon (ICON_NEEDUPDATE, 16);
 	icon_ln = gfpm_get_icon (ICON_LOCALNEWER, 16);
 	gfpm_update_status (_("Searching for packages ..."));
-	while (gtk_events_pending())
-			gtk_main_iteration ();
+	gdk_threads_leave ();
+	
 	if (r == 0)
 	{
 		PM_PKG	*pm_spkg;
@@ -1877,6 +1908,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			{
 				up = FALSE;
 			}
+			gdk_threads_enter ();
 			gtk_list_store_append (store, &iter);
 			gtk_list_store_set (store, &iter,
 					0, TRUE,
@@ -1886,11 +1918,11 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					4, (char*)pacman_pkg_getinfo (pm_spkg, PM_PKG_VERSION),
 					//5, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_DESC),
 					-1);
+			gdk_flush ();
+			gdk_threads_leave ();
 			pacman_pkg_free (pm_lpkg);
 			pacman_pkg_free (pm_spkg);
 		}
-		while (gtk_events_pending())
-			gtk_main_iteration ();
 	}
 	else
 	if (r == 1)
@@ -1933,6 +1965,7 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 			}
 			else
 				inst = FALSE;
+			gdk_threads_enter ();
 			gtk_list_store_append (store, &iter);
 			if (inst == TRUE)
 				gtk_list_store_set (store, &iter, 3, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_VERSION), -1);
@@ -1946,10 +1979,12 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 					4, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_VERSION),
 					//5, (char*)pacman_pkg_getinfo (pm_pkg, PM_PKG_DESC),
 					-1);
+			gdk_flush ();
+			gdk_threads_leave ();
 			pacman_pkg_free (pm_pkg);
 			pacman_pkg_free (pm_lpkg);
-			while (gtk_events_pending())
-				gtk_main_iteration ();
+			/*while (gtk_events_pending())
+				gtk_main_iteration ();*/
 		}
 	}
 	pacman_set_option (PM_OPT_NEEDLES, (long)NULL);
@@ -1957,12 +1992,16 @@ cb_gfpm_search_keypress (GtkWidget *widget, GdkEventKey *event, gpointer data)
 	{
 		pacman_db_unregister (search_db);
 	}
+	gdk_threads_enter ();
 	gfpm_update_status (_("Searching for packages ...DONE"));
 
 	g_object_unref (icon_yes);
 	g_object_unref (icon_no);
 	g_object_unref (icon_up);
 	g_object_unref (icon_ln);
+	gdk_threads_leave ();
+	cleanup:
+	g_mutex_unlock (search_mutex);
 
 	return;
 }

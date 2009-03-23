@@ -41,6 +41,9 @@ main (int argc, char *argv[])
 {
 	gchar *path;
 
+	/* invite trouble */
+	g_thread_init (NULL);
+	
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
@@ -63,9 +66,16 @@ main (int argc, char *argv[])
 		gfpm_error (_("Error initializing libpacman"), _("Failed to initialize libpacman"));
 		return 1;
 	}
+	/* initialize configuration subsystem */
 	gfpm_config_init ();
+	/* initialize everything else */
 	gfpm_interface_init ();
+	
+	/* the main loop */
+	gdk_threads_enter ();
 	gtk_main ();
+	gdk_threads_leave ();
+	
 	gfpm_db_cleanup ();
 	gfpm_config_free ();
 	gfpm_prefs_cleanup ();
