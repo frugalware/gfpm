@@ -1,5 +1,8 @@
 VERSION					DESCRIPTION
 ------------------------------------------------------------------------------------------------------------------------------
+1.2.2					- BUGFIX (#3691): UI freezes for a while when searching packages
+					  BUGFIX (#3687): Truncated Text in the preferences window
+					  BUGFIX (#3686): Prevent preferences window from being destroyed on delete-event
 1.2.1					- BUGFIX (#3684): UI freezes for a while before download operation begins
 					  BUGFIX (#3683): Truncated text in GFpm search pane (only on French locale)
 					  BUGFIX (#3669): Progress bar always shows 100% while installing freshly downloaded packages
