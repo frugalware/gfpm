@@ -180,8 +180,11 @@ _gfpm_logviewer_populate (void)
 					prev_year = (t->tm_year+1900);
 					if (prev_month != (t->tm_mon+1))
 					{
-						char day[64] = "";
-						strftime (day, 64, "%B %Y", t);
+						char tday[64] = "";
+						char *day = NULL;
+						strftime (tday, 64, "%B %Y", t);
+						/* convert to utf-8 */
+						day = g_convert (tday, strlen(tday), "UTF-8", "", NULL, NULL, NULL);
 						prev_month = t->tm_mon+1;
 						li = (LogViewItem*) malloc(sizeof(LogViewItem));
 					
@@ -193,8 +196,11 @@ _gfpm_logviewer_populate (void)
 				}
 				if (prev_month != (t->tm_mon+1))
 				{
-					char day[64] = "";
-					strftime (day, 64, "%B %Y", t);
+					char tday[64] = "";
+					char *day = NULL;
+					strftime (tday, 64, "%B %Y", t);
+					/* convert to utf-8 */
+					day = g_convert (tday, strlen(tday), "UTF-8", "", NULL, NULL, NULL);
 					li = (LogViewItem*) malloc(sizeof(LogViewItem));
 					prev_month = t->tm_mon+1;
 					li->label = g_strdup (day);
