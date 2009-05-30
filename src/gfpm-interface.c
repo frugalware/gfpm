@@ -1889,6 +1889,8 @@ gfpm_search (GtkWidget *widget)
 	if (l == NULL)
 	{
 		g_print ("NOT FOUND !!!\n");
+		gdk_flush ();
+		gdk_threads_leave ();
 		//gfpm_error (_("Package not found"), _("No such package found"));
 		goto cleanup;
 	}
@@ -2005,14 +2007,12 @@ gfpm_search (GtkWidget *widget)
 		pacman_db_unregister (search_db);
 	}
 	
+	cleanup:
 	gfpm_update_status (_("Searching for packages ...DONE"));
-
 	g_object_unref (icon_yes);
 	g_object_unref (icon_no);
 	g_object_unref (icon_up);
 	g_object_unref (icon_ln);
-	
-	cleanup:
 	g_mutex_unlock (search_mutex);
 
 	return;
