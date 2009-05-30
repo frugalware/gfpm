@@ -47,6 +47,7 @@ static GtkWidget *gfpm_logviewer_dlg;
 static GtkWidget *gfpm_logviewer_tvw;
 static GtkWidget *gfpm_logviewer_txtvw;
 static GtkWidget *gfpm_logviewer_sizelabel;
+static GtkWidget *gfpm_logviewer_progressbar;
 
 static void _gfpm_logviewer_populate (void);
 static void _gfpm_logviewer_populate_txtvw (const char *text);
@@ -71,6 +72,7 @@ gfpm_logviewer_init (void)
 	 gfpm_logviewer_tvw = gfpm_get_widget ("log_tvw");
 	 gfpm_logviewer_txtvw = gfpm_get_widget ("log_txtvw");
 	 gfpm_logviewer_sizelabel = gfpm_get_widget ("log_size_label");
+	 gfpm_logviewer_progressbar = gfpm_get_widget ("log_progress");
 	 
 	 renderer = gtk_cell_renderer_text_new ();
 	 g_object_set (renderer, "xalign", 0.0, NULL);
@@ -109,6 +111,8 @@ _gfpm_logviewer_populate (void)
 	GList		*master = NULL;
 	LogViewItem 	*li = NULL;
 	struct stat	fstat;
+	char		*command = NULL;
+	unsigned int	lines = 0;
 
 	if ((fp=fopen(LOG_FILE,"r"))==NULL)
 	{
@@ -125,13 +129,42 @@ _gfpm_logviewer_populate (void)
 		gtk_label_set_text (GTK_LABEL(gfpm_logviewer_sizelabel), sizetxt);
 		g_free (sizetxt);
 	}
+	
+	/* display a nice progress bar for huge log files */
+	/* for that we need the number of lines in the log file */
+	command = g_strdup_printf ("wc -l %s | cut -d ' ' -f1", LOG_FILE);
+	FILE *ft = popen (command, "r");
+	if (ft)
+	{
+		char ln[PATH_MAX+1] = "";
+		fgets (ln, PATH_MAX, ft);
+		lines = atoi (ln);
+	}
+	g_free (command);
+	g_print ("%s contains %d lines\n", LOG_FILE, lines);
+	
+	unsigned int 	iter_lines = 0;
+	float		progress = 0;
+	float		prev_progress = 0;
 	while (fgets(line,PATH_MAX,fp))
 	{
 		char *ptr = NULL;
-
+		
 		fwutil_trim (line);
 		if (!strlen(line))
 			continue;
+		
+		/* update progress */
+		progress = (float) iter_lines / lines;
+
+		if ((progress-prev_progress)>=0.01)
+		{
+			//g_print ("progress: %0.2f  prev_progress: %0.2f \n", progress, prev_progress);
+			gtk_progress_bar_set_fraction (GTK_PROGRESS_BAR(gfpm_logviewer_progressbar), progress);
+			prev_progress = progress;
+		}
+		iter_lines++;
+		
 		if (line[0] == '[' && line[15] == ']')
 		{
 			struct tm *t;
@@ -188,7 +221,9 @@ _gfpm_logviewer_populate (void)
 			}
 		}
 	}
-
+	/* hide the progress bar */
+	gtk_widget_hide (gfpm_logviewer_progressbar);
+	
 	/* add the master list */
 	store = gtk_tree_store_new (1, G_TYPE_STRING);
 	
