@@ -44,13 +44,16 @@ main (int argc, char *argv[])
 	/* invite trouble */
 	g_thread_init (NULL);
 	
+	/* initialize internal gdk threads mutex */
+	gdk_threads_init ();
+
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
-
+	
 	gtk_init (&argc, &argv);
-
+	gdk_threads_enter ();
 	path = g_strdup_printf ("%s%s", PREFIX, UI_FILE);
 
 	if (!(xml=glade_xml_new(path, NULL, NULL)))
@@ -72,8 +75,9 @@ main (int argc, char *argv[])
 	gfpm_interface_init ();
 	
 	/* the main loop */
-	gdk_threads_enter ();
 	gtk_main ();
+	
+	/* phew */
 	gdk_threads_leave ();
 	
 	gfpm_db_cleanup ();
