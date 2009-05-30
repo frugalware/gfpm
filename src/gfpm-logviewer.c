@@ -86,6 +86,11 @@ gfpm_logviewer_init (void)
 	sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_logviewer_tvw));
 	g_signal_connect (G_OBJECT(sel), "changed", G_CALLBACK(cb_gfpm_logviewer_tvw_row_activated), NULL);
 
+	/* hide window on delete-event */
+	g_signal_connect (G_OBJECT(gfpm_logviewer_dlg),
+			"delete-event",
+			G_CALLBACK(gtk_widget_hide),
+			(gpointer)gfpm_logviewer_dlg);
 	return;
 }
 
