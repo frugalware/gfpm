@@ -1,7 +1,7 @@
 /*
  *  gfpm-optimizedb.c for gfpm
  *
- *  Copyright (C) 2006-2008 by Priyank Gosalia <priyankmg@gmail.com>
+ *  Copyright (C) 2006-2009 by Priyank Gosalia <priyankmg@gmail.com>
  *  Based on pacman-optimize written by Judd Vinet
  *  Copyright (C) 2002-2006 Judd Vinet <jvinet@zeroflux.org>
  *
@@ -62,6 +62,10 @@ gfpm_optimize_db_dlg_init (void)
 			"clicked",
 			G_CALLBACK(gfpm_optimize_db_dlg_hide),
 			NULL);
+	g_signal_connect (G_OBJECT(gfpm_optimize_db_dlg),
+			"delete-event",
+			G_CALLBACK(gtk_widget_hide),
+			(gpointer)gfpm_optimize_db_dlg);
 
 	return;
 }
