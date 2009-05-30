@@ -100,3 +100,21 @@ gfpm_update_iconcache (void)
 	return;
 }
 
+gchar *
+gfpm_convert_to_utf8 (const char *str)
+{
+	gchar	*ret = NULL;
+	GError	*error = NULL;
+	if (str)
+	{
+		ret = g_convert (str, strlen(str), "UTF-8", "", NULL, NULL, &error);
+		if (ret == NULL)
+		{
+			g_print ("Error converting string to utf-8: %s\n", error->message);
+		}
+	}
+	
+	return ret;
+}
+
+

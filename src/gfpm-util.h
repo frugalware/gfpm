@@ -22,4 +22,7 @@ gint gfpm_check_if_package_updatable (const gchar *);
 
 void gfpm_update_iconcache (void);
 
+/* Converts a string to UTF-8. Returned string must be freed */
+gchar * gfpm_convert_to_utf8 (const char *str);
+
 #endif
