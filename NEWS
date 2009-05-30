@@ -1,5 +1,11 @@
 VERSION					DESCRIPTION
 ------------------------------------------------------------------------------------------------------------------------------
+1.2.3					- BUGFIX (#3712, #3752, #3790): Fix crashes/lockups during package search
+					  BUGFIX (#3687): Truncated Text in the preferences window (wasnt fixed in 1.2.2)
+					  BUGFIX (#3715, #3716): Added a progress bar to the logviewer to prevent lockups when reading huge log files
+					  BUGFIX (#3714): Accents not displayed correctly in log viewer.
+					  BUGFIX (#3713): Don't destroy the optimize database dialog on delete-event
+					  Don't destroy the log viewer dialog on delete-event
 1.2.2					- BUGFIX (#3691): UI freezes for a while when searching packages
 					  BUGFIX (#3687): Truncated Text in the preferences window
 					  BUGFIX (#3686): Prevent preferences window from being destroyed on delete-event
