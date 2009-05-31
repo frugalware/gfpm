@@ -1867,7 +1867,7 @@ gfpm_search (GtkWidget *widget)
 		g_free (srepo);
 		srepo = g_strdup ("local");
 	}
-	
+	/* enter the gdk critical section */
 	gdk_threads_enter ();
 	
 	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
@@ -1902,10 +1902,8 @@ gfpm_search (GtkWidget *widget)
 	
 	if (l == NULL)
 	{
-		g_print ("NOT FOUND !!!\n");
-		gdk_flush ();
-		gdk_threads_leave ();
-		//gfpm_error (_("Package not found"), _("No such package found"));
+		g_print ("package not found\n");
+		gfpm_error (_("Package not found"), _("No such package found"));
 		goto cleanup;
 	}
 
@@ -2012,8 +2010,8 @@ gfpm_search (GtkWidget *widget)
 			pacman_pkg_free (pm_lpkg);
 		}
 	}
-	gdk_flush ();
-	gdk_threads_leave ();
+	cleanup:
+	g_print ("cleaning up..\n");
 	
 	pacman_set_option (PM_OPT_NEEDLES, (long)NULL);
 	if (search_db!=NULL && !nounreg)
@@ -2021,12 +2019,15 @@ gfpm_search (GtkWidget *widget)
 		pacman_db_unregister (search_db);
 	}
 	
-	cleanup:
 	gfpm_update_status (_("Searching for packages ...DONE"));
 	g_object_unref (icon_yes);
 	g_object_unref (icon_no);
 	g_object_unref (icon_up);
 	g_object_unref (icon_ln);
+	
+	/* leave the gdk critical section */
+	gdk_flush ();
+	gdk_threads_leave ();
 	g_mutex_unlock (search_mutex);
 
 	return;
