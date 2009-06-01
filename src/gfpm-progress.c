@@ -465,8 +465,8 @@ gfpm_progress_set_main_text (const char *msg, int txt)
 			gtk_text_buffer_insert (buffer, &t_iter, nstr, strlen(nstr));
 			g_free (prev_msg);
 			prev_msg = g_strdup_printf (msg);
-			g_free (nstr);
 		}
+		g_free (nstr);
 	}
 
 	return;
