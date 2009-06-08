@@ -57,6 +57,8 @@ extern GfpmList *remove_list;
 extern char	*repo;
 extern gchar	*quickpane_pkg;
 
+static garg = 0;
+
 /* current group the user is browsing */
 /* used for refreshing the views after a package update */
 gchar *current_group = NULL;
@@ -548,6 +550,7 @@ gfpm_interface_init (ARGS arg, void* argdata)
 		{
 			case ARG_ADD:
 			{
+				garg = ARG_ADD;
 				/* Setup install from file dialog */
 				_gfpm_inst_from_file_dlg_init ();
 				if (geteuid()!=0)
@@ -2340,7 +2343,10 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	gtk_widget_hide (gfpm_inst_from_file_dlg);
 	if (gfpm_progress_is_autoclose_checkbtn_set())
 		gfpm_progress_show (FALSE);
-
+	if (garg == ARG_ADD)
+	{
+		gtk_main_quit();
+	}
 	return;
 }
 
