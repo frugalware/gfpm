@@ -21,6 +21,7 @@
 #define _GNU_SOURCE
 #include <locale.h>
 #include <gtk/gtk.h>
+#include <getopt.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -39,18 +40,49 @@ GladeXML *xml = NULL;
 int
 main (int argc, char *argv[])
 {
-	gchar *path;
-
-	/* invite trouble */
-	g_thread_init (NULL);
-	
-	/* initialize internal gdk threads mutex */
-	gdk_threads_init ();
+	gchar	*path;
+	int		opt;
+	int		longopt_index;
 
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 	textdomain (GETTEXT_PACKAGE);
+
+	/* parse command-line arguments */
+	static struct option long_options[] = {
+		{"help", 0, NULL, 'h'},
+		{"version", 0, NULL, 'v'},
+		{NULL, 0, NULL, 0}
+	};
+	
+	while ((opt = getopt_long(argc, argv, "hv", long_options, &longopt_index)) > 0)
+	{
+		switch (opt)
+		{
+			char *vstr = NULL;
+			case 'v':
+				vstr = g_strdup_printf ("%s version %s (%s)\n",
+							g_ascii_strdown(PACKAGE,strlen(PACKAGE)),
+							VERSION,
+							GFPM_RELEASE_NAME);
+				fprintf (stdout, vstr);
+				g_free (vstr);
+				return 0;
+			case 'h':
+			default:
+				fprintf(stderr, "usage: %s [options]\n", basename(argv[0]));
+				fprintf(stderr, "  -h, --help			display this help\n");
+				fprintf(stderr, "  -v, --version			version information\n");
+				return 1;
+		}
+	}
+	
+	/* invite trouble */
+	g_thread_init (NULL);
+	
+	/* initialize internal gdk threads mutex */
+	gdk_threads_init ();
 	
 	gtk_init (&argc, &argv);
 	gdk_threads_enter ();
