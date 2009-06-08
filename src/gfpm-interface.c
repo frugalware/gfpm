@@ -2306,7 +2306,16 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	}
 	gfpm_progress_show (TRUE);
 	/* add the target */
-	pacman_trans_addtarget ((char*)fpm);
+	if (pacman_trans_addtarget((char*)fpm)==-1)
+	{
+		gfpm_progress_show (FALSE);
+		gchar *p_error_utf8 = gfpm_convert_to_utf8 (pacman_strerror(pm_errno));
+		str = g_strdup_printf (_("Failed to add target (%s)\n"), p_error_utf8);
+		gfpm_error (_("Error"), str);
+		g_free (str);
+		g_free (p_error_utf8);
+		goto cleanup;
+	}
 	if (gfpm_trans_prepare(trans_data) == -1)
 	{	
 		gfpm_progress_show (FALSE);
