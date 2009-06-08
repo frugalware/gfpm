@@ -509,12 +509,6 @@ gfpm_interface_init (ARGS arg, void* argdata)
 			/* init repomanager only if gfpm is run as root user */
 			gfpm_repomanager_init ();
 		}
-		
-		/* initialize modules */
-		if (gfpm_db_init())
-		{
-			gfpm_error (_("Error"), _("Failed to initialize local package database."));
-		}
 
 		/* optimize database dialog */
 		gfpm_optimize_db_dlg_init ();
@@ -531,6 +525,11 @@ gfpm_interface_init (ARGS arg, void* argdata)
 		_gfpm_misc_widgets_init ();
 	}
 	
+	/* initialize modules */
+	if (gfpm_db_init())
+	{
+		gfpm_error (_("Error"), _("Failed to initialize local package database."));
+	}
 	gfpm_messages_init ();
 	gfpm_progress_init ();
 
