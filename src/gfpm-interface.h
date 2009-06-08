@@ -32,7 +32,7 @@ void gfpm_load_groups_tvw (const char *);
 void gfpm_load_pkgs_tvw (const char *);
 
 /* populate gfpm's info treeview for a specified package */
-void gfpm_load_info_tvw (const char *);
+void gfpm_load_info_tvw (const char *, GtkTreeView *);
 
 /* populate files textview for a specied package */
 void gfpm_load_files_txtvw (const char *, gboolean);

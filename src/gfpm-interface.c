@@ -99,6 +99,8 @@ static GtkWidget *gfpm_inst_filechooser;
 static GtkWidget *gfpm_inst_upgcheck;
 static GtkWidget *gfpm_inst_depcheck;
 static GtkWidget *gfpm_inst_forcheck;
+static GtkWidget *gfpm_inst_infoframe;
+static GtkWidget *gfpm_inst_infotvw;
 static GtkWidget *gfpm_apply_inst_depcheck;
 static GtkWidget *gfpm_apply_inst_dwocheck;
 static GtkWidget *gfpm_apply_rem_depcheck;
@@ -118,6 +120,7 @@ static void cb_gfpm_search_buttonpress (GtkButton *button, gpointer data);
 static void cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_install_file_selection_changed (GtkFileChooser *chooser, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_mark_for_install (GtkButton *button, gpointer data);
@@ -365,10 +368,35 @@ _gfpm_inst_from_file_dlg_init (void)
 	gfpm_inst_depcheck = gfpm_get_widget ("depcheck");
 	gfpm_inst_upgcheck = gfpm_get_widget ("upgcheck");
 	gfpm_inst_forcheck = gfpm_get_widget ("forcheck");
+	gfpm_inst_infoframe = gfpm_get_widget ("gfpm_inst_from_file_dlg_info_frame");
+	gfpm_inst_infotvw = gfpm_get_widget ("gfpm_inst_from_file_dlg_info_tvw");
+	
+	/* setup the package information treeview */
+	GtkListStore		*store = NULL;
+	GtkCellRenderer		*renderer = NULL;
+
+	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
+	renderer = gtk_cell_renderer_text_new();
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_inst_infotvw), -1, "Info", renderer, "markup", 0, NULL);
+	renderer = gtk_cell_renderer_text_new ();
+	g_object_set (renderer, "wrap-width", 300, NULL);
+	g_object_set (renderer, "wrap-mode", PANGO_WRAP_WORD_CHAR, NULL);
+	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_inst_infotvw), -1, "Value", renderer, "text", 1, NULL);
+	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_inst_infotvw), GTK_TREE_MODEL(store));
+	g_object_set (gfpm_inst_infotvw, "hover-selection", TRUE, NULL);
+	
+	/* hide the info frame by default 
+	 * we'll show it when the user loads a package */
+	gtk_widget_hide (gfpm_inst_infoframe);
+
 	/* signal */
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")),
 					"clicked",
 					G_CALLBACK(cb_gfpm_install_file_clicked),
+					NULL);
+	g_signal_connect (G_OBJECT(gfpm_inst_filechooser),
+					"selection-changed",
+					G_CALLBACK(cb_gfpm_install_file_selection_changed),
 					NULL);
 
 	return;
@@ -523,8 +551,6 @@ gfpm_interface_init (ARGS arg, void* argdata)
 		gfpm_logviewer_init ();
 		/* preferences subsystem */
 		gfpm_prefs_init ();
-		/* miscellanous widgets */
-		_gfpm_misc_widgets_init ();
 	}
 	
 	/* initialize modules */
@@ -537,6 +563,9 @@ gfpm_interface_init (ARGS arg, void* argdata)
 
 	if (!arg)
 	{
+		/* miscellanous widgets */
+		_gfpm_misc_widgets_init ();
+
 		/* init search mutex */
 		search_mutex = g_mutex_new ();
 		gtk_widget_hide (gfpm_splash);
@@ -976,7 +1005,7 @@ gfpm_load_pkgs_tvw (const char *group_name)
 }
 
 void
-gfpm_load_info_tvw (const char *pkg_name)
+gfpm_load_info_tvw (const char *pkg_name, GtkTreeView *tvw)
 {
 	GtkTreeModel	*model;
 	GtkTreeIter	iter;
@@ -988,31 +1017,49 @@ gfpm_load_info_tvw (const char *pkg_name)
 	GString		*str;
 	float		size;
 	char		*st, *tmp = NULL;
+	gboolean	pkg_is_file = FALSE;
 
 	if (!pkg_name)
 		return;
-	if (!strcmp(repo,"local"))
-		pm_pkg = pacman_db_readpkg (local_db, (char*)pkg_name);
+	
+	/* check if it's a package file because we don't need any repo checking for a fpm */
+	if (pkg_name[0] != '/')
+	{
+		if (!strcmp(repo,"local"))
+			pm_pkg = pacman_db_readpkg (local_db, (char*)pkg_name);
+		else
+		{
+			pm_pkg = pacman_db_readpkg (sync_db, (char*)pkg_name);
+			r = 1;
+		}
+
+		/* if the package is in a remote repo, check if it's installed or not */
+		if (r == 1)
+		{
+			pm_lpkg = pacman_db_readpkg (local_db, (char*)pkg_name);
+			if (pacman_pkg_getinfo(pm_lpkg, PM_PKG_VERSION)!=NULL)
+				inst = TRUE;
+		}
+		else if (r == 0)
+		{
+			pm_lpkg = pacman_db_readpkg (local_db, (char*)pkg_name);
+			inst = TRUE;
+		}
+	}
 	else
 	{
-		pm_pkg = pacman_db_readpkg (sync_db, (char*)pkg_name);
-		r = 1;
+		if (g_file_test(pkg_name,G_FILE_TEST_EXISTS))
+		{
+			if (pacman_pkg_load(pkg_name,&pm_pkg))
+			{
+				gfpm_error (_("Error"), _("Error loading package information from file"));		
+				return;
+			}
+			pkg_is_file = TRUE;
+		}
 	}
 
-	/* if the package is in a remote repo, check if it's installed or not */
-	if (r == 1)
-	{
-		pm_lpkg = pacman_db_readpkg (local_db, (char*)pkg_name);
-		if (pacman_pkg_getinfo(pm_lpkg, PM_PKG_VERSION)!=NULL)
-			inst = TRUE;
-	}
-	else if (r == 0)
-	{
-		pm_lpkg = pacman_db_readpkg (local_db, (char*)pkg_name);
-		inst = TRUE;
-	}
-
-	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_info_tvw));
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(tvw));
 	gtk_list_store_clear (GTK_LIST_STORE(model));
 
 	gtk_list_store_append (GTK_LIST_STORE(model), &iter);
@@ -1037,7 +1084,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 						-1);
 	g_free (st);
 	/* populate license */
-	if (inst == TRUE)
+	if (pkg_is_file || inst == TRUE)
 	{
 		temp = pacman_pkg_getinfo (pm_lpkg, PM_PKG_LICENSE);
 		str = g_string_new ("");
@@ -1152,31 +1199,41 @@ gfpm_load_info_tvw (const char *pkg_name)
 	}
 	g_string_free (str, TRUE);
 	
-	if (inst == TRUE)
+	if (pkg_is_file || inst == TRUE)
 	{
+		PM_PKG *pkgt = NULL;
+		
+		if (pkg_is_file)
+			pkgt = pm_pkg;
+		else
+			pkgt = pm_lpkg;
+		
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		st = (char*)gfpm_bold (_("URL:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					0, st,
-					1, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_URL),
+					1, (char*)pacman_pkg_getinfo (pkgt, PM_PKG_URL),
 					-1);
 		g_free (st);
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		st = (char*)gfpm_bold (_("Packager:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
 					0, st,
-					1, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_PACKAGER),
+					1, (char*)pacman_pkg_getinfo (pkgt, PM_PKG_PACKAGER),
 					-1);
 		g_free (st);
+		if (!pkg_is_file)
+		{
+			gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+			st = (char*)gfpm_bold (_("Install Date:"));
+			gtk_list_store_set (GTK_LIST_STORE(model), &iter,
+						0, st,
+						1, (char*)pacman_pkg_getinfo (pkgt, PM_PKG_INSTALLDATE),
+						-1);
+			g_free (st);
+		}
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		st = (char*)gfpm_bold (_("Install Date:"));
-		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-					0, st,
-					1, (char*)pacman_pkg_getinfo (pm_lpkg, PM_PKG_INSTALLDATE),
-					-1);
-		g_free (st);
-		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
-		size = (float)((long)pacman_pkg_getinfo (pm_lpkg, PM_PKG_SIZE)/1024)/1024;
+		size = (float)((long)pacman_pkg_getinfo (pkgt, PM_PKG_SIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
 		st = (char*)gfpm_bold (_("Size:"));
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter,
@@ -1186,7 +1243,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 		g_free (st);
 		g_free (tmp);
 	}
-	if (inst == FALSE)
+	if (inst == FALSE && !pkg_is_file)
 	{
 		size = (float)((long)pacman_pkg_getinfo (pm_pkg, PM_PKG_SIZE)/1024)/1024;
 		asprintf (&tmp, "%0.2f MB", size);
@@ -1209,7 +1266,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 		g_free (st);
 		g_free (tmp);
 	}
-	if (r == 1)
+	if (r == 1 && !pkg_is_file)
 	{
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		st = (char*)gfpm_bold (_("SHA1SUM:"));
@@ -1219,7 +1276,7 @@ gfpm_load_info_tvw (const char *pkg_name)
 					-1);
 		g_free (st);
 	}
-	if (inst == TRUE)
+	if (inst == TRUE || pkg_is_file)
 	{
 		temp = pacman_pkg_getinfo (pm_pkg, PM_PKG_REQUIREDBY);
 		str = g_string_new ("");
@@ -1240,6 +1297,10 @@ gfpm_load_info_tvw (const char *pkg_name)
 		}
 		g_string_free (str, TRUE);
 
+		if (pkg_is_file)
+		{
+			pm_lpkg = pm_pkg;
+		}
 		st = (char*)gfpm_bold (_("Reason:"));
 		gtk_list_store_append (GTK_LIST_STORE(model), &iter);
 		switch ((long)pacman_pkg_getinfo (pm_lpkg, PM_PKG_REASON))
@@ -1347,8 +1408,9 @@ gfpm_load_changelog_txtvw (const char *pkg_name, gboolean inst)
 static gint
 gfpm_trans_prepare (PM_LIST *list)
 {
-	if (pacman_trans_prepare(&list))
+	if (pacman_trans_prepare(&list)==-1)
 	{
+		g_print ("failed to prepare\n");
 		PM_LIST *i;
 		GList	*pkgs = NULL;
 		gchar	*str = NULL;
@@ -1647,7 +1709,7 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 	{
 		gtk_tree_model_get (model, &iter, 2, &pkgname, 3, &v1, 4, &v2, -1);
 		quickpane_pkg = g_strdup (pkgname);
-		gfpm_load_info_tvw (pkgname);
+		gfpm_load_info_tvw (pkgname,gfpm_info_tvw);
 		if (v1 != NULL)
 			inst = TRUE;
 		gfpm_load_files_txtvw (pkgname, inst);
@@ -2349,4 +2411,17 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	}
 	return;
 }
+
+static void
+cb_gfpm_install_file_selection_changed (GtkFileChooser *chooser, gpointer data)
+{
+	char *file = NULL;
+
+	file = gtk_file_chooser_get_filename (chooser);
+	gfpm_load_info_tvw (file, gfpm_inst_infotvw);
+
+			/* show the info */
+			gtk_widget_show (gfpm_inst_infoframe);
+}
+
 
