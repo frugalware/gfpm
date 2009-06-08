@@ -539,7 +539,8 @@ gfpm_interface_init (ARGS arg, void* argdata)
 			/* init repomanager only if gfpm is run as root user */
 			gfpm_repomanager_init ();
 		}
-
+		/* miscellanous widgets */
+		_gfpm_misc_widgets_init ();
 		/* optimize database dialog */
 		gfpm_optimize_db_dlg_init ();
 		/* quick pane */
@@ -553,19 +554,17 @@ gfpm_interface_init (ARGS arg, void* argdata)
 		gfpm_prefs_init ();
 	}
 	
+	gfpm_messages_init ();
+	gfpm_progress_init ();
+	
 	/* initialize modules */
 	if (gfpm_db_init())
 	{
 		gfpm_error (_("Error"), _("Failed to initialize local package database."));
 	}
-	gfpm_messages_init ();
-	gfpm_progress_init ();
-
+	
 	if (!arg)
 	{
-		/* miscellanous widgets */
-		_gfpm_misc_widgets_init ();
-
 		/* init search mutex */
 		search_mutex = g_mutex_new ();
 		gtk_widget_hide (gfpm_splash);
