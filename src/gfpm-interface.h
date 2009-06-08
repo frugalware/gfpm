@@ -14,7 +14,7 @@
 GtkWidget * gfpm_get_widget (const char *);
 
 /* Initialize gfpm interface. Call this function before any other interface functions */
-void gfpm_interface_init (void);
+void gfpm_interface_init (ARGS arg, void* argdata);
 
 /* update status */
 void gfpm_update_status (const char *);

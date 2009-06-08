@@ -16,4 +16,8 @@
 #endif
 #define _(string) gettext (string)
 
+typedef enum {
+	ARG_ADD = 0x01
+} ARGS;
+
 #endif

@@ -41,8 +41,10 @@ int
 main (int argc, char *argv[])
 {
 	gchar	*path;
+	char	*tmp = NULL;
 	int		opt;
 	int		longopt_index;
+	int		arg = 0;
 
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
@@ -53,25 +55,33 @@ main (int argc, char *argv[])
 	static struct option long_options[] = {
 		{"help", 0, NULL, 'h'},
 		{"version", 0, NULL, 'v'},
+		{"add", 1, NULL, 'A'},
 		{NULL, 0, NULL, 0}
 	};
 	
-	while ((opt = getopt_long(argc, argv, "hv", long_options, &longopt_index)) > 0)
+	while ((opt = getopt_long(argc, argv, "hvA:", long_options, &longopt_index)) > 0)
 	{
 		switch (opt)
 		{
-			char *vstr = NULL;
 			case 'v':
-				vstr = g_strdup_printf ("%s version %s (%s)\n",
+				tmp = g_strdup_printf ("%s version %s (%s)\n",
 							g_ascii_strdown(PACKAGE,strlen(PACKAGE)),
 							VERSION,
 							GFPM_RELEASE_NAME);
-				fprintf (stdout, vstr);
-				g_free (vstr);
+				fprintf (stdout, tmp);
+				g_free (tmp);
 				return 0;
+			case 'A':
+				if (optarg)
+				{
+					tmp = g_strdup (optarg);
+					arg |= ARG_ADD;
+				}
+				break;
 			case 'h':
 			default:
 				fprintf(stderr, "usage: %s [options]\n", basename(argv[0]));
+				fprintf(stderr, "  -A, --add <file>		install a package from file\n");
 				fprintf(stderr, "  -h, --help			display this help\n");
 				fprintf(stderr, "  -v, --version			version information\n");
 				return 1;
@@ -104,14 +114,14 @@ main (int argc, char *argv[])
 	/* initialize configuration subsystem */
 	gfpm_config_init ();
 	/* initialize everything else */
-	gfpm_interface_init ();
+	gfpm_interface_init (arg, (void*)tmp);
 	
 	/* the main loop */
 	gtk_main ();
 	
 	/* phew */
 	gdk_threads_leave ();
-	
+
 	gfpm_db_cleanup ();
 	gfpm_config_free ();
 	gfpm_prefs_cleanup ();

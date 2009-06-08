@@ -84,6 +84,7 @@ enum gfpm_cols {
 	COL_PKG_SIZE_UNCOMPRESSED
 };
 
+static GtkWidget *gfpm_splash = NULL;
 static GtkWidget *gfpm_statusbar = NULL;
 static GtkWidget *gfpm_groups_tvw = NULL;
 static GtkWidget *gfpm_info_tvw = NULL;
@@ -302,48 +303,14 @@ gfpm_setup_pkgs_tvw (void)
 	return;
 }
 
-void
-gfpm_interface_init (void)
+static void
+_gfpm_groups_tvw_init (void)
 {
-	GtkWidget		*gfpm_splash;
-	GtkListStore		*store;
-	GtkCellRenderer		*renderer;
-	GtkTreeSelection	*selection;
-	gchar			*title = NULL;
+	GtkListStore		*store = NULL;
+	GtkCellRenderer		*renderer = NULL;
+	GtkTreeSelection	*selection = NULL;
 
-	gfpm_mw		= gfpm_get_widget ("mainwindow");
-	gfpm_splash	= gfpm_get_widget ("splash_window");
-	gfpm_statusbar	= gfpm_get_widget ("statusbar");
-	
-	/* set application icon */
-	GdkPixbuf *icon = gfpm_get_icon ("gfpm", 32);
-	gtk_window_set_icon (GTK_WINDOW(gfpm_mw), icon);
-	g_object_unref (icon);
-	
-	gtk_widget_show (gfpm_splash);
-	while (gtk_events_pending())
-		gtk_main_iteration ();
-
-	sleep (1);
 	gfpm_groups_tvw = gfpm_get_widget ("grouptreeview");
-	gfpm_pkgs_tvw	= gfpm_get_widget ("pkgstreeview");
-	gfpm_info_tvw	= gfpm_get_widget ("infotreeview");
-	gfpm_files_txtvw = gfpm_get_widget ("filestextview");
-	gfpm_clog_txtvw = gfpm_get_widget ("changelogtextview");
-	gfpm_clrold_opt = gfpm_get_widget ("rem_old_opt");
-	gfpm_clrall_opt = gfpm_get_widget ("rem_all_opt");
-	gfpm_inst_from_file_dlg = gfpm_get_widget ("inst_from_file_dlg");
-	gfpm_inst_filechooser = gfpm_get_widget ("gfpm_inst_filechooser");
-	gfpm_inst_depcheck = gfpm_get_widget ("depcheck");
-	gfpm_inst_upgcheck = gfpm_get_widget ("upgcheck");
-	gfpm_inst_forcheck = gfpm_get_widget ("forcheck");
-	gfpm_apply_inst_depcheck = gfpm_get_widget ("applyinstdepcheck");
-	gfpm_apply_rem_depcheck = gfpm_get_widget ("applyremdepcheck");
-	gfpm_apply_inst_dwocheck = gfpm_get_widget ("applyinstdwcheck");
-	gfpm_search_combo = gfpm_get_widget ("search_repocombo");
-	gfpm_repos_combo = gfpm_get_widget ("combobox_repos");
-
-	/* Setup groups treeview */
 	store = gtk_list_store_new (1, G_TYPE_STRING);
 	renderer = gtk_cell_renderer_text_new ();
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_groups_tvw), -1, "Groups", renderer, "text", 0, NULL);
@@ -351,17 +318,32 @@ gfpm_interface_init (void)
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_groups_tvw));
 	g_signal_connect (selection, "changed", G_CALLBACK(cb_gfpm_groups_tvw_selected), NULL);
 
-	/* Setup pkgs treeview */
-	gfpm_setup_pkgs_tvw ();
+	return;
+}
 
+static void
+_gfpm_packages_tvw_init (void)
+{
+	GtkTreeSelection *selection = NULL;
+
+	gfpm_pkgs_tvw	= gfpm_get_widget ("pkgstreeview");
+	gfpm_setup_pkgs_tvw ();
 	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));
 	g_signal_connect(selection, "changed", G_CALLBACK(cb_gfpm_pkgs_tvw_selected), NULL);
 	g_signal_connect (gfpm_pkgs_tvw, "button-release-event", G_CALLBACK(cb_gfpm_pkgs_tvw_right_click), NULL);
 	g_signal_connect (gfpm_groups_tvw, "button-release-event", G_CALLBACK(cb_gfpm_groups_tvw_right_click), NULL);
 
-	/* Setup info treeview */
-	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
+	return;
+}
 
+static void
+_gfpm_info_tvw_init (void)
+{
+	GtkListStore		*store = NULL;
+	GtkCellRenderer		*renderer = NULL;
+
+	gfpm_info_tvw	= gfpm_get_widget ("infotreeview");
+	store = gtk_list_store_new (2, G_TYPE_STRING, G_TYPE_STRING);
 	renderer = gtk_cell_renderer_text_new();
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_info_tvw), -1, "Info", renderer, "markup", 0, NULL);
 
@@ -371,80 +353,227 @@ gfpm_interface_init (void)
 	gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW(gfpm_info_tvw), -1, "Value", renderer, "text", 1, NULL);
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_info_tvw), GTK_TREE_MODEL(store));
 	g_object_set (gfpm_info_tvw, "hover-selection", TRUE, NULL);
+}
+
+static void
+_gfpm_inst_from_file_dlg_init (void)
+{
+	gfpm_inst_from_file_dlg = gfpm_get_widget ("inst_from_file_dlg");
+	gfpm_inst_filechooser = gfpm_get_widget ("gfpm_inst_filechooser");
+	gfpm_inst_depcheck = gfpm_get_widget ("depcheck");
+	gfpm_inst_upgcheck = gfpm_get_widget ("upgcheck");
+	gfpm_inst_forcheck = gfpm_get_widget ("forcheck");
+	/* signal */
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")),
+					"clicked",
+					G_CALLBACK(cb_gfpm_install_file_clicked),
+					NULL);
+
+	return;
+}
+
+static void
+_gfpm_misc_widgets_init (void)
+{
+	gfpm_statusbar	= gfpm_get_widget ("statusbar");
+	gfpm_files_txtvw = gfpm_get_widget ("filestextview");
+	gfpm_clog_txtvw = gfpm_get_widget ("changelogtextview");
+	gfpm_clrold_opt = gfpm_get_widget ("rem_old_opt");
+	gfpm_clrall_opt = gfpm_get_widget ("rem_all_opt");
+	gfpm_apply_inst_depcheck = gfpm_get_widget ("applyinstdepcheck");
+	gfpm_apply_rem_depcheck = gfpm_get_widget ("applyremdepcheck");
+	gfpm_apply_inst_dwocheck = gfpm_get_widget ("applyinstdwcheck");
 	
 	/* Setup repository combobox */
+	gfpm_repos_combo = gfpm_get_widget ("combobox_repos");
 	gfpm_interface_setup_repo_combos ();
 	if (!init) init = TRUE;
 
-	/* search */
+	return;
+}
+
+static void
+_gfpm_search_init (void)
+{
+	gfpm_search_combo = gfpm_get_widget ("search_repocombo");
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
 	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "gfpm_searchbtn")),
 				"clicked",
 				G_CALLBACK(cb_gfpm_search_buttonpress),
 				(gpointer)glade_xml_get_widget(xml, "search_entry1"));
 
-	/* about */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")), "activate", G_CALLBACK(gfpm_about), NULL);
-	
-	/* syslog */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "syslog1")), "activate", G_CALLBACK(gfpm_logviewer_show), NULL);
-	
-	/* repository manager */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "menu_edit_repos")), "activate", G_CALLBACK(gfpm_repomanager_show), NULL);
+	return;
+}
 
-	/* aply */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")), "clicked", G_CALLBACK(cb_gfpm_apply_btn_clicked), NULL);
+static void
+_gfpm_main_window_init (void)
+{
+	gchar		*title = NULL;
+	GdkPixbuf	*icon = NULL;
 
-	/* refresh db */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")), "clicked", G_CALLBACK(cb_gfpm_refresh_button_clicked), NULL);
-
-	/* clear cache dialog */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")), "clicked", G_CALLBACK(cb_gfpm_clear_cache_apply_clicked), NULL);
-
-	/* install from file */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")), "clicked", G_CALLBACK(cb_gfpm_install_file_clicked), NULL);
-
-	/* Disable Apply, Refresh and File buttons if user is not root */
-	if ( geteuid() != 0 )
-	{
-		/* disable some widgets */
-		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_apply"), FALSE);
-		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_refresh1"), FALSE);
-		gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_file1"), FALSE);
-		gtk_widget_set_sensitive (gfpm_get_widget("button_preferences"), FALSE);
-		gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_repos"), FALSE);
-		gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_prefs"), FALSE);
-		gtk_widget_set_sensitive (gfpm_get_widget("clr1"), FALSE);
-		gtk_widget_set_sensitive (gfpm_get_widget("menu_tools_optimize"), FALSE);
-	}
-	else
-	{
-		/* init repomanager only if gfpm is run as root user */
-		gfpm_repomanager_init ();
-	}
-
-	/* initialize modules */
-	if (gfpm_db_init ())
-		gfpm_error (_("Error"), _("Failed to initialize local package database."));
-	gfpm_messages_init ();
-	gfpm_progress_init ();
-	gfpm_optimize_db_dlg_init ();
-	gfpm_quickpane_init ();
-	#ifdef HAVE_ICMONITOR
-	gfpm_icmonitor_init ();
-	#endif
-	gfpm_logviewer_init ();
-	gfpm_prefs_init ();
-	
-	/* init search mutex */
-	search_mutex = g_mutex_new ();
-	
-	gtk_widget_hide (gfpm_splash);
+	gfpm_mw	= gfpm_get_widget ("mainwindow");
+	/* set application icon */
+	icon = gfpm_get_icon ("gfpm", 32);
+	gtk_window_set_icon (GTK_WINDOW(gfpm_mw), icon);
+	g_object_unref (icon);
+	/* set window title */
 	title = g_strdup_printf ("%s (%s)", PACKAGE_STRING, GFPM_RELEASE_NAME);
 	gtk_window_set_title (GTK_WINDOW(gfpm_mw), title);
 	g_free (title);
-	gtk_widget_show (gfpm_mw);
-	gtk_window_present (GTK_WINDOW(gfpm_mw));
+
+	return;
+}
+
+void
+gfpm_interface_init (ARGS arg, void* argdata)
+{
+	if (!arg)
+	{
+		gfpm_splash	= gfpm_get_widget ("splash_window");
+
+		/* initialize main window */
+		_gfpm_main_window_init ();
+
+		gtk_widget_show (gfpm_splash);
+		while (gtk_events_pending())
+			gtk_main_iteration ();
+
+		sleep (1);
+
+		/* initialize search */
+		_gfpm_search_init ();
+
+		/* Setup groups treeview */
+		_gfpm_groups_tvw_init ();
+
+		/* Setup pkgs treeview */
+		_gfpm_packages_tvw_init ();
+
+		/* Setup info treeview */
+		_gfpm_info_tvw_init ();
+	
+		/* Setup install from file dialog */
+		_gfpm_inst_from_file_dlg_init ();
+
+		/* about */
+		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")),
+						"activate",
+						G_CALLBACK(gfpm_about),
+						NULL);
+	
+		/* syslog */
+		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "syslog1")),
+						"activate",
+						G_CALLBACK(gfpm_logviewer_show),
+						NULL);
+	
+		/* repository manager */
+		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "menu_edit_repos")),
+						"activate",
+						G_CALLBACK(gfpm_repomanager_show),
+						NULL);
+
+		/* aply */
+		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")),
+						"clicked",
+						G_CALLBACK(cb_gfpm_apply_btn_clicked),
+						NULL);
+
+		/* refresh db */
+		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")),
+						"clicked",
+						G_CALLBACK(cb_gfpm_refresh_button_clicked),
+						NULL);
+
+		/* clear cache dialog */
+		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")),
+						"clicked",
+						G_CALLBACK(cb_gfpm_clear_cache_apply_clicked),
+						NULL);
+
+		/* Disable Apply, Refresh and File buttons if user is not root */
+		if ( geteuid() != 0 )
+		{
+			/* disable some widgets */
+			gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_apply"), FALSE);
+			gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_refresh1"), FALSE);
+			gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_file1"), FALSE);
+			gtk_widget_set_sensitive (gfpm_get_widget("button_preferences"), FALSE);
+			gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_repos"), FALSE);
+			gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_prefs"), FALSE);
+			gtk_widget_set_sensitive (gfpm_get_widget("clr1"), FALSE);
+			gtk_widget_set_sensitive (gfpm_get_widget("menu_tools_optimize"), FALSE);
+		}
+		else
+		{
+			/* init repomanager only if gfpm is run as root user */
+			gfpm_repomanager_init ();
+		}
+		
+		/* initialize modules */
+		if (gfpm_db_init())
+		{
+			gfpm_error (_("Error"), _("Failed to initialize local package database."));
+		}
+
+		/* optimize database dialog */
+		gfpm_optimize_db_dlg_init ();
+		/* quick pane */
+		gfpm_quickpane_init ();
+		#ifdef HAVE_ICMONITOR
+		gfpm_icmonitor_init ();
+		#endif
+		/* log viewer */
+		gfpm_logviewer_init ();
+		/* preferences subsystem */
+		gfpm_prefs_init ();
+		/* miscellanous widgets */
+		_gfpm_misc_widgets_init ();
+	}
+	
+	gfpm_messages_init ();
+	gfpm_progress_init ();
+
+	if (!arg)
+	{
+		/* init search mutex */
+		search_mutex = g_mutex_new ();
+		gtk_widget_hide (gfpm_splash);
+		/* finally show the main window */
+		gtk_widget_show (gfpm_mw);
+		gtk_window_present (GTK_WINDOW(gfpm_mw));
+	}
+	else
+	{
+		switch (arg)
+		{
+			case ARG_ADD:
+			{
+				/* Setup install from file dialog */
+				_gfpm_inst_from_file_dlg_init ();
+				if (geteuid()!=0)
+				{
+					gfpm_error (_("Insufficient privileges"),
+								_("You need to be root in order to install packages"));
+				}
+				else
+				{
+					g_print ("argdata: %s\n", (char*)argdata);	
+					if (gtk_file_chooser_select_filename((GtkFileChooser*)gfpm_inst_filechooser,(char*)argdata))
+					{
+						gtk_widget_show (gfpm_inst_from_file_dlg);
+					}
+					else
+					{
+						/* handle error */
+						gfpm_error (_("Error"),
+								_("Unknown error"));
+					}
+				}
+				break;
+			}
+		}
+	}
 
 	/* unref the glade xml object */
 	g_object_unref (xml);
