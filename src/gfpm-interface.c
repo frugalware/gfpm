@@ -57,7 +57,8 @@ extern GfpmList *remove_list;
 extern char	*repo;
 extern gchar	*quickpane_pkg;
 
-static garg = 0;
+/* current argument */
+static guint garg = 0;
 
 /* current group the user is browsing */
 /* used for refreshing the views after a package update */
@@ -100,6 +101,7 @@ static GtkWidget *gfpm_inst_upgcheck;
 static GtkWidget *gfpm_inst_depcheck;
 static GtkWidget *gfpm_inst_forcheck;
 static GtkWidget *gfpm_inst_infoframe;
+static GtkWidget *gfpm_inst_optframe;
 static GtkWidget *gfpm_inst_infotvw;
 static GtkWidget *gfpm_apply_inst_depcheck;
 static GtkWidget *gfpm_apply_inst_dwocheck;
@@ -120,6 +122,7 @@ static void cb_gfpm_search_buttonpress (GtkButton *button, gpointer data);
 static void cb_gfpm_remove_group_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_pkg_selection_toggled (GtkCellRendererToggle *toggle, gchar *path_str, gpointer data);
 static void cb_gfpm_install_file_clicked (GtkButton *button, gpointer data);
+static void cb_gfpm_install_file_close_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_install_file_selection_changed (GtkFileChooser *chooser, gpointer data);
 static void cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data);
 static void cb_gfpm_refresh_button_clicked (GtkButton *button, gpointer data);
@@ -369,6 +372,7 @@ _gfpm_inst_from_file_dlg_init (void)
 	gfpm_inst_upgcheck = gfpm_get_widget ("upgcheck");
 	gfpm_inst_forcheck = gfpm_get_widget ("forcheck");
 	gfpm_inst_infoframe = gfpm_get_widget ("gfpm_inst_from_file_dlg_info_frame");
+	gfpm_inst_optframe = gfpm_get_widget ("gfpm_inst_from_file_dlg_opt_frame");
 	gfpm_inst_infotvw = gfpm_get_widget ("gfpm_inst_from_file_dlg_info_tvw");
 	
 	/* setup the package information treeview */
@@ -397,6 +401,10 @@ _gfpm_inst_from_file_dlg_init (void)
 	g_signal_connect (G_OBJECT(gfpm_inst_filechooser),
 					"selection-changed",
 					G_CALLBACK(cb_gfpm_install_file_selection_changed),
+					NULL);
+	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_close")),
+					"clicked",
+					G_CALLBACK(cb_gfpm_install_file_close_clicked),
 					NULL);
 
 	return;
@@ -585,20 +593,19 @@ gfpm_interface_init (ARGS arg, void* argdata)
 				{
 					gfpm_error (_("Insufficient privileges"),
 								_("You need to be root in order to install packages"));
+					gtk_widget_set_sensitive (glade_xml_get_widget(xml,"inst_from_file_install"), FALSE);
+					gtk_widget_hide (gfpm_inst_optframe);
+				}
+				g_print ("argdata: %s\n", (char*)argdata);	
+				if (gtk_file_chooser_select_filename((GtkFileChooser*)gfpm_inst_filechooser,(char*)argdata))
+				{
+					gtk_widget_show (gfpm_inst_from_file_dlg);
 				}
 				else
 				{
-					g_print ("argdata: %s\n", (char*)argdata);	
-					if (gtk_file_chooser_select_filename((GtkFileChooser*)gfpm_inst_filechooser,(char*)argdata))
-					{
-						gtk_widget_show (gfpm_inst_from_file_dlg);
-					}
-					else
-					{
-						/* handle error */
-						gfpm_error (_("Error"),
-								_("Unknown error"));
-					}
+					/* handle error */
+					gfpm_error (_("Error"),
+							_("Unknown error"));
 				}
 				break;
 			}
@@ -1049,7 +1056,7 @@ gfpm_load_info_tvw (const char *pkg_name, GtkTreeView *tvw)
 	{
 		if (g_file_test(pkg_name,G_FILE_TEST_EXISTS))
 		{
-			if (pacman_pkg_load(pkg_name,&pm_pkg))
+			if (pacman_pkg_load((char*)pkg_name,&pm_pkg))
 			{
 				gfpm_error (_("Error"), _("Error loading package information from file"));		
 				return;
@@ -1717,7 +1724,7 @@ cb_gfpm_pkgs_tvw_selected (GtkTreeSelection *selection, gpointer data)
 	{
 		gtk_tree_model_get (model, &iter, 2, &pkgname, 3, &v1, 4, &v2, -1);
 		quickpane_pkg = g_strdup (pkgname);
-		gfpm_load_info_tvw (pkgname,gfpm_info_tvw);
+		gfpm_load_info_tvw (pkgname,(GtkTreeView*)gfpm_info_tvw);
 		if (v1 != NULL)
 			inst = TRUE;
 		gfpm_load_files_txtvw (pkgname, inst);
@@ -2421,12 +2428,26 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 }
 
 static void
+cb_gfpm_install_file_close_clicked (GtkButton *button, gpointer data)
+{
+	if (garg != ARG_ADD)
+	{
+		gtk_widget_hide (gfpm_inst_from_file_dlg);
+	}
+	else
+	{
+		gtk_main_quit ();
+	}
+	return;
+}
+
+static void
 cb_gfpm_install_file_selection_changed (GtkFileChooser *chooser, gpointer data)
 {
 	char *file = NULL;
 
 	file = gtk_file_chooser_get_filename (chooser);
-	gfpm_load_info_tvw (file, gfpm_inst_infotvw);
+	gfpm_load_info_tvw (file, (GtkTreeView*)gfpm_inst_infotvw);
 
 			/* show the info */
 			gtk_widget_show (gfpm_inst_infoframe);
