@@ -1321,6 +1321,15 @@ gfpm_load_info_tvw (const char *pkg_name, GtkTreeView *tvw)
 		}
 		g_free (st);
 	}
+	
+	if (pkg_is_file && pm_pkg)
+	{
+		pacman_pkg_free (pm_pkg);
+	}
+	else if (pm_lpkg)
+	{
+		pacman_pkg_free (pm_lpkg);
+	}
 
 	return;
 }
