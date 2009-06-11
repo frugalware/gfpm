@@ -15,12 +15,31 @@ AC_PROG_CC(GCC)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/ioctl.h unistd.h])
 
+AC_ARG_ENABLE(nautilus-extension,
+    AC_HELP_STRING([  --enable-nautilus-extension], [Enable nautilus extension]), [nautilusext="yes"])
 AC_ARG_ENABLE(icmonitor,
     AC_HELP_STRING([  --enable-icmonitor], [Enable iconcache monitor support]), [icmonitor="yes"])
 AC_ARG_ENABLE(werror,
     AC_HELP_STRING([  --enable-werror], [Enable -Werror usage]), [werror="yes"])
 AC_ARG_ENABLE(debug,
     AC_HELP_STRING([  --enable-debug], [Enable debugging support]), [debug="yes"])
+
+dnl Check if nautilus extension is to be built
+AC_MSG_CHECKING(whether nautilus extension is enabled)
+if test "x$nautilusext" = "xyes"; then
+	nautilusext=yes
+	AC_MSG_RESULT(yes)
+	PKG_CHECK_MODULES(NAUTILUS_EXT_GFPM,libnautilus-extension >= 2.13.3)
+	AC_SUBST(NAUTILUS_EXT_GFPM_CFLAGS)
+	AC_SUBST(NAUTILUS_EXT_GFPM_LIBS)
+	AC_DEFINE(HAVE_NAUTILUS_EXT, 1, [Building nautilus extension])
+else
+	nautilusext=no
+	AC_MSG_RESULT(no)
+fi
+AM_CONDITIONAL([HAVE_NAUTILUS_EXT],[test $nautilusext = yes])
+NAUTILUS_EXTENSION_DIR=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
+AC_SUBST(NAUTILUS_EXTENSION_DIR)
 
 dnl Check for Iconcache monitor support
 AC_MSG_CHECKING(for iconcache monitor support)
@@ -96,6 +115,7 @@ dnl ==========================================================================
 
 AC_OUTPUT([
 src/Makefile
+nautilus-extension/Makefile
 data/Makefile
 data/icons/Makefile
 data/icons/16x16/Makefile
@@ -116,5 +136,6 @@ Gfpm $VERSION configuration summary:
         compiler flags           : ${CFLAGS}
 	debug support            : ${debug}
 	iconcache monitor        : ${icmonitor}
+	nautilus extension       : ${nautilusext}
 	werror usage             : ${werror}
 "

@@ -84,6 +84,7 @@ static void
 _db_callback (char *section, PM_DB *db)
 {
 	dblist = g_list_append (dblist, db);
+
 	return;
 }
 
