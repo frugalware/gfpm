@@ -18,6 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#ifdef HAVE_THUNAR_PLUGIN
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <config.h>
@@ -28,8 +30,6 @@
 #include <thunar-vfs/thunar-vfs.h>
 #include <thunarx/thunarx.h>
 #include "thunar-gfpm.h"
-
-#ifdef HAVE_THUNAR_PLUGIN
 
 static GObjectClass *parent_class;
 

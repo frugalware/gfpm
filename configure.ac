@@ -19,9 +19,9 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/ioctl.h unistd.h])
 
 AC_ARG_ENABLE(nautilus-extension,
-    AC_HELP_STRING([  --enable-nautilus-extension], [Enable nautilus extension]), [nautilusext="yes"])
+    AC_HELP_STRING([  --enable-nautilus-extension], [Enable nautilus extension]), [nautilusext="yes"], [nautilusext="no"])
 AC_ARG_ENABLE(thunar-plugin,
-    AC_HELP_STRING([  --enable-thunar-plugin], [Enable thunar plugin]), [thunarplugin="yes"])
+    AC_HELP_STRING([  --enable-thunar-plugin], [Enable thunar plugin]), [thunarplugin="yes"], [thunarplugin="no"])
 AC_ARG_ENABLE(icmonitor,
     AC_HELP_STRING([  --enable-icmonitor], [Enable iconcache monitor support]), [icmonitor="yes"])
 AC_ARG_ENABLE(werror,
@@ -36,37 +36,33 @@ PKG_CHECK_MODULES([GFPM], [$pkg_modules])
 
 dnl Check if nautilus extension is to be built
 AC_MSG_CHECKING(whether nautilus extension is enabled)
-if test "x$nautilusext" = "xyes"; then
-	nautilusext=yes
+AM_CONDITIONAL([NAUTILUS_EXT],[test "x$nautilusext" = "xyes"])
+if test "$NAUTILUS_EXT" = yes; then
 	AC_MSG_RESULT(yes)
-	PKG_CHECK_MODULES(NAUTILUS_EXT_GFPM,libnautilus-extension >= 2.13.3)
+	PKG_CHECK_MODULES([NAUTILUS_EXT_GFPM],[libnautilus-extension >= 2.13.3])
 	AC_SUBST(NAUTILUS_EXT_GFPM_CFLAGS)
 	AC_SUBST(NAUTILUS_EXT_GFPM_LIBS)
 	NAUTILUS_EXTENSION_DIR=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
 	AC_SUBST(NAUTILUS_EXTENSION_DIR)
 	AC_DEFINE(HAVE_NAUTILUS_EXT, 1, [Building nautilus extension])
 else
-	nautilusext=no
 	AC_MSG_RESULT(no)
 fi
-AM_CONDITIONAL([HAVE_NAUTILUS_EXT],[test "x$nautilusext" = "xyes"])
 
 dnl Check if thunar plugin is to be built
 AC_MSG_CHECKING(whether thunar plugin is enabled)
-if test "x$thunarplugin" = "xyes"; then
-	thunarplugin=yes
+AM_CONDITIONAL([THUNAR_PLUGIN],[test "x$thunarplugin" = "xyes"])
+if test "$THUNAR_PLUGIN" = yes; then
 	AC_MSG_RESULT(yes)
-	PKG_CHECK_MODULES(THUNAR_PLUGIN_GFPM,thunar-vfs-1 thunarx-1)
+	PKG_CHECK_MODULES([THUNAR_PLUGIN_GFPM],[thunar-vfs-1 thunarx-1])
 	AC_SUBST(THUNAR_PLUGIN_GFPM_CFLAGS)
 	AC_SUBST(THUNAR_PLUGIN_GFPM_LIBS)
 	THUNAR_EXTENSION_DIR=`$PKG_CONFIG --variable=extensionsdir thunarx-1`
 	AC_SUBST(THUNAR_EXTENSION_DIR)
 	AC_DEFINE(HAVE_THUNAR_PLUGIN, 1, [Building thunar plugin])
 else
-	thunarplugin=no
 	AC_MSG_RESULT(no)
 fi
-AM_CONDITIONAL([HAVE_THUNAR_PLUGIN],[test $thunarplugin = yes])
 
 dnl Check for Iconcache monitor support
 AC_MSG_CHECKING(for iconcache monitor support)
