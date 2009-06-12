@@ -1,2 +1,2 @@
-SUBDIRS = src nautilus-extension data po
+SUBDIRS = src nautilus-extension thunar-plugin data po
 

@@ -1,5 +1,5 @@
 /*
- *  nautilus-gfpm-module.c for GFpm
+ *  thunar-gfpm-module.c for GFpm
  *
  *  Copyright (c) 2009 by Priyank Gosalia <priyankmg@gmail.com>
  *
@@ -18,43 +18,43 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 
-#ifdef HAVE_NAUTILUS_EXT
+#ifdef HAVE_THUNAR_PLUGIN
 
-#include <libnautilus-extension/nautilus-extension-types.h>
-#include <libnautilus-extension/nautilus-column-provider.h>
+#include <exo/exo.h>
+#include <thunarx/thunarx.h>
 #include <glib/gi18n-lib.h>
-#include "nautilus-gfpm.h"
+#include "thunar-gfpm.h"
 
-void
-nautilus_module_initialize (GTypeModule *module)
+static GType type_list[1];
+
+G_MODULE_EXPORT void
+thunar_extension_initialize (ThunarxProviderPlugin *plugin)
 {
-	nautilus_gfpm_register_type (module);
-
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+	thunar_gfpm_register_type (plugin);
+	type_list[0] = THUNAR_TYPE_GFPM;
 }
 
 
 void
-nautilus_module_shutdown (void)
+thunar_extension_shutdown (void)
 {
 	return;
 }
 
 
 void 
-nautilus_module_list_types (const GType **types, int *num_types)
-{
-	static GType type_list[1];
-
-	type_list[0] = NAUTILUS_TYPE_GFPM;
+thunar_extension_list_types (const GType **types, int *num_types)
+{	
 	*types = type_list;
-	*num_types = 1;
+	*num_types = G_N_ELEMENTS (type_list);
 
 	return;
 }
 
-#endif /* end  HAVE_NAUTILUS_EXT */
+#endif /* end  HAVE_THUNAR_PLUGIN */

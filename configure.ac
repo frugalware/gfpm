@@ -10,19 +10,28 @@ AC_CANONICAL_SYSTEM
 AC_PROG_INTLTOOL([0.21])
 AC_PROG_LIBTOOL
 AM_INIT_AUTOMAKE
+AM_MAINTAINER_MODE()
 
 AC_PROG_CC(GCC)
+AC_PROG_INSTALL()
 AC_HEADER_STDC
 AC_CHECK_HEADERS([locale.h stdlib.h string.h sys/ioctl.h unistd.h])
 
 AC_ARG_ENABLE(nautilus-extension,
     AC_HELP_STRING([  --enable-nautilus-extension], [Enable nautilus extension]), [nautilusext="yes"])
+AC_ARG_ENABLE(thunar-plugin,
+    AC_HELP_STRING([  --enable-thunar-plugin], [Enable thunar plugin]), [thunarplugin="yes"])
 AC_ARG_ENABLE(icmonitor,
     AC_HELP_STRING([  --enable-icmonitor], [Enable iconcache monitor support]), [icmonitor="yes"])
 AC_ARG_ENABLE(werror,
     AC_HELP_STRING([  --enable-werror], [Enable -Werror usage]), [werror="yes"])
 AC_ARG_ENABLE(debug,
     AC_HELP_STRING([  --enable-debug], [Enable debugging support]), [debug="yes"])
+
+pkg_modules="gtk+-2.0 >= 2.12.0 \
+			gthread-2.0 \
+			libglade-2.0 >= 2.6.0 "
+PKG_CHECK_MODULES([GFPM], [$pkg_modules])
 
 dnl Check if nautilus extension is to be built
 AC_MSG_CHECKING(whether nautilus extension is enabled)
@@ -32,14 +41,31 @@ if test "x$nautilusext" = "xyes"; then
 	PKG_CHECK_MODULES(NAUTILUS_EXT_GFPM,libnautilus-extension >= 2.13.3)
 	AC_SUBST(NAUTILUS_EXT_GFPM_CFLAGS)
 	AC_SUBST(NAUTILUS_EXT_GFPM_LIBS)
+	NAUTILUS_EXTENSION_DIR=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
+	AC_SUBST(NAUTILUS_EXTENSION_DIR)
 	AC_DEFINE(HAVE_NAUTILUS_EXT, 1, [Building nautilus extension])
 else
 	nautilusext=no
 	AC_MSG_RESULT(no)
 fi
-AM_CONDITIONAL([HAVE_NAUTILUS_EXT],[test $nautilusext = yes])
-NAUTILUS_EXTENSION_DIR=`$PKG_CONFIG --variable=extensiondir libnautilus-extension`
-AC_SUBST(NAUTILUS_EXTENSION_DIR)
+AM_CONDITIONAL([HAVE_NAUTILUS_EXT],[test "x$nautilusext" = "xyes"])
+
+dnl Check if thunar plugin is to be built
+AC_MSG_CHECKING(whether thunar plugin is enabled)
+if test "x$thunarplugin" = "xyes"; then
+	thunarplugin=yes
+	AC_MSG_RESULT(yes)
+	PKG_CHECK_MODULES(THUNAR_PLUGIN_GFPM,thunar-vfs-1 thunarx-1)
+	AC_SUBST(THUNAR_PLUGIN_GFPM_CFLAGS)
+	AC_SUBST(THUNAR_PLUGIN_GFPM_LIBS)
+	THUNAR_EXTENSION_DIR=`$PKG_CONFIG --variable=extensionsdir thunarx-1`
+	AC_SUBST(THUNAR_EXTENSION_DIR)
+	AC_DEFINE(HAVE_THUNAR_PLUGIN, 1, [Building thunar plugin])
+else
+	thunarplugin=no
+	AC_MSG_RESULT(no)
+fi
+AM_CONDITIONAL([HAVE_THUNAR_PLUGIN],[test $thunarplugin = yes])
 
 dnl Check for Iconcache monitor support
 AC_MSG_CHECKING(for iconcache monitor support)
@@ -103,12 +129,6 @@ if test "$icmonitor" = "yes"; then
 	fi
 fi
 
-
-pkg_modules="gtk+-2.0 >= 2.12.0 \
-			gthread-2.0 \
-			libglade-2.0 >= 2.6.0 "
-PKG_CHECK_MODULES([GFPM], [$pkg_modules])
-
 CFLAGS="${CFLAGS}"
 
 dnl ==========================================================================
@@ -116,6 +136,7 @@ dnl ==========================================================================
 AC_OUTPUT([
 src/Makefile
 nautilus-extension/Makefile
+thunar-plugin/Makefile
 data/Makefile
 data/icons/Makefile
 data/icons/16x16/Makefile
@@ -128,7 +149,7 @@ Makefile
 ])
 
 echo "
-Gfpm $VERSION configuration summary:
+GFpm $VERSION configuration summary:
 
         prefix                   : ${prefix}
         source code location     : ${srcdir}
@@ -137,5 +158,6 @@ Gfpm $VERSION configuration summary:
 	debug support            : ${debug}
 	iconcache monitor        : ${icmonitor}
 	nautilus extension       : ${nautilusext}
+	thunar plugin		 : ${thunarplugin}
 	werror usage             : ${werror}
 "

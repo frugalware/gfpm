@@ -1,5 +1,5 @@
 /*
- *  nautilus-gfpm.c for GFpm
+ *  thunar-gfpm.c for GFpm
  *
  *  Copyright (c) 2009 by Priyank Gosalia <priyankmg@gmail.com>
  *
@@ -17,23 +17,19 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-#include <config.h>
-
-#ifdef HAVE_NAUTILUS_EXT
 
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <config.h>
 #include <string.h>
 #include <pacman.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n-lib.h>
-#include <libnautilus-extension/nautilus-extension-types.h>
-#include <libnautilus-extension/nautilus-file-info.h>
-#include <libnautilus-extension/nautilus-property-page-provider.h>
-#include <libnautilus-extension/nautilus-menu-provider.h>
-#include "nautilus-gfpm.h"
+#include <thunar-vfs/thunar-vfs.h>
+#include <thunarx/thunarx.h>
+#include "thunar-gfpm.h"
 
-
+#ifdef HAVE_THUNAR_PLUGIN
 
 static GObjectClass *parent_class;
 
@@ -354,17 +350,20 @@ _populate_property_page (GtkWidget *page, const gchar *file)
 /* returns the absolute path of the file */
 /* returned string must be freed */
 static gchar *
-_nautilus_file_info_get_file_path (NautilusFileInfo *fi)
+_thunar_file_info_get_file_path (ThunarxFileInfo *fi)
 {
 	gchar	*ret = NULL;
-	GFile	*file = NULL;
 
 	if (fi)
 	{
-		file = nautilus_file_info_get_location (fi);
-		if (file)
+		char *uri = thunarx_file_info_get_uri (fi);
+		if (uri)
 		{
-			ret = g_file_get_path (file);
+			char *file = g_filename_from_uri (uri, NULL, NULL);
+			if (file)
+			{
+				ret = g_strdup (file);
+			}
 		}
 	}
 	return ret;
@@ -373,7 +372,7 @@ _nautilus_file_info_get_file_path (NautilusFileInfo *fi)
 static gboolean
 _validate (GList *files)
 {
-	NautilusFileInfo	*info = NULL;
+	ThunarxFileInfo		*info = NULL;
 	char				*filename = NULL;
 	int					filescheme = 0;
 	char				*scheme = NULL;
@@ -384,12 +383,12 @@ _validate (GList *files)
 		return FALSE;
 
 	/* skip if it's a directory */
-	info = (NautilusFileInfo*) files->data;
-	if (!info || nautilus_file_info_is_directory(info))
+	info = (ThunarxFileInfo*) files->data;
+	if (!info || thunarx_file_info_is_directory(info))
 		return FALSE;
 
 	/* check the uri scheme of the file */
-	scheme = nautilus_file_info_get_uri_scheme (info);
+	scheme = thunarx_file_info_get_uri_scheme (info);
 	if (scheme)
 	{
 		filescheme = strncmp (scheme, "file", 4);
@@ -401,11 +400,11 @@ _validate (GList *files)
 
 	/* now check the mime-type */
 	/* fpm archives are nothing but bzip comressed archives with .fpm as extension */
-	if (!nautilus_file_info_is_mime_type(info,"application/x-bzip"))
+	if (!thunarx_file_info_has_mime_type(info,"application/x-bzip"))
 		return FALSE;
 	
 	/* ok, last one, check the extension */
-	filename = _nautilus_file_info_get_file_path (info);
+	filename = _thunar_file_info_get_file_path (info);
 	if (filename)
 	{
 		if (strncmp(_get_file_ext(filename),"fpm",3))
@@ -423,11 +422,11 @@ _validate (GList *files)
 }
 
 static GList *
-nautilus_gfpm_property_page_get_pages (NautilusPropertyPageProvider *provider,
+thunar_gfpm_property_page_get_pages (ThunarxPropertyPageProvider *provider,
 										GList *files)
 {
 	GList   				*pages = NULL;
-	NautilusPropertyPage	*page = NULL;
+	ThunarxPropertyPage		*page = NULL;
 	GtkWidget				*package_widget = NULL;
 	char					*filename = NULL;
 
@@ -437,15 +436,16 @@ nautilus_gfpm_property_page_get_pages (NautilusPropertyPageProvider *provider,
 
 	/* now create and populate our property page with package info */
 	package_widget = _create_property_page ();
-	filename = _nautilus_file_info_get_file_path ((NautilusFileInfo*)files->data);
+	filename = _thunar_file_info_get_file_path ((ThunarxFileInfo*)files->data);
+
 	if (_populate_property_page(package_widget,filename))
 	{
 		gtk_widget_show_all (package_widget);
-		page = nautilus_property_page_new ("NautilusGfpm::property_page",
-										gtk_label_new(_("Package")),
-										package_widget);
+		page = thunarx_property_page_new (_("Package"));
+		gtk_container_add (GTK_CONTAINER(page), package_widget);
 		pages = g_list_append (pages, page);
 	}
+	
 	if (filename)
 	{
 		g_free (filename);
@@ -454,71 +454,19 @@ nautilus_gfpm_property_page_get_pages (NautilusPropertyPageProvider *provider,
 	return pages;
 }
 
-static void
-install_callback (NautilusMenuItem *item, gpointer data)
+static void 
+thunar_gfpm_property_page_provider_iface_init (ThunarxPropertyPageProviderIface *iface)
 {
-	NautilusFileInfo	*info = NULL;
-	char				*file = NULL;
-	GString				*cmd = NULL;
-
-	info = (NautilusFileInfo*) data;
-	file = _nautilus_file_info_get_file_path (info);
-	if (file)
-	{
-		cmd = g_string_new ("sudo /usr/bin/gfpm -A");
-		g_string_append_printf (cmd, " \"%s\"", file);
-		g_print ("launching command: %s\n", cmd->str);
-		g_spawn_command_line_async (cmd->str, NULL);
-		g_free (file);
-		g_string_free (cmd, FALSE);
-	}
-	
-	return;
-}
-
-static GList *
-nautilus_gfpm_menu_get_file_items (NautilusMenuProvider *provider,
-								GtkWidget *window,
-								GList *files)
-{
-	GList				*items = NULL;
-	NautilusMenuItem	*item = NULL;
-
-	if (!_validate(files))
-		return NULL;
-
-	item = nautilus_menu_item_new ("NautilusGfpm::menu_item",
-									_("Install this package"),
-									_("Install this package using GFpm"),
-									"gfpm");
-	g_signal_connect (item,
-					"activate",
-					G_CALLBACK(install_callback),
-					(gpointer)(files->data));
-	items = g_list_append (items, item);
-
-	return items;	
+	iface->get_pages = thunar_gfpm_property_page_get_pages;
 }
 
 static void 
-nautilus_gfpm_menu_provider_iface_init (NautilusMenuProviderIface *iface)
-{
-	iface->get_file_items = nautilus_gfpm_menu_get_file_items;
-}
-
-static void 
-nautilus_gfpm_property_page_provider_iface_init (NautilusPropertyPageProviderIface *iface)
-{
-	iface->get_pages = nautilus_gfpm_property_page_get_pages;
-}
-
-static void 
-nautilus_gfpm_instance_init (NautilusGfpm *ng)
+thunar_gfpm_instance_init (ThunarGfpm *tg)
 {
 }
 
 static void
-nautilus_gfpm_class_init (NautilusGfpmClass *klass)
+thunar_gfpm_class_init (ThunarGfpmClass *klass)
 {
 	parent_class = g_type_class_peek_parent (klass);
 }
@@ -526,54 +474,42 @@ nautilus_gfpm_class_init (NautilusGfpmClass *klass)
 static GType gfpm_type = 0;
 
 GType
-nautilus_gfpm_get_type (void) 
+thunar_gfpm_get_type (void) 
 {
 	return gfpm_type;
 }
 
 void
-nautilus_gfpm_register_type (GTypeModule *module)
+thunar_gfpm_register_type (ThunarxProviderPlugin *plugin)
 {
 	static const GTypeInfo info = {
-		sizeof (NautilusGfpmClass),
+		sizeof (ThunarGfpmClass),
 		(GBaseInitFunc) NULL,
 		(GBaseFinalizeFunc) NULL,
-		(GClassInitFunc) nautilus_gfpm_class_init,
+		(GClassInitFunc) thunar_gfpm_class_init,
 		NULL, 
 		NULL,
-		sizeof (NautilusGfpm),
+		sizeof (ThunarGfpm),
 		0,
-		(GInstanceInitFunc) nautilus_gfpm_instance_init,
+		(GInstanceInitFunc) thunar_gfpm_instance_init,
 	};
 
 	/* property page provider interface */
 	static const GInterfaceInfo property_page_provider_iface_info = {
-		(GInterfaceInitFunc) nautilus_gfpm_property_page_provider_iface_init,
+		(GInterfaceInitFunc) thunar_gfpm_property_page_provider_iface_init,
 		NULL,
 		NULL
 	};
 
-	/* menu provider interface */
-	static const GInterfaceInfo menu_provider_iface_info = {
-		(GInterfaceInitFunc) nautilus_gfpm_menu_provider_iface_init,
-		NULL,
-		NULL
-	};
-
-	gfpm_type = g_type_module_register_type (module,
+	gfpm_type = thunarx_provider_plugin_register_type (plugin,
 					         G_TYPE_OBJECT,
-					         "NautilusGfpm",
+					         "ThunarGfpm",
 					         &info, 0);
 
-	g_type_module_add_interface (module,
+	thunarx_provider_plugin_add_interface (plugin,
 				     gfpm_type,
-				     NAUTILUS_TYPE_PROPERTY_PAGE_PROVIDER,
+				     THUNARX_TYPE_PROPERTY_PAGE_PROVIDER,
 				     &property_page_provider_iface_info);
-
-	g_type_module_add_interface (module,
-				     gfpm_type,
-				     NAUTILUS_TYPE_MENU_PROVIDER,
-				     &menu_provider_iface_info);
 }
 
-#endif /* end HAVE_NAUTILUS_EXT */
+#endif /* end HAVE_THUNAR_PLUGIN */
