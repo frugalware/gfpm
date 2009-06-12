@@ -11,4 +11,6 @@ src/gfpm-messages.c
 src/gfpm-logviewer.c
 src/gfpm-repomanager.c
 src/gfpm-prefs.c
+nautilus-extension/nautilus-gfpm.c
+nautilus-extension/nautilus-gfpm-module.c
 data/gfpm.glade
