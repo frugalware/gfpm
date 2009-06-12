@@ -31,6 +31,7 @@
 #include "gfpm-config.h"
 #include "gfpm-interface.h"
 #include "gfpm-messages.h"
+#include "gfpm-prefs.h"
 #include "gfpm-db.h"
 
 #define UI_FILE	"/share/gfpm/gfpm.glade"

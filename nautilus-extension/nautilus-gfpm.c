@@ -18,6 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#define _GNU_SOURCE
+#include <stdio.h>
 #include <config.h>
 #include <string.h>
 #include <pacman.h>
@@ -165,7 +167,7 @@ _populate_property_page (GtkWidget *page, const gchar *file)
 			GtkWidget		*tvw = NULL;
 			GtkTreeIter		iter;
 			gchar			*st = NULL;
-			PM_LIST			*temp, *i;
+			PM_LIST			*temp;
 			GString			*str = NULL;
 			
 			tvw = (gtk_container_get_children(GTK_CONTAINER(page)))->data;
