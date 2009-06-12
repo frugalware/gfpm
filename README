@@ -20,7 +20,7 @@ A short list of features:
 - Gfpm provides detailed information about a package like group
   information, size, packager, files etc. It also displays a package's
   Changelog.
-- Includes a Nautilus extension (optional)
+- Integration with GNOME and XFCE using nautilus and thunar plugins (optional)
 
 Requirements
 ============
@@ -48,7 +48,13 @@ or
 
 $ ./configure --enable-nautilus-extension
 
-to enable the nautilus extension.
+for GNOME integration
+
+or
+
+$ ./configure --enable-thunar-plugin
+
+for XFCE integration
 
 If this completes without any errors, run the make command as shown
 below in order to compile gfpm.
