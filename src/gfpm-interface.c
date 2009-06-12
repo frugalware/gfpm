@@ -2361,7 +2361,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 		return;
 	}
 	if (gfpm_question(_("Install package"), _("Are you sure you want to install this package ?")) != GTK_RESPONSE_YES)
-		return;
+		goto quit;
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_inst_upgcheck)))
 		type = PM_TRANS_TYPE_UPGRADE;
 	else
@@ -2420,6 +2420,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	gtk_widget_hide (gfpm_inst_from_file_dlg);
 	if (gfpm_progress_is_autoclose_checkbtn_set())
 		gfpm_progress_show (FALSE);
+	quit:
 	if (garg == ARG_ADD)
 	{
 		gtk_main_quit();
