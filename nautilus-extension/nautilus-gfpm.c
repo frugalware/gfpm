@@ -26,6 +26,7 @@
 #include <libnautilus-extension/nautilus-extension-types.h>
 #include <libnautilus-extension/nautilus-file-info.h>
 #include <libnautilus-extension/nautilus-property-page-provider.h>
+#include <libnautilus-extension/nautilus-menu-provider.h>
 #include "nautilus-gfpm.h"
 
 #ifdef HAVE_NAUTILUS_EXT
@@ -346,49 +347,93 @@ _populate_property_page (GtkWidget *page, const gchar *file)
 	return ret;
 }
 
+/* returns the absolute path of the file */
+/* returned string must be freed */
+static gchar *
+_nautilus_file_info_get_file_path (NautilusFileInfo *fi)
+{
+	gchar	*ret = NULL;
+	GFile	*file = NULL;
+
+	if (fi)
+	{
+		file = nautilus_file_info_get_location (fi);
+		if (file)
+		{
+			ret = g_file_get_path (file);
+		}
+	}
+	return ret;
+}
+
+static gboolean
+_validate (GList *files)
+{
+	NautilusFileInfo	*info = NULL;
+	char				*filename = NULL;
+	int					filescheme = 0;
+	char				*scheme = NULL;
+	gboolean			ret = TRUE;
+
+	/* skip if no files or multiple files are selected */
+	if (!files || files->next!=NULL)
+		return FALSE;
+
+	/* skip if it's a directory */
+	info = (NautilusFileInfo*) files->data;
+	if (!info || nautilus_file_info_is_directory(info))
+		return FALSE;
+
+	/* check the uri scheme of the file */
+	scheme = nautilus_file_info_get_uri_scheme (info);
+	if (scheme)
+	{
+		filescheme = strncmp (scheme, "file", 4);
+		g_free (scheme);
+		/* skip if it's not a local file */
+		if (filescheme!=0)
+			return FALSE;
+	}
+
+	/* now check the mime-type */
+	/* fpm archives are nothing but bzip comressed archives with .fpm as extension */
+	if (!nautilus_file_info_is_mime_type(info,"application/x-bzip"))
+		return FALSE;
+	
+	/* ok, last one, check the extension */
+	filename = _nautilus_file_info_get_file_path (info);
+	if (filename)
+	{
+		if (strncmp(_get_file_ext(filename),"fpm",3))
+		{
+			ret = FALSE;
+		}
+		g_free (filename);
+	}
+	else
+	{
+		ret = FALSE;
+	}
+
+	return ret;
+}
+
 static GList *
 nautilus_gfpm_property_page_get_pages (NautilusPropertyPageProvider *provider,
 										GList *files)
 {
 	GList   				*pages = NULL;
 	NautilusPropertyPage	*page = NULL;
-	NautilusFileInfo		*info = NULL;
-	gchar					*scheme = NULL;
-	gint					filescheme = 0;
 	GtkWidget				*package_widget = NULL;
-	GFile					*pkgloc = NULL;
 	char					*filename = NULL;
 
-	/* skip if no files or multiple files are selected */
-	if (!files || files->next!=NULL)
-		return NULL;
-
-	/* skip if it's a directory */
-	info = (NautilusFileInfo*) files->data;
-	if (nautilus_file_info_is_directory(info))
-		return NULL;
-
-	/* check the uri scheme of the file */
-	scheme = nautilus_file_info_get_uri_scheme (info);
-	filescheme = strncmp (scheme, "file", 4);
-	g_free (scheme);
-	/* skip if it's not a local file */
-	if (filescheme!=0)
-		return NULL;
-
-	/* now check the mime-type */
-	/* fpm archives are nothing but bzip comressed archives with .fpm as extension */
-	if (!nautilus_file_info_is_mime_type(info,"application/x-bzip"))
-		return NULL;
-		
-	/* ok, last one, check the extension */
-	pkgloc = nautilus_file_info_get_location (info);
-	filename = g_file_get_path (pkgloc);
-	if (strncmp(_get_file_ext(filename),"fpm",3))
+	/* perform a few checks */
+	if (!_validate(files))
 		return NULL;
 
 	/* now create and populate our property page with package info */
 	package_widget = _create_property_page ();
+	filename = _nautilus_file_info_get_file_path ((NautilusFileInfo*)files->data);
 	if (_populate_property_page(package_widget,filename))
 	{
 		gtk_widget_show_all (package_widget);
@@ -405,6 +450,57 @@ nautilus_gfpm_property_page_get_pages (NautilusPropertyPageProvider *provider,
 	return pages;
 }
 
+static void
+install_callback (NautilusMenuItem *item, gpointer data)
+{
+	NautilusFileInfo	*info = NULL;
+	char				*file = NULL;
+	GString				*cmd = NULL;
+
+	info = (NautilusFileInfo*) data;
+	file = _nautilus_file_info_get_file_path (info);
+	if (file)
+	{
+		cmd = g_string_new ("sudo /usr/bin/gfpm -A");
+		g_string_append_printf (cmd, " \"%s\"", file);
+		g_print ("launching command: %s\n", cmd->str);
+		g_spawn_command_line_async (cmd->str, NULL);
+		g_free (file);
+		g_string_free (cmd, FALSE);
+	}
+	
+	return;
+}
+
+static GList *
+nautilus_gfpm_menu_get_file_items (NautilusMenuProvider *provider,
+								GtkWidget *window,
+								GList *files)
+{
+	GList				*items = NULL;
+	NautilusMenuItem	*item = NULL;
+
+	if (!_validate(files))
+		return NULL;
+
+	item = nautilus_menu_item_new ("NautilusGfpm::menu_item",
+									_("Install this package"),
+									_("Install this package using GFpm"),
+									"gfpm");
+	g_signal_connect (item,
+					"activate",
+					G_CALLBACK(install_callback),
+					(gpointer)(files->data));
+	items = g_list_append (items, item);
+
+	return items;	
+}
+
+static void 
+nautilus_gfpm_menu_provider_iface_init (NautilusMenuProviderIface *iface)
+{
+	iface->get_file_items = nautilus_gfpm_menu_get_file_items;
+}
 
 static void 
 nautilus_gfpm_property_page_provider_iface_init (NautilusPropertyPageProviderIface *iface)
@@ -412,12 +508,10 @@ nautilus_gfpm_property_page_provider_iface_init (NautilusPropertyPageProviderIfa
 	iface->get_pages = nautilus_gfpm_property_page_get_pages;
 }
 
-
 static void 
 nautilus_gfpm_instance_init (NautilusGfpm *ng)
 {
 }
-
 
 static void
 nautilus_gfpm_class_init (NautilusGfpmClass *klass)
@@ -448,8 +542,16 @@ nautilus_gfpm_register_type (GTypeModule *module)
 		(GInstanceInitFunc) nautilus_gfpm_instance_init,
 	};
 
+	/* property page provider interface */
 	static const GInterfaceInfo property_page_provider_iface_info = {
 		(GInterfaceInitFunc) nautilus_gfpm_property_page_provider_iface_init,
+		NULL,
+		NULL
+	};
+
+	/* menu provider interface */
+	static const GInterfaceInfo menu_provider_iface_info = {
+		(GInterfaceInitFunc) nautilus_gfpm_menu_provider_iface_init,
 		NULL,
 		NULL
 	};
@@ -463,6 +565,11 @@ nautilus_gfpm_register_type (GTypeModule *module)
 				     gfpm_type,
 				     NAUTILUS_TYPE_PROPERTY_PAGE_PROVIDER,
 				     &property_page_provider_iface_info);
+
+	g_type_module_add_interface (module,
+				     gfpm_type,
+				     NAUTILUS_TYPE_MENU_PROVIDER,
+				     &menu_provider_iface_info);
 }
 
 #endif /* end HAVE_NAUTILUS_EXT */
