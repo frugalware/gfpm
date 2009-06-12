@@ -20,6 +20,7 @@ A short list of features:
 - Gfpm provides detailed information about a package like group
   information, size, packager, files etc. It also displays a package's
   Changelog.
+- Includes a Nautilus extension (optional)
 
 Requirements
 ============
@@ -30,7 +31,11 @@ Gfpm requires the following packages :
 - libglade >= 2.6
 - pacman-g2 >= 3.7.0
 - frugalwareutils >= 0.7.9
-- inotify-tools (optional)
+- inotify-tools (opitional)
+
+For the nautilus extension (optional), you'll require the following packages:
+
+- nautilus >= 2.13.3
 
 Installation
 ============
@@ -38,6 +43,12 @@ Installation
 unpack and run the following command(s):
 
 $ ./configure
+
+or 
+
+$ ./configure --enable-nautilus-extension
+
+to enable the nautilus extension.
 
 If this completes without any errors, run the make command as shown
 below in order to compile gfpm.
