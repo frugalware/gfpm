@@ -1,7 +1,7 @@
 INCLUDES = $(NAUTILUS_EXT_GFPM_CFLAGS) 
 
 nautilus_extensiondir=$(NAUTILUS_EXTENSION_DIR)
-lib_LTLIBRARIES=libnautilus-gfpm.la
+nautilus_extension_LTLIBRARIES=libnautilus-gfpm.la
 libnautilus_gfpm_la_SOURCES =		\
 	nautilus-gfpm.c			\
 	nautilus-gfpm.h	\
