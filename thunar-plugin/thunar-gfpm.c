@@ -455,10 +455,60 @@ thunar_gfpm_property_page_get_pages (ThunarxPropertyPageProvider *provider,
 	return pages;
 }
 
+static void
+install_callback (ThunarxFileInfo *info)
+{
+	gchar				*file = NULL;
+	GString				*cmd = NULL;
+
+	file = _thunar_file_info_get_file_path (info);
+	if (file)
+	{
+		cmd = g_string_new ("sudo /usr/bin/gfpm -A");
+		g_string_append_printf (cmd, " \"%s\"", file);
+		g_print ("launching command: %s\n", cmd->str);
+		g_spawn_command_line_async (cmd->str, NULL);
+		g_free (file);
+		g_string_free (cmd, FALSE);
+	}
+	
+	return;
+}
+
+static GList *
+thunar_gfpm_menu_get_file_actions (ThunarxMenuProvider *provider,
+							GtkWidget *window,
+							GList *files)
+{
+	GtkAction	*action = NULL;
+	GClosure	*closure = NULL;
+
+	/* perform a few checks */
+	if (!_validate(files))
+		return NULL;
+
+	action = g_object_new (GTK_TYPE_ACTION,
+						"name", "ThunarGfpm::install",
+						"icon-name", "gfpm",
+						"label", _("Install this package"),
+						"tooltip", _("Install this package using GFpm"),
+						NULL);
+	closure = g_cclosure_new_object_swap (G_CALLBACK (install_callback), G_OBJECT (files->data));
+	g_signal_connect_closure (G_OBJECT (action), "activate", closure, TRUE);
+
+	return g_list_append (NULL, action);
+}
+
 static void 
 thunar_gfpm_property_page_provider_iface_init (ThunarxPropertyPageProviderIface *iface)
 {
 	iface->get_pages = thunar_gfpm_property_page_get_pages;
+}
+
+static void 
+thunar_gfpm_menu_provider_iface_init (ThunarxMenuProviderIface *iface)
+{
+	iface->get_file_actions = thunar_gfpm_menu_get_file_actions;
 }
 
 static void 
@@ -502,6 +552,13 @@ thunar_gfpm_register_type (ThunarxProviderPlugin *plugin)
 		NULL
 	};
 
+	/* menu provider inteface */
+	static const GInterfaceInfo menu_provider_iface_info = {
+		(GInterfaceInitFunc) thunar_gfpm_menu_provider_iface_init,
+		NULL,
+		NULL
+	};
+
 	gfpm_type = thunarx_provider_plugin_register_type (plugin,
 					         G_TYPE_OBJECT,
 					         "ThunarGfpm",
@@ -511,6 +568,11 @@ thunar_gfpm_register_type (ThunarxProviderPlugin *plugin)
 				     gfpm_type,
 				     THUNARX_TYPE_PROPERTY_PAGE_PROVIDER,
 				     &property_page_provider_iface_info);
+
+	thunarx_provider_plugin_add_interface (plugin,
+				     gfpm_type,
+				     THUNARX_TYPE_MENU_PROVIDER,
+				     &menu_provider_iface_info);
 }
 
 #endif /* end HAVE_THUNAR_PLUGIN */
