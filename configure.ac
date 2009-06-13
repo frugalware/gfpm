@@ -36,8 +36,8 @@ PKG_CHECK_MODULES([GFPM], [$pkg_modules])
 
 dnl Check if nautilus extension is to be built
 AC_MSG_CHECKING(whether nautilus extension is enabled)
-AM_CONDITIONAL([NAUTILUS_EXT],[test "x$nautilusext" = "xyes"])
-if test "$NAUTILUS_EXT" = yes; then
+if test "x$nautilusext" = "xyes"; then
+	nautilusext="yes"
 	AC_MSG_RESULT(yes)
 	PKG_CHECK_MODULES([NAUTILUS_EXT_GFPM],[libnautilus-extension >= 2.13.3])
 	AC_SUBST(NAUTILUS_EXT_GFPM_CFLAGS)
@@ -46,13 +46,15 @@ if test "$NAUTILUS_EXT" = yes; then
 	AC_SUBST(NAUTILUS_EXTENSION_DIR)
 	AC_DEFINE(HAVE_NAUTILUS_EXT, 1, [Building nautilus extension])
 else
+	nautilusext="no"
 	AC_MSG_RESULT(no)
 fi
+AM_CONDITIONAL([NAUTILUS_EXT],[test "x$nautilusext" = "xyes"])
 
 dnl Check if thunar plugin is to be built
 AC_MSG_CHECKING(whether thunar plugin is enabled)
-AM_CONDITIONAL([THUNAR_PLUGIN],[test "x$thunarplugin" = "xyes"])
-if test "$THUNAR_PLUGIN" = yes; then
+if test "x$thunarplugin" = "xyes"; then
+	thunarplugin="yes"
 	AC_MSG_RESULT(yes)
 	PKG_CHECK_MODULES([THUNAR_PLUGIN_GFPM],[thunar-vfs-1 thunarx-1])
 	AC_SUBST(THUNAR_PLUGIN_GFPM_CFLAGS)
@@ -61,8 +63,10 @@ if test "$THUNAR_PLUGIN" = yes; then
 	AC_SUBST(THUNAR_EXTENSION_DIR)
 	AC_DEFINE(HAVE_THUNAR_PLUGIN, 1, [Building thunar plugin])
 else
+	thunarplugin="no"
 	AC_MSG_RESULT(no)
 fi
+AM_CONDITIONAL([THUNAR_PLUGIN],[test "x$thunarplugin" = "xyes"])
 
 dnl Check for Iconcache monitor support
 AC_MSG_CHECKING(for iconcache monitor support)

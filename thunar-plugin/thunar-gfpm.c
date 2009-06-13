@@ -18,11 +18,12 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <config.h>
+
 #ifdef HAVE_THUNAR_PLUGIN
 
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <config.h>
 #include <string.h>
 #include <pacman.h>
 #include <gtk/gtk.h>

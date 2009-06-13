@@ -1,8 +1,7 @@
-if THUNAR_PLUGIN
 INCLUDES = $(THUNAR_PLUGIN_GFPM_CFLAGS) 
 
-extensiondir=$(THUNAR_EXTENSION_DIR)
-lib_LTLIBRARIES=libthunar-gfpm.la
+extensionsdir = $(THUNAR_EXTENSION_DIR)
+extensions_LTLIBRARIES = libthunar-gfpm.la
 libthunar_gfpm_la_SOURCES =		\
 	thunar-gfpm.c			\
 	thunar-gfpm.h			\
@@ -11,6 +10,4 @@ libthunar_gfpm_la_SOURCES =		\
 libthunar_gfpm_la_LDFLAGS = -module -avoid-version -no-undefined 
 
 libthunar_gfpm_la_LIBADD  = $(THUNAR_PLUGIN_GFPM_LIBS) -lpacman
-
-endif
 
