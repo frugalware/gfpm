@@ -489,7 +489,7 @@ thunar_gfpm_menu_get_file_actions (ThunarxMenuProvider *provider,
 
 	action = g_object_new (GTK_TYPE_ACTION,
 						"name", "ThunarGfpm::install",
-						"icon-name", "gfpm",
+						"icon-name", "gfpm-instfromfile",
 						"label", _("Install this package"),
 						"tooltip", _("Install this package using GFpm"),
 						NULL);

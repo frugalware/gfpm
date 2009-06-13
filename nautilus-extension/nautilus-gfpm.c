@@ -490,7 +490,7 @@ nautilus_gfpm_menu_get_file_items (NautilusMenuProvider *provider,
 	item = nautilus_menu_item_new ("NautilusGfpm::menu_item",
 									_("Install this package"),
 									_("Install this package using GFpm"),
-									"gfpm");
+									"gfpm-instfromfile");
 	g_signal_connect (item,
 					"activate",
 					G_CALLBACK(install_callback),
