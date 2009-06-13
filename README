@@ -37,6 +37,10 @@ For the nautilus extension (optional), you'll require the following packages:
 
 - nautilus >= 2.13.3
 
+For the thunar plugin (optional), you'll require the following packages:
+
+- thunar >= 0.9.0
+
 Installation
 ============
 
