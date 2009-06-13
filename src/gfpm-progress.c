@@ -57,6 +57,9 @@ char 	reponame[PM_DLFNM_LEN+1];
 /* package download status */
 unsigned int remain;
 unsigned int howmany;
+unsigned int eta_h;
+unsigned int eta_m;
+unsigned int eta_s;
 
 gboolean cancelled = FALSE;
 
@@ -76,6 +79,14 @@ gfpm_progress_init (void)
 	pacman_set_option (PM_OPT_DLFNM, (long)reponame);
 	pacman_set_option (PM_OPT_DLHOWMANY, (long)&howmany);
 	pacman_set_option (PM_OPT_DLREMAIN, (long)&remain);
+	pacman_set_option (PM_OPT_DLT0, (long)&t0);
+	pacman_set_option (PM_OPT_DLT0, (long)&t);
+	pacman_set_option (PM_OPT_DLXFERED1, (long)&xferred1);
+
+	/* ETA stuff */
+	pacman_set_option (PM_OPT_DLETA_H, (long)&eta_h);
+	pacman_set_option (PM_OPT_DLETA_M, (long)&eta_m);
+	pacman_set_option (PM_OPT_DLETA_S, (long)&eta_s);
 
 	progressbar = GTK_PROGRESS_BAR(gfpm_get_widget ("progressbar1"));
 	progresswindow = gfpm_get_widget ("progresswindow");
@@ -216,12 +227,22 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	if (xferred+offset == size)
 	{
 		rate = xferred / (tdiff * 1024);
+		eta_s = (int) tdiff;
+		eta_h = eta_s / 3600;
+		eta_s -= eta_h * 3600;
+		eta_m = eta_s / 60;
+		eta_s -= eta_m * 60;
 	}
 	else if (tdiff > 1)
 	{
 		rate = (xferred - xferred1) / (tdiff * 1024);
 		xferred1 = xferred;
 		gettimeofday (&t, NULL);
+		eta_s = (size-(xferred1+offset)) / (rate * 1024);
+		eta_h = eta_s / 3600;
+		eta_s -= eta_h * 3600;
+		eta_m = eta_s / 60;
+		eta_s -= eta_m * 60;
 	}
 	if (rate > 1000)
 	{
@@ -231,7 +252,12 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	{
 		sprintf (rate_text, "%6.1fK/s", (rate>0)?rate:0);
 	}
-	rx_str = g_strdup_printf ("%dK / %dK", (xferred+offset)/1024, size/1024);
+	rx_str = g_strdup_printf ("%dK / %dK (ETA %02d:%02d:%02d)",
+							(xferred+offset)/1024,
+							size/1024,
+							eta_h,
+							eta_m,
+							eta_s);
 	gtk_label_set_text (GTK_LABEL(rec_label), rx_str);
 
 	gtk_progress_bar_set_text (progressbar, text);
