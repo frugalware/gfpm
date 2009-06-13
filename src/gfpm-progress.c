@@ -214,8 +214,6 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 		return 0;
 	}
 
-	while (gtk_events_pending())
-		gtk_main_iteration ();
 	ctl = NULL;
 	size = *(int*)arg;
 	per = ((float)(xferred+offset) / size) * 100;
