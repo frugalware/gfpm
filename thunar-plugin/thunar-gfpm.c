@@ -426,10 +426,10 @@ static GList *
 thunar_gfpm_property_page_get_pages (ThunarxPropertyPageProvider *provider,
 										GList *files)
 {
-	GList   				*pages = NULL;
-	ThunarxPropertyPage		*page = NULL;
-	GtkWidget				*package_widget = NULL;
-	char					*filename = NULL;
+	GList   	*pages = NULL;
+	GtkWidget	*page = NULL;
+	GtkWidget	*package_widget = NULL;
+	char		*filename = NULL;
 
 	/* perform a few checks */
 	if (!_validate(files))
