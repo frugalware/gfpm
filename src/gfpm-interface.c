@@ -1453,6 +1453,8 @@ gfpm_trans_prepare (PM_LIST *list)
 					}
 					else
 					{
+						depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_TARGET));
+						depstring = g_string_append (depstring, _(" : requires "));
 						depstring = g_string_append (depstring, (char*)pacman_dep_getinfo(m,PM_DEP_NAME));
 						switch ((long)pacman_dep_getinfo(m, PM_DEP_MOD))
 						{
