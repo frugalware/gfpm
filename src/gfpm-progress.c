@@ -208,6 +208,8 @@ gfpm_progress_update (netbuf *ctl, int xferred, void *arg)
 	float 		tdiff;
 	gchar		*rx_str = NULL;
 
+	while (gtk_events_pending())
+		gtk_main_iteration();
 	if (cancelled)
 	{
 		cancelled = FALSE;
