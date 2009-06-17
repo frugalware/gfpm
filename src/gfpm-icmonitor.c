@@ -19,11 +19,13 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-
-#include "gfpm-icmonitor.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #ifdef HAVE_ICMONITOR
 
+#include "gfpm-icmonitor.h"
 #include <inotifytools/inotifytools.h>
 #include <inotifytools/inotify.h>
 

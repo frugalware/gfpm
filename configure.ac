@@ -23,7 +23,7 @@ AC_ARG_ENABLE(nautilus-extension,
 AC_ARG_ENABLE(thunar-plugin,
     AC_HELP_STRING([  --enable-thunar-plugin], [Enable thunar plugin]), [thunarplugin="yes"], [thunarplugin="no"])
 AC_ARG_ENABLE(icmonitor,
-    AC_HELP_STRING([  --enable-icmonitor], [Enable iconcache monitor support]), [icmonitor="yes"])
+    AC_HELP_STRING([  --enable-icmonitor], [Enable iconcache monitor support]), [icmonitor="yes"], [icmonitor="no"])
 AC_ARG_ENABLE(werror,
     AC_HELP_STRING([  --enable-werror], [Enable -Werror usage]), [werror="yes"])
 AC_ARG_ENABLE(debug,
@@ -73,15 +73,17 @@ AC_MSG_CHECKING(for iconcache monitor support)
 if test "x$icmonitor" = "xyes" ; then
     icmonitor=yes
     AC_MSG_RESULT(yes)
+    AC_CHECK_HEADERS([inotifytools/inotifytools.h], [have_inotify=yes], [have_inotify=no])
+	if test "x$have_inotify" = "xno"; then
+		AC_MSG_ERROR([inotifytools library not found.])
+	fi
 	INOTIFY_LIBS="-linotifytools"
+	AC_SUBST([INOTIFY_LIBS])
 	AC_DEFINE(HAVE_ICMONITOR, 1, [Building with iconcache monitor support])
 else
-	INOTIFY_LIBS=""
     icmonitor=no
     AC_MSG_RESULT(no)
 fi
-AC_SUBST([INOTIFY_LIBS])
-AM_CONDITIONAL([HAVE_ICMONITOR],[test $icmonitor = yes])
 
 dnl Check for Werror request
 AC_MSG_CHECKING(for werror usage)
@@ -121,13 +123,6 @@ AM_GLIB_DEFINE_LOCALEDIR(LOCALEDIR)
 AC_CHECK_HEADERS([pacman.h], [have_pacman=yes], [have_pacman=no])
 if test "x$have_pacman" = "xno"; then
 	AC_MSG_ERROR([libpacman library not found.])
-fi
-
-if test "$icmonitor" = "yes"; then
-	AC_CHECK_HEADERS([inotifytools/inotifytools.h], [have_inotify=yes], [have_inotify=no])
-	if test "x$have_inotify" = "xno"; then
-		AC_MSG_ERROR([inotifytools library not found.])
-	fi
 fi
 
 CFLAGS="${CFLAGS}"
