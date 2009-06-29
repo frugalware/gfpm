@@ -1,5 +1,19 @@
 VERSION					DESCRIPTION
 ------------------------------------------------------------------------------------------------------------------------------
+1.3.0  (2009-06-xx)			- Added nautilus and thunar file manager plugins for integration with GNOME and XFCE.
+					- BUGFIX (#2738): Fix problem of accents not being displayed properly for languages
+					  like fr_FR and hu_HU.
+					- Fix an issue where Gfpm did not display the names of the unsatisfied dependencies
+					  while removing a package
+					- Fix a bug where a bogus message was displayed when there is an error
+					  installing a package
+					- Improvements in the "Install from File" dialog
+					  It now displays detailed information about a package before installing it.
+					- Updated wejpconfig (gfpm's configuration backend) to 061102
+					- Progress bar now displays ETA during package download operation
+					- Minor bugfix in the build system while handling --enable-icmonitor
+					- Fixed a small memory leak.
+					- Minor cosmetic fixes.
 1.2.3					- BUGFIX (#3712, #3752, #3790): Fix crashes/lockups during package search
 					  BUGFIX (#3687): Truncated Text in the preferences window (wasnt fixed in 1.2.2)
 					  BUGFIX (#3715, #3716): Added a progress bar to the logviewer to prevent lockups when reading huge log files
