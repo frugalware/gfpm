@@ -2,8 +2,8 @@ ENV_CFLAGS=$CFLAGS
 
 AC_PREREQ(2.59)
 AC_COPYRIGHT([Copyright (c) 2006-2009 Priyank Gosalia <priyankmg@gmail.com>])
-AC_INIT([Gfpm], 1.2.3, [priyankmg@gmail.com], gfpm)
-AC_DEFINE_UNQUOTED([GFPM_RELEASE_NAME], ["Eris"], [Release codenames])
+AC_INIT([Gfpm], 1.3.0, [priyankmg@gmail.com], gfpm)
+AC_DEFINE_UNQUOTED([GFPM_RELEASE_NAME], ["Khyati"], [Release codenames])
 AC_CONFIG_SRCDIR([src/gfpm.c])
 AC_LANG(C)
 AM_CONFIG_HEADER(config.h)

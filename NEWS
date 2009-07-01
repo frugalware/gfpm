@@ -1,8 +1,10 @@
 VERSION					DESCRIPTION
 ------------------------------------------------------------------------------------------------------------------------------
-1.3.0  (2009-06-xx)			- Added nautilus and thunar file manager plugins for integration with GNOME and XFCE.
+1.3.0  (2009-07-01)			- Added nautilus and thunar file manager plugins for integration with GNOME and XFCE.
 					- BUGFIX (#2738): Fix problem of accents not being displayed properly for languages
 					  like fr_FR and hu_HU.
+					- FEATURE: GFpm now supports command-line arguments.
+					- Added a -A switch to install packages from a .fpm file.
 					- Fix an issue where Gfpm did not display the names of the unsatisfied dependencies
 					  while removing a package
 					- Fix a bug where a bogus message was displayed when there is an error
