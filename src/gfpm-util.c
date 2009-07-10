@@ -86,6 +86,7 @@ gfpm_check_if_package_updatable (const gchar *package)
 	return ret;
 }
 
+#ifdef HAVE_ICMONITOR
 void
 gfpm_update_iconcache (void)
 {
@@ -99,6 +100,7 @@ gfpm_update_iconcache (void)
 
 	return;
 }
+#endif
 
 gchar *
 gfpm_convert_to_utf8 (const char *str)
