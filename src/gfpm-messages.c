@@ -25,7 +25,7 @@
 #include "gfpm-packagelist.h"
 
 extern GtkWidget	*gfpm_mw;
-extern GladeXML		*xml;
+extern GtkBuilder	*gb;
 extern PM_DB		*sync_db;
 extern PM_DB		*local_db;
 extern GfpmList		*install_list;
@@ -49,13 +49,13 @@ gfpm_messages_init (void)
 	GtkWidget	*button = NULL;
 
 	/* lookup necessary widgets */
-	gfpm_apply_dlg = glade_xml_get_widget (xml, "apply_dlg");
-	gfpm_apply_inst_tvw = glade_xml_get_widget (xml, "insttvw");
-	gfpm_apply_inst_box = glade_xml_get_widget (xml, "instbox");
-	gfpm_apply_rem_tvw = glade_xml_get_widget (xml, "remtvw");
-	gfpm_apply_rem_box = glade_xml_get_widget (xml, "rembox");
-	gfpm_apply_inst_sizelbl = glade_xml_get_widget (xml, "instsizelbl");
-	gfpm_apply_rem_sizelbl = glade_xml_get_widget (xml, "remsizelbl");
+	gfpm_apply_dlg = gfpm_get_widget ("apply_dlg");
+	gfpm_apply_inst_tvw = gfpm_get_widget ("insttvw");
+	gfpm_apply_inst_box = gfpm_get_widget ("instbox");
+	gfpm_apply_rem_tvw = gfpm_get_widget ("remtvw");
+	gfpm_apply_rem_box = gfpm_get_widget ("rembox");
+	gfpm_apply_inst_sizelbl = gfpm_get_widget ("instsizelbl");
+	gfpm_apply_rem_sizelbl = gfpm_get_widget ("remsizelbl");
 
 	/* setup apply dialog */
 	button = gtk_button_new_from_stock (GTK_STOCK_OK);

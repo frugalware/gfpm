@@ -34,9 +34,9 @@
 #include "gfpm-prefs.h"
 #include "gfpm-db.h"
 
-#define UI_FILE	"/share/gfpm/gfpm.glade"
+#define UI_FILE	"/share/gfpm/gfpm.ui"
 
-GladeXML *xml = NULL;
+GtkBuilder *gb = NULL;
 
 int
 main (int argc, char *argv[])
@@ -99,13 +99,14 @@ main (int argc, char *argv[])
 	gdk_threads_enter ();
 	path = g_strdup_printf ("%s%s", PREFIX, UI_FILE);
 
-	if (!(xml=glade_xml_new(path, NULL, NULL)))
+	gb = gtk_builder_new ();
+	if (!gtk_builder_add_from_file(gb, path, NULL))
 	{
 		gfpm_error (_("Interface initialization Failed"), _("Failed to initialize interface"));
 		return 1;
 	}
 	g_free (path);
-	glade_xml_signal_autoconnect (xml);
+	gtk_builder_connect_signals (gb, NULL);
 
 	if (pacman_initialize ("/") == -1)
 	{

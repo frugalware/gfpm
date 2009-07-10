@@ -9,7 +9,6 @@
 #include <libintl.h>
 #include <pacman.h>
 #include <gtk/gtk.h>
-#include <glade/glade.h>
 
 typedef void* netbuf;
 

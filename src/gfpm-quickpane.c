@@ -25,7 +25,7 @@
 
 gchar *quickpane_pkg = NULL;
 
-extern GladeXML *xml;
+extern GtkBuilder *gb;
 extern GfpmList *install_list;
 extern GfpmList *remove_list;
 extern GtkWidget *gfpm_pkgs_tvw;

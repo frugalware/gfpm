@@ -49,7 +49,7 @@
 #include "gfpm-db.h"
 #include "gfpm-prefs.h"
 
-extern GladeXML *xml;
+extern GtkBuilder *gb;
 extern PM_DB	*sync_db;
 extern PM_DB	*local_db;
 extern GfpmList *install_list;
@@ -209,7 +209,7 @@ gfpm_interface_setup_repo_combos (void)
 GtkWidget *
 gfpm_get_widget (const char *wname)
 {
-	return (glade_xml_get_widget(xml,wname));	
+	return ((GtkWidget*)gtk_builder_get_object(gb,wname));	
 }
 
 void
@@ -394,7 +394,7 @@ _gfpm_inst_from_file_dlg_init (void)
 	gtk_widget_hide (gfpm_inst_infoframe);
 
 	/* signal */
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_install")),
+	g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "inst_from_file_install")),
 					"clicked",
 					G_CALLBACK(cb_gfpm_install_file_clicked),
 					NULL);
@@ -402,7 +402,7 @@ _gfpm_inst_from_file_dlg_init (void)
 					"selection-changed",
 					G_CALLBACK(cb_gfpm_install_file_selection_changed),
 					NULL);
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "inst_from_file_close")),
+	g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "inst_from_file_close")),
 					"clicked",
 					G_CALLBACK(cb_gfpm_install_file_close_clicked),
 					NULL);
@@ -434,11 +434,11 @@ static void
 _gfpm_search_init (void)
 {
 	gfpm_search_combo = gfpm_get_widget ("search_repocombo");
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
-	g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "gfpm_searchbtn")),
+	g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "search_entry1")), "key-release-event", G_CALLBACK(cb_gfpm_search_keypress), NULL);
+	g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "gfpm_searchbtn")),
 				"clicked",
 				G_CALLBACK(cb_gfpm_search_buttonpress),
-				(gpointer)glade_xml_get_widget(xml, "search_entry1"));
+				(gpointer)gtk_builder_get_object(gb, "search_entry1"));
 
 	return;
 }
@@ -494,37 +494,37 @@ gfpm_interface_init (ARGS arg, void* argdata)
 		_gfpm_inst_from_file_dlg_init ();
 
 		/* about */
-		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "about_gfpm1")),
+		g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "about_gfpm1")),
 						"activate",
 						G_CALLBACK(gfpm_about),
 						NULL);
 	
 		/* syslog */
-		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "syslog1")),
+		g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "syslog1")),
 						"activate",
 						G_CALLBACK(gfpm_logviewer_show),
 						NULL);
 	
 		/* repository manager */
-		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "menu_edit_repos")),
+		g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "menu_edit_repos")),
 						"activate",
 						G_CALLBACK(gfpm_repomanager_show),
 						NULL);
 
 		/* aply */
-		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_apply")),
+		g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "button_apply")),
 						"clicked",
 						G_CALLBACK(cb_gfpm_apply_btn_clicked),
 						NULL);
 
 		/* refresh db */
-		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "button_refresh1")),
+		g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "button_refresh1")),
 						"clicked",
 						G_CALLBACK(cb_gfpm_refresh_button_clicked),
 						NULL);
 
 		/* clear cache dialog */
-		g_signal_connect (G_OBJECT(glade_xml_get_widget(xml, "rem_apply")),
+		g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "rem_apply")),
 						"clicked",
 						G_CALLBACK(cb_gfpm_clear_cache_apply_clicked),
 						NULL);
@@ -533,9 +533,9 @@ gfpm_interface_init (ARGS arg, void* argdata)
 		if ( geteuid() != 0 )
 		{
 			/* disable some widgets */
-			gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_apply"), FALSE);
-			gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_refresh1"), FALSE);
-			gtk_widget_set_sensitive (glade_xml_get_widget(xml, "button_file1"), FALSE);
+			gtk_widget_set_sensitive (gtk_builder_get_object(gb, "button_apply"), FALSE);
+			gtk_widget_set_sensitive (gtk_builder_get_object(gb, "button_refresh1"), FALSE);
+			gtk_widget_set_sensitive (gtk_builder_get_object(gb, "button_file1"), FALSE);
 			gtk_widget_set_sensitive (gfpm_get_widget("button_preferences"), FALSE);
 			gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_repos"), FALSE);
 			gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_prefs"), FALSE);
@@ -593,7 +593,7 @@ gfpm_interface_init (ARGS arg, void* argdata)
 				{
 					gfpm_error (_("Insufficient privileges"),
 								_("You need to be root in order to install packages"));
-					gtk_widget_set_sensitive (glade_xml_get_widget(xml,"inst_from_file_install"), FALSE);
+					gtk_widget_set_sensitive (gtk_builder_get_object(gb,"inst_from_file_install"), FALSE);
 					gtk_widget_hide (gfpm_inst_optframe);
 				}
 				g_print ("argdata: %s\n", (char*)argdata);	
@@ -613,7 +613,7 @@ gfpm_interface_init (ARGS arg, void* argdata)
 	}
 
 	/* unref the glade xml object */
-	g_object_unref (xml);
+	g_object_unref (gb);
 
 	return;
 }
