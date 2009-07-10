@@ -47,8 +47,9 @@
                       <object class="GtkImageMenuItem" id="menu_edit_repos">
                         <property name="label" translatable="yes">Repositories</property>
                         <property name="visible">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-						<property name="use_stock">False</property>
+                        <property name="tooltip_text" translatable="yes">Manage Repositories</property>
+                        <property name="image">image1</property>
+                        <property name="use_stock">False</property>
                       </object>
                     </child>
                     <child>
@@ -79,8 +80,8 @@
                       <object class="GtkImageMenuItem" id="clr1">
                         <property name="label" translatable="yes">_Clear package cache</property>
                         <property name="visible">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="use_underline">True</property>
+                        <property name="image">image2</property>
                         <property name="use_stock">False</property>
                         <signal name="activate" handler="gtk_widget_show" object="clear_cache_dlg"/>
                       </object>
@@ -89,8 +90,8 @@
                       <object class="GtkImageMenuItem" id="menu_tools_optimize">
                         <property name="label" translatable="yes">_Optimize package database</property>
                         <property name="visible">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="use_underline">True</property>
+                        <property name="image">image3</property>
                         <property name="use_stock">False</property>
                         <signal name="activate" handler="gtk_widget_show" object="optimize_db_dlg"/>
                       </object>
@@ -101,6 +102,7 @@
                         <property name="visible">True</property>
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="use_underline">True</property>
+                        <property name="image">image4</property>
                         <property name="use_stock">False</property>
                       </object>
                     </child>
@@ -3285,7 +3287,6 @@ Upgrade only the packages that are specified number of days old while performing
                                   <object class="GtkSpinButton" id="prefs_old_delay_spin">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment"></property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3322,7 +3323,6 @@ Upgrade only the packages that are specified number of days old while performing
                                   <object class="GtkSpinButton" id="prefs_upg_delay_spin">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="adjustment"></property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -3654,7 +3654,6 @@ Upgrade only the packages that are specified number of days old while performing
                               <object class="GtkSpinButton" id="prefs_max_retries">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="adjustment"></property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -3917,5 +3916,24 @@ Upgrade only the packages that are specified number of days old while performing
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="icon_name">gfpm</property>
+  </object>
+  <object class="GtkImage" id="image2">
+    <property name="visible">True</property>
+    <property name="stock">gtk-clear</property>
+    <property name="icon-size">1</property>
+  </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="stock">gtk-refresh</property>
+    <property name="icon-size">1</property>
+  </object>
+  <object class="GtkImage" id="image4">
+    <property name="visible">True</property>
+    <property name="stock">gtk-dialog-info</property>
+    <property name="icon-size">1</property>
   </object>
 </interface>
