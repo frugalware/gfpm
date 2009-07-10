@@ -206,12 +206,6 @@ gfpm_interface_setup_repo_combos (void)
 	return;
 }
 
-GtkWidget *
-gfpm_get_widget (const char *wname)
-{
-	return ((GtkWidget*)gtk_builder_get_object(gb,wname));	
-}
-
 void
 gfpm_setup_pkgs_tvw (void)
 {

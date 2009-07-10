@@ -31,6 +31,8 @@
 /* required for getdate() */
 #include <time.h>
 
+extern GtkBuilder *gb;
+
 typedef struct _LogViewItem
 {
 	gchar	*label;

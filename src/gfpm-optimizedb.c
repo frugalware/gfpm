@@ -20,19 +20,21 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#include "gfpm-optimizedb.h"
-#include "gfpm-messages.h"
-#include "gfpm-interface.h"
-
 #include <fcntl.h>
 #include <glib.h>
 #include <glib/gstdio.h>
+
+#include "gfpm-optimizedb.h"
+#include "gfpm-messages.h"
+#include "gfpm-interface.h"
 
 #define DBLOC "/var/lib/pacman-g2"
 #define TMPLOC "/var/lib/pacman-g2.new"
 #define OLDSUM "/tmp/dbsums.old"
 #define NEWSUM "/tmp/dbsums.new"
 #define LOCKFILE "/tmp/pacman-g2.lck"
+
+extern GtkBuilder *gb;
 
 static GtkWidget *gfpm_optimize_db_dlg;
 static GtkWidget *gfpm_optimize_db_progressbar;

@@ -15,6 +15,8 @@
 #endif
 #define _(string) gettext (string)
 
+#define gfpm_get_widget(x) GTK_WIDGET(gtk_builder_get_object(gb,x))
+
 typedef enum {
 	ARG_ADD = 0x01
 } ARGS;

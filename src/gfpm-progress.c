@@ -30,6 +30,7 @@
 #include "config.h"
 #endif
 
+extern GtkBuilder	*gb;
 extern GtkWidget	*gfpm_mw;
 extern gboolean		running;
 

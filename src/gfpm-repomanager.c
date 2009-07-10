@@ -31,6 +31,7 @@
 #define MOVE_DN		0
 
 extern GtkWidget *gfpm_mw;
+extern GtkBuilder *gb;
 
 static gfpm_repolist_t 	*repolist = NULL;
 static gchar		*curr_repo = NULL;

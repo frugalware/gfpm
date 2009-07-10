@@ -27,6 +27,8 @@
 #include "gfpm-logviewer.h"
 #include "gfpm-config.h"
 
+extern GtkBuilder *gb;
+
 static GtkWidget *gfpm_prefs_log_check;
 static GtkWidget *gfpm_prefs_log_location;
 static GtkWidget *gfpm_prefs_cache_dir_entry;

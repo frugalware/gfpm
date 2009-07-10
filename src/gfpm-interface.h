@@ -10,9 +10,6 @@
 #include <gtk/gtk.h>
 #include "gfpm.h"
 
-/* a wrapper for glade_xml_get_widget(xml,"foo") */
-GtkWidget * gfpm_get_widget (const char *);
-
 /* Initialize gfpm interface. Call this function before any other interface functions */
 void gfpm_interface_init (ARGS arg, void* argdata);
 
