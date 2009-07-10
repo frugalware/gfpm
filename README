@@ -28,7 +28,6 @@ Requirements
 Gfpm requires the following packages :
 
 - gtk+2 >= 2.10
-- libglade >= 2.6
 - pacman-g2 >= 3.7.0
 - frugalwareutils >= 0.7.9
 - inotify-tools (opitional)
