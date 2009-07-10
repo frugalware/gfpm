@@ -15,4 +15,4 @@ nautilus-extension/nautilus-gfpm.c
 nautilus-extension/nautilus-gfpm-module.c
 thunar-plugin/thunar-gfpm.c
 thunar-plugin/thunar-gfpm-module.c
-data/gfpm.glade
+data/gfpm.ui

@@ -30,8 +30,7 @@ AC_ARG_ENABLE(debug,
     AC_HELP_STRING([  --enable-debug], [Enable debugging support]), [debug="yes"])
 
 pkg_modules="gtk+-2.0 >= 2.12.0 \
-			gthread-2.0 \
-			libglade-2.0 >= 2.6.0 "
+			gthread-2.0"
 PKG_CHECK_MODULES([GFPM], [$pkg_modules])
 
 dnl Check if nautilus extension is to be built
