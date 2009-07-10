@@ -1763,10 +1763,13 @@
     <property name="height_request">150</property>
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="border_width">5</property>
+    <property name="title" translatable="yes">Optimize package database</property>
     <property name="resizable">False</property>
     <property name="window_position">center-on-parent</property>
     <property name="default_width">400</property>
     <property name="default_height">150</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon_name">gtk-refresh</property>
     <property name="type_hint">dialog</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
@@ -1802,7 +1805,7 @@
                   <object class="GtkLabel" id="label11">
                     <property name="visible">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Status : &lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Status : &lt;/b&gt; Ready. Click the Optimize button to begin.</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
