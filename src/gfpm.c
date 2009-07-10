@@ -46,6 +46,7 @@ main (int argc, char *argv[])
 	int		opt;
 	int		longopt_index;
 	int		arg = 0;
+	GError	*error = NULL;
 
 	setlocale (LC_ALL, "");
 	bindtextdomain (GETTEXT_PACKAGE, LOCALEDIR);
@@ -100,9 +101,13 @@ main (int argc, char *argv[])
 	path = g_strdup_printf ("%s%s", PREFIX, UI_FILE);
 
 	gb = gtk_builder_new ();
-	if (!gtk_builder_add_from_file(gb, path, NULL))
+	if (!gtk_builder_add_from_file(gb, path, &error))
 	{
-		gfpm_error (_("Interface initialization Failed"), _("Failed to initialize interface"));
+		gchar *msg = g_strdup_printf ("%s\n\n%s",
+				_("Failed to initialize interface due to the following error(s) in gfpm.ui:"),
+				error->message);
+		gfpm_error (_("Interface initialization Failed"), msg);
+		g_free (msg);
 		return 1;
 	}
 	g_free (path);
