@@ -20,6 +20,7 @@ A short list of features:
 - Gfpm provides detailed information about a package like group
   information, size, packager, files etc. It also displays a package's
   Changelog.
+- Support for command-line arguments same as that of pacman-g2 [work in progress]
 - Integration with GNOME and XFCE using nautilus and thunar plugins (optional)
 
 Requirements
