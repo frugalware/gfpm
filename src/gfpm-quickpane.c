@@ -73,6 +73,10 @@ gfpm_quickpane_init (void)
 					"clicked",
 					G_CALLBACK(cb_gfpm_quickpane_readme_clicked),
 					NULL);
+	g_signal_connect (G_OBJECT(quick_pane_readme_dlg),
+					"delete-event",
+					G_CALLBACK(gtk_widget_hide),
+					(gpointer)quick_pane_readme_dlg);
 	
 	/* Disable the Quick pane Install,Remove,Upgrade buttons if gfpm is not run as root */
 	if (geteuid() != 0)
