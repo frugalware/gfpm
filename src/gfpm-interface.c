@@ -521,7 +521,7 @@ gfpm_interface_init (ARGS arg, void* argdata)
 		g_signal_connect (G_OBJECT(gtk_builder_get_object(gb, "rem_apply")),
 						"clicked",
 						G_CALLBACK(cb_gfpm_clear_cache_apply_clicked),
-						NULL);
+						(gpointer)gtk_builder_get_object(gb,"clear_cache_dlg"));
 
 		/* Disable Apply, Refresh and File buttons if user is not root */
 		if ( geteuid() != 0 )
@@ -2297,7 +2297,7 @@ cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
 	int ret;
 	gchar *errstr = NULL;
 
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_clrold_opt)) == TRUE)
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_clrold_opt)))
 	{
 		if (gfpm_question(_("Clear package cache"), _("Are you sure you want to remove old packages from cache ?")) == GTK_RESPONSE_YES)
 		{
@@ -2305,7 +2305,10 @@ cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
 				gtk_main_iteration ();
 			ret = pacman_sync_cleancache (0);
 			if (!ret)
-				gfpm_message ("Gfpm", _("Finished clearing the cache"));
+			{
+				gfpm_message (_("Cache cleared"), _("Finished clearing the cache"));
+				gtk_widget_hide ((GtkWidget*)data);
+			}
 			else
 			{
 				gchar *p_error_utf8 = gfpm_convert_to_utf8 (pacman_strerror(pm_errno));
@@ -2317,7 +2320,7 @@ cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
 		}
 		return;
 	}
-	else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_clrall_opt)) == TRUE)
+	else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gfpm_clrall_opt)))
 	{
 		if (gfpm_question(_("Clear package cache"), _("Are you sure you want to remove all packages from cache ?")) == GTK_RESPONSE_YES)
 		{
@@ -2325,7 +2328,10 @@ cb_gfpm_clear_cache_apply_clicked (GtkButton *button, gpointer data)
 				gtk_main_iteration ();
 			ret = pacman_sync_cleancache (1);
 			if (!ret)
-				gfpm_message ("Gfpm", _("Finished clearing the cache"));
+			{
+				gfpm_message (_("Cache cleared"), _("Finished clearing the cache"));
+				gtk_widget_hide ((GtkWidget*)data);
+			}
 			else
 			{
 				gchar *p_error_utf8 = gfpm_convert_to_utf8 (pacman_strerror(pm_errno));
