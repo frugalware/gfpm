@@ -2358,7 +2358,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	fpm = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(gfpm_inst_filechooser));
 	if (fpm == NULL)
 	{
-		gfpm_error (_("No packages selected"), _("No package selected for install. Please select a package to install."));
+		gfpm_error (_("No packages selected"), _("No package selected for installation. Please select a package to install."));
 		return;
 	}
 	if (gfpm_question(_("Install package"), _("Are you sure you want to install this package ?")) != GTK_RESPONSE_YES)
