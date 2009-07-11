@@ -663,7 +663,7 @@ cb_gfpm_apply_btn_clicked (GtkButton *button, gpointer data)
 				g_string_printf (errorstr, "%s", lck_error);
 			if (gfpm_question (_("Error"), errorstr->str) == GTK_RESPONSE_YES)
 			{
-				g_remove ("/tmp/pacman-g2.lck");
+				g_remove (PM_LOCK);
 				goto try;
 			}
 			else
@@ -734,7 +734,7 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 				g_string_printf (errorstr, "%s", lck_error);
 			if (gfpm_question (_("Error"), errorstr->str) == GTK_RESPONSE_YES)
 			{
-				g_remove ("/tmp/pacman-g2.lck");
+				g_remove (PM_LOCK);
 				goto itry;
 			}
 			else
