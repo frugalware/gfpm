@@ -1419,7 +1419,6 @@ gfpm_trans_prepare (PM_LIST *list)
 {
 	if (pacman_trans_prepare(&list)==-1)
 	{
-		g_print ("failed to prepare\n");
 		PM_LIST *i;
 		GList	*pkgs = NULL;
 		gchar	*str = NULL;
@@ -2413,7 +2412,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	}
 	else
 	{
-		gfpm_message ("Gfpm", _("Package successfully installed"));
+		gfpm_message (_("Success"), _("Package successfully installed"));
 	}
 
 	cleanup:
