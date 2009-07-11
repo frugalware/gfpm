@@ -505,7 +505,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 			str = g_strdup_printf (_("%s requires %s, but it is IgnorePkg. Install anyway?"),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME),
 									(char*)pacman_pkg_getinfo (data2, PM_PKG_NAME));
-			if (gfpm_question("Gfpm", str) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Install anyway?"), str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
@@ -513,7 +513,7 @@ cb_gfpm_trans_conv (unsigned char event, void *data1, void *data2, void *data3, 
 		case PM_TRANS_CONV_REMOVE_HOLDPKG:
 			str = g_strdup_printf (_("%s is designated as HoldPkg. Remove anyway?"),
 									(char*)pacman_pkg_getinfo (data1, PM_PKG_NAME));
-			if (gfpm_question("Gfpm", str) == GTK_RESPONSE_YES)
+			if (gfpm_question(_("Remove anyway?"), str) == GTK_RESPONSE_YES)
 				*response = 1;
 			else
 				*response = 0;
