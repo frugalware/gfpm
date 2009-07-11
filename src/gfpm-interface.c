@@ -527,9 +527,9 @@ gfpm_interface_init (ARGS arg, void* argdata)
 		if ( geteuid() != 0 )
 		{
 			/* disable some widgets */
-			gtk_widget_set_sensitive (gtk_builder_get_object(gb, "button_apply"), FALSE);
-			gtk_widget_set_sensitive (gtk_builder_get_object(gb, "button_refresh1"), FALSE);
-			gtk_widget_set_sensitive (gtk_builder_get_object(gb, "button_file1"), FALSE);
+			gtk_widget_set_sensitive (gfpm_get_widget("button_apply"), FALSE);
+			gtk_widget_set_sensitive (gfpm_get_widget("button_refresh1"), FALSE);
+			gtk_widget_set_sensitive (gfpm_get_widget("button_file1"), FALSE);
 			gtk_widget_set_sensitive (gfpm_get_widget("button_preferences"), FALSE);
 			gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_repos"), FALSE);
 			gtk_widget_set_sensitive (gfpm_get_widget("menu_edit_prefs"), FALSE);
@@ -587,7 +587,7 @@ gfpm_interface_init (ARGS arg, void* argdata)
 				{
 					gfpm_error (_("Insufficient privileges"),
 								_("You need to be root in order to install packages"));
-					gtk_widget_set_sensitive (gtk_builder_get_object(gb,"inst_from_file_install"), FALSE);
+					gtk_widget_set_sensitive (gfpm_get_widget("inst_from_file_install"), FALSE);
 					gtk_widget_hide (gfpm_inst_optframe);
 				}
 				g_print ("argdata: %s\n", (char*)argdata);	
