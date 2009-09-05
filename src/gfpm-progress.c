@@ -148,6 +148,7 @@ cb_gfpm_details_button_toggled (GtkWidget *button, gpointer data)
 			gtk_window_resize (GTK_WINDOW(progresswindow), width, height);
 		gtk_window_get_size (GTK_WINDOW(progresswindow), &width, &height);
 		gtk_window_set_resizable (GTK_WINDOW(progresswindow), TRUE);
+		gtk_button_set_label (button, _("Summary"));
 	}
 	else
 	{
@@ -157,6 +158,7 @@ cb_gfpm_details_button_toggled (GtkWidget *button, gpointer data)
 		gtk_window_get_size (GTK_WINDOW(progresswindow), &width, &height);
 		gtk_window_resize (GTK_WINDOW(progresswindow), 350, 1);
 		gtk_window_set_resizable (GTK_WINDOW(progresswindow), FALSE);
+		gtk_button_set_label (button, _("Details"));
 	}
 	return;
 }
