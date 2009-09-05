@@ -795,12 +795,35 @@ itry:	if (pacman_trans_init(PM_TRANS_TYPE_SYNC, flags, gfpm_progress_event, cb_g
 		gfpm_update_iconcache ();
 	}
 	#endif
-	if (current_group != NULL)
-		gfpm_load_pkgs_tvw ((const char*)current_group);
-
+	
 	if (gfpm_progress_is_autoclose_checkbtn_set())
 		gfpm_progress_show (FALSE);
+	
+	/* Fix for bug #3893 */
+	// Quick pane status for the currently selected package is not updated after
+	// a package install/remove operation
+	// The following code simply reselects the selected package causing the quickpane
+	// status to update
+	char *sel_pkgname = NULL;
+	GtkTreeModel *model = NULL;
+	GtkTreeIter iter;
+	GtkTreePath *path = NULL;
+	GtkTreeSelection *selection = NULL;
+	
+	selection = gtk_tree_view_get_selection (GTK_TREE_VIEW(gfpm_pkgs_tvw));	
+	model = gtk_tree_view_get_model (GTK_TREE_VIEW(gfpm_pkgs_tvw));
+	gtk_tree_selection_get_selected (selection, &model, &iter);
+	gtk_tree_selection_select_iter (selection, &iter);
+	path = gtk_tree_model_get_path (model, &iter);
+	
+	// Also reload the package info treeview
+	if (current_group != NULL)
+		gfpm_load_pkgs_tvw ((const char*)current_group);
+	gfpm_load_info_tvw (sel_pkgname, gfpm_info_tvw);
 
+	// Okay, now reselect the package
+	gtk_tree_selection_select_path (selection, path);
+	
 	return;
 }
 
