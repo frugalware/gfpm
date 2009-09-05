@@ -590,7 +590,7 @@ gfpm_interface_init (ARGS arg, void* argdata)
 					gtk_widget_set_sensitive (gfpm_get_widget("inst_from_file_install"), FALSE);
 					gtk_widget_hide (gfpm_inst_optframe);
 				}
-				g_print ("argdata: %s\n", (char*)argdata);	
+				//g_print ("argdata: %s\n", (char*)argdata);	
 				if (gtk_file_chooser_select_filename((GtkFileChooser*)gfpm_inst_filechooser,(char*)argdata))
 				{
 					gtk_widget_show (gfpm_inst_from_file_dlg);
@@ -2122,13 +2122,10 @@ gfpm_search (GtkWidget *widget)
 		r = 1;
 	}
 	
-	
-	
 	gfpm_update_status (_("Search Complete"));
 	
 	if (l == NULL)
 	{
-		g_print ("package not found\n");
 		gfpm_error (_("Package not found"), _("No such package found"));
 		goto cleanup;
 	}
@@ -2236,9 +2233,8 @@ gfpm_search (GtkWidget *widget)
 			pacman_pkg_free (pm_lpkg);
 		}
 	}
-	cleanup:
-	g_print ("cleaning up..\n");
 	
+	cleanup:
 	pacman_set_option (PM_OPT_NEEDLES, (long)NULL);
 	if (search_db!=NULL && !nounreg)
 	{
@@ -2449,6 +2445,7 @@ cb_gfpm_install_file_clicked (GtkButton *button, gpointer data)
 	{
 		gtk_main_quit();
 	}
+
 	return;
 }
 
@@ -2463,6 +2460,7 @@ cb_gfpm_install_file_close_clicked (GtkButton *button, gpointer data)
 	{
 		gtk_main_quit ();
 	}
+
 	return;
 }
 
@@ -2474,8 +2472,8 @@ cb_gfpm_install_file_selection_changed (GtkFileChooser *chooser, gpointer data)
 	file = gtk_file_chooser_get_filename (chooser);
 	gfpm_load_info_tvw (file, (GtkTreeView*)gfpm_inst_infotvw);
 
-			/* show the info */
-			gtk_widget_show (gfpm_inst_infoframe);
+	/* show the info */
+	gtk_widget_show (gfpm_inst_infoframe);
 }
 
 
