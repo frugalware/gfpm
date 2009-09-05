@@ -654,7 +654,7 @@
                                           <object class="GtkLabel" id="label13">
                                             <property name="visible">True</property>
                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                            <property name="label" translatable="yes">Install this Package</property>
+                                            <property name="label" translatable="yes">Install this package</property>
                                           </object>
                                           <packing>
                                             <property name="position">1</property>
@@ -696,7 +696,7 @@
                                           <object class="GtkLabel" id="label15">
                                             <property name="visible">True</property>
                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                            <property name="label" translatable="yes">Remove this Package</property>
+                                            <property name="label" translatable="yes">Remove this package</property>
                                           </object>
                                           <packing>
                                             <property name="position">1</property>
@@ -738,7 +738,7 @@
                                           <object class="GtkLabel" id="label17">
                                             <property name="visible">True</property>
                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                            <property name="label" translatable="yes">Upgrade this Package</property>
+                                            <property name="label" translatable="yes">Upgrade this package</property>
                                           </object>
                                           <packing>
                                             <property name="position">1</property>
