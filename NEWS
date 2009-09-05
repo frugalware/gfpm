@@ -1,5 +1,9 @@
 VERSION					DESCRIPTION
 ------------------------------------------------------------------------------------------------------------------------------
+1.3.2 (2009-09-05)			- GFpm turns 2! Happy Birthday GFpm! :)
+					- l33t new splash screen (based on Getorin's Artwork)
+					- BUGFIX (#3893): Refresh QuickPane status on package install/upgrade/remove.
+					- BUGFIX (#3892): Set appropriate label of the "Details" button in progress bar.
 1.3.1					- Migrated to GtkBuilder (GFpm no longer depends on libglade)
 					- Don't destroy the Readme dialog on delete-event
 					- Minor UI tweaks and fixes
