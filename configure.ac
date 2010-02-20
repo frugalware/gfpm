@@ -99,7 +99,7 @@ dnl Check for debug enabled or not
 AC_MSG_CHECKING(for debug request)
 if test "x$debug" = "xyes" ; then
     AC_DEFINE(GFPM_DEBUG, 1, [Debug support: enabled])
-    CFLAGS="${CFLAGS} -ggdb3 -Wall -DGFPM_DEBUG"
+    CFLAGS="${CFLAGS} -O0 -ggdb3 -Wall -DGFPM_DEBUG"
     debug=yes
     AC_MSG_RESULT(yes)
 else
