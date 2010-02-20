@@ -229,11 +229,35 @@ _gfpm_logviewer_populate (void)
 			}
 			else
 			{
-				if (getdate_err == 1)
-					gfpm_error (_("Error"), _("Missing datemsk file. Make sure that the file exists on your system"));
-				else
-					gfpm_error (_("Unknown Error"), _("Unknown Error."));
-				goto cleanup;
+				if (getdate_err == 1) {
+                                        gfpm_error (_("Error"), _("Missing datemsk file. Make sure that the file exists on your system"));
+                                        goto cleanup;
+                                } else if (getdate_err == 2) {
+                                        gfpm_error (_("Error"), _("The template file cannot be opened for reading."));
+                                        goto cleanup;
+                                } else if (getdate_err == 3) {
+                                        gfpm_error (_("Error"), _("Failed to get file status information."));
+                                        goto cleanup;
+                                } else if (getdate_err == 4) {
+                                        gfpm_error (_("Error"), _("The template file is not a regular file."));
+                                        goto cleanup;
+                                } else if (getdate_err == 5) {
+                                        gfpm_error (_("Error"), _("An I/O error is encountered while reading the template file."));
+                                        goto cleanup;
+                                } else if (getdate_err == 6) {
+                                        gfpm_error (_("Error"), _("Memory allocation failed (not enough memory available)."));
+                                        goto cleanup;
+                                } else if (getdate_err == 7) {
+                                        gfpm_error (_("Error"), _("There is no line in the template that matches the input."));
+                                        goto cleanup;
+                                } else if (getdate_err == 8) {
+                                        gfpm_error (_("Error"), _("Invalid input specification."));
+                                        goto cleanup;
+                                } else {
+                                        gfpm_error (_("Unknown Error"), _("Getdate: unknown error."));
+                                        goto cleanup;
+				}
+
 			}
 		}
 	}
