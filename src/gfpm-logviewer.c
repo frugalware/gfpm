@@ -66,7 +66,7 @@ gfpm_logviewer_init (void)
 	 GtkCellRenderer	*renderer = NULL;
 	 GtkTreeViewColumn	*column = NULL;
 	 GtkTreeSelection	*sel = NULL;
-	 
+
 	 if (getenv("DATEMSK") == NULL)
 	 {
 	 	gchar *loc = g_strdup_printf ("%s/%s", PREFIX, DMK_FILE);
@@ -78,7 +78,7 @@ gfpm_logviewer_init (void)
 	 gfpm_logviewer_txtvw = gfpm_get_widget ("log_txtvw");
 	 gfpm_logviewer_sizelabel = gfpm_get_widget ("log_size_label");
 	 gfpm_logviewer_progressbar = gfpm_get_widget ("log_progress");
-	 
+
 	 renderer = gtk_cell_renderer_text_new ();
 	 g_object_set (renderer, "xalign", 0.0, NULL);
 	 col_offset = gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (gfpm_logviewer_tvw),
@@ -139,7 +139,7 @@ _gfpm_logviewer_populate (void)
 		gtk_label_set_text (GTK_LABEL(gfpm_logviewer_sizelabel), sizetxt);
 		g_free (sizetxt);
 	}
-	
+
 	/* display a nice progress bar for huge log files */
 	/* for that we need the number of lines in the log file */
 	command = g_strdup_printf ("wc -l %s | cut -d ' ' -f1", LOG_FILE);
@@ -152,18 +152,18 @@ _gfpm_logviewer_populate (void)
 	}
 	g_free (command);
 	g_print ("%s contains %d lines\n", LOG_FILE, lines);
-	
+
 	unsigned int 	iter_lines = 0;
 	float		progress = 0;
 	float		prev_progress = 0;
 	while (fgets(line,PATH_MAX,fp))
 	{
 		char *ptr = NULL;
-		
+
 		fwutil_trim (line);
 		if (!strlen(line))
 			continue;
-		
+
 		/* update progress */
 		progress = (float) iter_lines / lines;
 
@@ -174,7 +174,7 @@ _gfpm_logviewer_populate (void)
 			prev_progress = progress;
 		}
 		iter_lines++;
-		
+
 		if (line[0] == '[' && line[15] == ']')
 		{
 			struct tm *t;
@@ -197,7 +197,7 @@ _gfpm_logviewer_populate (void)
 						day = g_convert (tday, strlen(tday), "UTF-8", "", NULL, NULL, NULL);
 						prev_month = t->tm_mon+1;
 						li = (LogViewItem*) malloc(sizeof(LogViewItem));
-					
+
 						prev_month = t->tm_mon+1;
 						li->label = g_strdup (day);
 						li->children = NULL;
@@ -239,10 +239,10 @@ _gfpm_logviewer_populate (void)
 	}
 	/* hide the progress bar */
 	gtk_widget_hide (gfpm_logviewer_progressbar);
-	
+
 	/* add the master list */
 	store = gtk_tree_store_new (1, G_TYPE_STRING);
-	
+
 	while (master != NULL)
 	{
 		LogViewItem *m = master->data;
@@ -260,7 +260,7 @@ _gfpm_logviewer_populate (void)
 		master = g_list_next (master);
 	}
 	gtk_tree_view_set_model (GTK_TREE_VIEW(gfpm_logviewer_tvw), GTK_TREE_MODEL(store));
-	
+
 	cleanup: fclose (fp);
 	return;
 }
@@ -272,7 +272,7 @@ _gfpm_logviewer_populate_txtvw (const char *text)
 	char 		date[10] = "";
 	GtkTextBuffer	*buffer;
 	GtkTextIter	iter;
-	
+
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(gfpm_logviewer_txtvw));
 	gtk_text_buffer_set_text (buffer, "", 0);
 	gtk_text_buffer_get_iter_at_offset (buffer, &iter, 0);
@@ -297,7 +297,7 @@ _gfpm_logviewer_populate_txtvw (const char *text)
 		gtk_text_view_set_buffer (GTK_TEXT_VIEW(gfpm_logviewer_txtvw), buffer);
 		fclose (fp);
 	}
-	
+
 	return;
 }
 
@@ -307,11 +307,11 @@ cb_gfpm_logviewer_tvw_row_activated (GtkTreeSelection *selection, gpointer data)
 	GtkTreeIter	iter;
 	GtkTreeIter	piter;
 	GtkTreeModel	*model;
-	
+
 	if (gtk_tree_selection_get_selected (selection, &model, &iter))
 	{
 		gchar *text = NULL;
-		
+
 		if (gtk_tree_model_iter_parent (model, &piter, &iter))
 		{
 			gtk_tree_model_get (model, &iter, 0, &text, -1);
