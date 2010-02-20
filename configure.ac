@@ -28,6 +28,8 @@ AC_ARG_ENABLE(werror,
     AC_HELP_STRING([  --enable-werror], [Enable -Werror usage]), [werror="yes"])
 AC_ARG_ENABLE(debug,
     AC_HELP_STRING([  --enable-debug], [Enable debugging support]), [debug="yes"])
+AC_ARG_ENABLE(strict,
+        AC_HELP_STRING([--enable-strict], [Enable building with 'Strict' flags]), [strict=$enableval], [strict=no])
 
 pkg_modules="gtk+-2.0 >= 2.12.0 \
 			gthread-2.0"
@@ -109,6 +111,24 @@ else
     AC_MSG_RESULT(no)
 fi
 
+dnl Enable or disable building with 'strict' flags
+AC_MSG_CHECKING(for building with 'strict' flags)
+if test x$strict = xyes ; then
+        CFLAGS="${CFLAGS} -Wextra -Wall -pedantic -Wshadow \
+                -Wmissing-declarations -Wpointer-arith -Wcast-align \
+                -Wfloat-equal -Wstrict-prototypes -Wmissing-prototypes \
+                -Wredundant-decls -Wunused-variable -Wunused-parameter \
+                -Wparentheses -Wno-long-long -Wwrite-strings -Wimplicit \
+                -Wnested-externs -Wno-unused -Wundef -Wpacked \
+                -Wbad-function-cast -Wunused-function -Wunused-label \
+                -Wunused-value -Wfloat-equal -Wchar-subscripts -Wswitch \
+                -Wmissing-braces -Wsequence-point -Wunknown-pragmas \
+                -Wdeclaration-after-statement -Wsign-compare"
+        AC_MSG_RESULT(yes)
+else
+        AC_MSG_RESULT(no)
+fi
+
 AC_SUBST([GFPM_DEBUG])
 AC_SUBST([GFPM_RELEASE_NAME])
 
@@ -151,6 +171,7 @@ GFpm $VERSION configuration summary:
         compiler                 : ${CC}
         compiler flags           : ${CFLAGS}
 	debug support            : ${debug}
+	compile strict		 : ${strict}
 	iconcache monitor        : ${icmonitor}
 	nautilus extension       : ${nautilusext}
 	thunar plugin		 : ${thunarplugin}
