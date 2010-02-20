@@ -18,6 +18,8 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+
+
 #include "gfpm-logviewer.h"
 #include "gfpm-messages.h"
 #include "gfpm-interface.h"
@@ -43,6 +45,7 @@ typedef struct _LogViewItem
 #define DMK_FILE "/share/gfpm/datemsk"
 
 int getdate_err;
+struct tm *getdate(const char *string);
 
 /* Log viewer widgets */
 static GtkWidget *gfpm_logviewer_dlg;
