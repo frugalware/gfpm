@@ -30,7 +30,7 @@ PM_DB *local_db = NULL;
 char *repo = NULL;
 static GList *dblist = NULL;
 
-static void _db_callback (char *section, PM_DB *db);
+static void _db_callback (const char *section, PM_DB *db);
 
 int
 gfpm_db_init (void)
@@ -81,7 +81,7 @@ gfpm_db_cleanup (void)
 }
 
 static void
-_db_callback (char *section, PM_DB *db)
+_db_callback (const char *section, PM_DB *db)
 {
 	dblist = g_list_append (dblist, db);
 
