@@ -6,7 +6,7 @@ AC_INIT([Gfpm], 1.3.2, [priyankmg@gmail.com], gfpm)
 AC_DEFINE_UNQUOTED([GFPM_RELEASE_NAME], ["Khyati"], [Release codenames])
 AC_CONFIG_SRCDIR([src/gfpm.c])
 AC_LANG(C)
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS(config.h)
 AC_CANONICAL_SYSTEM
 AC_PROG_INTLTOOL([0.21])
 AC_PROG_LIBTOOL
