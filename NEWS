@@ -1,5 +1,6 @@
 VERSION					DESCRIPTION
 ------------------------------------------------------------------------------------------------------------------------------
+1.3.3 (2013-06-25) - fix some warnings and remove dependency on fwutil
 1.3.2 (2009-09-05)			- GFpm turns 2! Happy Birthday GFpm! :)
 					- l33t new splash screen (based on Getorin's Artwork)
 					- BUGFIX (#3893): Refresh QuickPane status on package install/upgrade/remove.
