@@ -12,6 +12,8 @@
 #include <pacman.h>
 #include "gfpm.h"
 
+#define gfpm_min(p, q)  ((p) < (q) ? (p) : (q))
+
 char * gfpm_trim (char *);
 
 char * gfpm_bold (const char *);

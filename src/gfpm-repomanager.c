@@ -215,8 +215,8 @@ convert_server_to_repofile (void)
 		{
 			ptr = line;
 			ptr++;
-			strncpy (reponame, ptr, fwutil_min(255, strlen(ptr)-1));
-			reponame[fwutil_min(255,strlen(ptr-1))] = '\0';
+			strncpy (reponame, ptr, gfpm_min(255, strlen(ptr)-1));
+			reponame[gfpm_min(255,strlen(ptr-1))] = '\0';
 			if (!strlen(reponame))
 				continue;
 			if (!strcmp(reponame,"options"))
@@ -588,8 +588,8 @@ gfpm_repomgr_populate_repo_info (const char *path, gfpm_repo_t *repo_r)
 			// could be a repo entry
 			char *ptr = ln;
 			ptr++;
-			strncpy (rn, ptr, fwutil_min(255, strlen(ptr)-1));
-			rn[fwutil_min(255, strlen(ptr+1))] = '\0';
+			strncpy (rn, ptr, gfpm_min(255, strlen(ptr)-1));
+			rn[gfpm_min(255, strlen(ptr+1))] = '\0';
 			if (strlen(rn))
 			{
 				strncpy (repo_r->name, rn, REPONAME_MAX_SIZE);
