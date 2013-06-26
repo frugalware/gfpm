@@ -25,6 +25,20 @@
 #include "gfpm-util.h"
 
 char *
+gfpm_trim (char *str)
+{
+	char *ptr = str;
+
+	while(isspace(*ptr++))
+		if(ptr != str)
+			memmove(str, ptr, (strlen(ptr) + 1));
+	ptr = (char *)(str + (strlen(str) - 1));
+	while(isspace(*ptr--))
+		*++ptr = '\0';
+	return str;
+}
+
+char *
 gfpm_bold (const char *text)
 {
 	if (text == NULL)

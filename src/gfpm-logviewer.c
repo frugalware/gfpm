@@ -160,7 +160,7 @@ _gfpm_logviewer_populate (void)
 	{
 		char *ptr = NULL;
 
-		fwutil_trim (line);
+		gfpm_trim (line);
 		if (!strlen(line))
 			continue;
 

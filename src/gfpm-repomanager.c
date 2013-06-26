@@ -204,7 +204,7 @@ convert_server_to_repofile (void)
 	while (fgets(line, PATH_MAX, fp))
 	{
 		char reponame[256] = "";
-		fwutil_trim (line);
+		gfpm_trim (line);
 		if (line[0] == '#')
 		{
 			fprintf (bkp, "%s\n", line);
@@ -537,7 +537,7 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 	}
 	while (fgets(line, PATH_MAX, fp))
 	{
-		fwutil_trim (line);
+		gfpm_trim (line);
 		if (!strlen(line))
 			continue;
 		if (line[0] == '#')
@@ -547,7 +547,7 @@ gfpm_repomgr_get_servers_from_repofile (const char *conf_file)
 		}
 		if (sscanf(line, "Server = %s", server))
 		{
-			sprintf (entry->url, "%s", fwutil_trim(server));
+			sprintf (entry->url, "%s", gfpm_trim(server));
 			ret = g_list_append (ret, entry);
 			entry = (gfpm_server_entry_t*) malloc (sizeof(gfpm_server_entry_t));
 			memset (entry, 0, sizeof(gfpm_server_entry_t));
@@ -574,7 +574,7 @@ gfpm_repomgr_populate_repo_info (const char *path, gfpm_repo_t *repo_r)
 	}
 	while (fgets(ln, PATH_MAX, tmp))
 	{
-		fwutil_trim (ln);
+		gfpm_trim (ln);
 		if (!strlen(ln))
 			continue;
 		if (ln[0] == '#')
@@ -640,7 +640,7 @@ gfpm_repomgr_populate_repolist (void)
 	memset (repolist, 0, sizeof(gfpm_repolist_t));
 	while (fgets(line, PATH_MAX, fp))
 	{
-		fwutil_trim (line);
+		gfpm_trim (line);
 		if (!strlen(line))
 			continue;
 		else if (line[0] == 'I' && line[1] == 'n')
@@ -904,7 +904,7 @@ gfpm_servmgr_edit_server (gfpm_server_entry_t *s)
 	{
 		line = g_strdup(list->data);
 		if (line[0]=='#') line[0] = ' ';
-		fwutil_trim (line);
+		gfpm_trim (line);
 		gtk_text_buffer_insert (buffer, &iter, (char*)line, -1);
 		gtk_text_buffer_insert (buffer, &iter, "\n", -1);
 		g_free (line);
