@@ -23,7 +23,6 @@
 #include "gfpm-logviewer.h"
 #include "gfpm-messages.h"
 #include "gfpm-interface.h"
-#include <libfwutil.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>

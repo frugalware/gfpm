@@ -22,5 +22,5 @@ gfpm_SOURCES=	wejpconfig.c 		\
 		gfpm-prefs.c 		\
 		gfpm.c
 
-gfpm_LDADD= @GFPM_LIBS@ $(INOTIFY_LIBS) -lpacman -lfwutil
+gfpm_LDADD= @GFPM_LIBS@ $(INOTIFY_LIBS) -lpacman
 

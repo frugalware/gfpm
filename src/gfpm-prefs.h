@@ -8,7 +8,6 @@
 #include <locale.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
-#include <libfwutil.h>
 
 void gfpm_prefs_init (void);
 void gfpm_prefs_cleanup (void);

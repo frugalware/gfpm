@@ -8,7 +8,6 @@
 #include <locale.h>
 #include <libintl.h>
 #include <gtk/gtk.h>
-#include <libfwutil.h>
 
 #define CONF_FILE		"/etc/pacman-g2.conf"
 #define REPONAME_MAX_SIZE	32
